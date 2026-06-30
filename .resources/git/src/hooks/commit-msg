@@ -1,0 +1,42 @@
+#!/bin/bash
+# Validates the commit message against the team's Conventional Commits format.
+# Installed via 'core.hooksPath' (see set_linter.sh). No dependencies.
+
+types='feat|fix|refactor|style|docs|test|chore|perf'
+scopes='front|back|infra|repo'
+
+# Pass all '#' lines, pass empty line 
+header=$(grep -vE '^\s*#' "$1" | grep -vE '^\s*$' | head -n1)
+
+# Pass the prefix added by git
+if [[ "$header" =~ ^(Merge|Revert|fixup!|squash!) ]]; then
+	exit 0
+fi
+
+# set the pattern
+pattern="^($types)\(($scopes)\): .{1,}$"
+
+# verify if it respect the pattern
+if ! [[ "$header" =~ $pattern ]]; then
+	echo "Commit refused: doesn't respects the format."
+	echo
+	echo "   Received	: $header"
+	echo "   Format 	: <type>(<scope>): <description>"
+	echo "   Types  	: $types"
+	echo "   Scopes 	: $scopes"
+	echo
+	echo "   Exemple: feat(back): add login via 42 oauth"
+	exit 1
+fi
+
+# convention uses 50 char. max
+if [ "${#header}" -gt 50 ]; then
+	echo "Commit refused : line too long. (max 50)."
+	exit 1
+fi
+
+# convention don't use '.'
+if [[ "$header" =~ \.$ ]]; then
+	echo "Commit refused : don't use '.' into commit"
+	exit 1
+fi

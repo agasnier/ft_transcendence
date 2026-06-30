@@ -1,0 +1,21 @@
+# <type>(<scope>): <description>
+#
+# Line 1: max 50 chars, imperative mood, lowercase, no trailing period
+# Leave a blank line before the body.
+#
+# Body (optional): explain WHY the change was made, not how.
+#
+# ------------------- HELP (do not uncomment) -------------------
+# Types:
+#   feat     new feature
+#   fix      bug fix
+#   refactor code change without new feature or fix
+#   style    formatting, indentation (no logic impact)
+#   docs     documentation
+#   test     adding/updating tests
+#   chore    config, dependencies, misc tasks
+#   perf     performance improvement
+#
+# Scopes: front back infra repo
+#
+# Example: feat(back): add login via 42 oauth
