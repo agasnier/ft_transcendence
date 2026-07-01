@@ -1,0 +1,23 @@
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - backend
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    expose:
+      - "3000"
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+networks:
+  transcendence:
+    driver: bridge
