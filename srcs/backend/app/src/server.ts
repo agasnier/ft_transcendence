@@ -1,16 +1,15 @@
-import Fastify from 'fastify'
+import { buildApp } from './app.js'
+import { env } from './config/env.js'
 
-const fastify = Fastify({ logger: true })
+// construct the app
+const app = buildApp()
 
-fastify.get('/api/', async () => {
-  return { message: 'Hello World from ft_transcenden' }
-})
-
-const start = async () => {
+// the app listen with config/env 
+const start = async (): Promise<void> => {
   try {
-    await fastify.listen({ port: 3000, host: '0.0.0.0' })
+    await app.listen({ port: env.port, host: env.host })
   } catch (err) {
-    fastify.log.error(err)
+    app.log.error(err)
     process.exit(1)
   }
 }
