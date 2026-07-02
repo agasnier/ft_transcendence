@@ -1,0 +1,10 @@
+# Dev override: run the backend with hot reload and the source mounted as a volume.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      # Mount local source for hot reload
+      - ./backend/src:/app/src
