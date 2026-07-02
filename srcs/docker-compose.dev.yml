@@ -1,6 +1,17 @@
 # Dev override: run the backend with hot reload and the source mounted as a volume.
 # Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 services:
+  nginx:
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend/app/src:/app/src
+
   backend:
     build:
       context: ./backend

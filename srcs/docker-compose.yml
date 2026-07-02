@@ -5,7 +5,16 @@ services:
       - "8080:80"
       - "8443:443"
     depends_on:
+      - frontend
       - backend
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    expose:
+      - "80"
     networks:
       - transcendence
     restart: unless-stopped
