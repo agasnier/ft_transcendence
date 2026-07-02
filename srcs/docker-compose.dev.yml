@@ -18,4 +18,4 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       # Mount local source for hot reload
-      - ./backend/src:/app/src
+      - ./backend/app/src:/app/src
