@@ -11,6 +11,26 @@ services:
       - transcendence
     restart: unless-stopped
 
+  database:
+    build: ./database
+    env_file:
+      - .env
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - transcendence
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   frontend:
     build: ./frontend
     expose:
@@ -21,8 +41,17 @@ services:
 
   backend:
     build: ./backend
+    env_file:
+      - .env
+    environment:
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
     expose:
       - "3000"
+    depends_on:
+      database:
+        condition: service_healthy
     networks:
       - transcendence
     restart: unless-stopped
@@ -30,3 +59,15 @@ services:
 networks:
   transcendence:
     driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/mariadb
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
