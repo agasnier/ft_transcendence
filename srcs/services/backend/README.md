@@ -59,6 +59,16 @@ Two files tie everything together:
 
 Adding a feature = adding a new module and registering it in **app.ts**.
 
+## Adding a new service
+
+The fastest way to create a new microservice (ex: **new_service**) is to copy an existing one rather than creating it from scratch with `npm init`. Instead of reinstalling every dependency by hand and risking a forgotten config.
+
+1. **Copy the folder**: `./existing_service` → `../new_service`, keeping the same layout (`Dockerfile`, `Dockerfile.dev`, `app/package.json`, `app/tsconfig.json`, `app/src/...`).
+2. **Rename** the service in `app/package.json` (`name`), and replace module in `src/` with whatever the new service actually needs.
+3. **Register it in `docker-compose.yml`**: add a new service block. (copy and adapt from existing services)
+4. **Register it in `docker-compose.dev.yml`** too.
+5. **Route it through nginx**: add a new `location` block in both `nginx.conf` and `nginx.dev.conf`, with its own URL prefix (ex: `location /new_service/`) pointing to `proxy_pass http://new_service:3000;`.
+
 ## Working locally
 
 From a service's `app/` folder:
