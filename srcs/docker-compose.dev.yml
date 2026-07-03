@@ -1,21 +1,21 @@
-# Dev override: run the backend with hot reload and the source mounted as a volume.
+# Dev override: run the auth_service with hot reload and the source mounted as a volume.
 # Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 services:
   nginx:
     volumes:
-      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+      - ./services/nginx/nginx.dev.conf:/etc/nginx/nginx.conf
 
   frontend:
     build:
-      context: ./frontend
+      context: ./services/frontend
       dockerfile: Dockerfile.dev
     volumes:
-      - ./frontend/app/src:/app/src
+      - ./services/frontend/app/src:/app/src
 
-  backend:
+  auth_service:
     build:
-      context: ./backend
+      context: ./services/backend/auth_service
       dockerfile: Dockerfile.dev
     volumes:
       # Mount local source for hot reload
-      - ./backend/app/src:/app/src
+      - ./services/backend/auth_service/app/src:/app/src

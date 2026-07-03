@@ -1,20 +1,20 @@
 services:
   nginx:
-    build: ./nginx
+    build: ./services/nginx
     ports:
       - "8080:80"
       - "8443:443"
     depends_on:
       - frontend
-      - backend
+      - auth_service
     networks:
       - transcendence
     restart: unless-stopped
 
   database:
-    build: ./database
+    build: ./services/database
     env_file:
-      - .env
+      - ./env/.env
     environment:
       MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_password
       MARIADB_PASSWORD_FILE: /run/secrets/db_password
@@ -32,17 +32,17 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    build: ./services/frontend
     expose:
       - "80"
     networks:
       - transcendence
     restart: unless-stopped
 
-  backend:
-    build: ./backend
+  auth_service:
+    build: ./services/backend/auth_service
     env_file:
-      - .env
+      - ./env/.env
     environment:
       DB_PASSWORD_FILE: /run/secrets/db_password
     secrets:
@@ -70,4 +70,4 @@ volumes:
 
 secrets:
   db_password:
-    file: ./secrets/db_password.txt
+    file: ./env/secrets/db_password.txt
