@@ -1,12 +1,15 @@
 import { buildApp } from './app.js'
 import { env } from './config/env.js'
+import { runMigrations } from './db/migrate.js'
 
 // construct the app
 const app = buildApp()
 
-// the app listen with config/env 
 const start = async (): Promise<void> => {
   try {
+    // create the SQL database via Drizzle
+    await runMigrations()
+
     await app.listen({ port: env.port, host: env.host })
   } catch (err) {
     app.log.error(err)

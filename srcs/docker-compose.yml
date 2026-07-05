@@ -33,8 +33,6 @@ services:
 
   frontend:
     build: ./services/frontend
-    expose:
-      - "80"
     networks:
       - transcendence
     restart: unless-stopped
@@ -47,8 +45,6 @@ services:
       DB_PASSWORD_FILE: /run/secrets/db_password
     secrets:
       - db_password
-    expose:
-      - "3000"
     depends_on:
       database:
         condition: service_healthy

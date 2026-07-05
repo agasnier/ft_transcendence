@@ -19,6 +19,9 @@ RUN		npm install --omit=dev
 
 COPY	--from=builder /app/dist ./dist
 
+# Migrations SQL nécessaires au runtime (appliquées au démarrage)
+COPY	app/drizzle ./drizzle
+
 EXPOSE	3000
 
 CMD		["npm", "start"]
