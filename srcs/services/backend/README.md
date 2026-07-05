@@ -59,6 +59,10 @@ Two files tie everything together:
 
 Adding a feature = adding a new module and registering it in **app.ts**.
 
+## Working with database and ORM
+
+Please read the readme from database directory
+
 ## Adding a new service
 
 The fastest way to create a new microservice (ex: **new_service**) is to copy an existing one rather than creating it from scratch with `npm init`. Instead of reinstalling every dependency by hand and risking a forgotten config.
