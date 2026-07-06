@@ -1,0 +1,7 @@
+{
+  "path": {
+    "database/creds/auth_service": {
+      "capabilities": ["read"]
+    }
+  }
+}

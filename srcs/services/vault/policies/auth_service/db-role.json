@@ -1,0 +1,6 @@
+{
+  "db_name": "mariadb",
+  "creation_statements": "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT ALL PRIVILEGES ON `db_name`.* TO '{{name}}'@'%';",
+  "default_ttl": "24h",
+  "max_ttl": "72h"
+}

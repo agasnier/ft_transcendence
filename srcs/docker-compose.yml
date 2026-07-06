@@ -17,6 +17,7 @@ services:
       - db_root_password
     volumes: 
       - vault_data:/vault/file
+      - approle:/vault/approle
     networks:
       - transcendence
     restart: unless-stopped
@@ -54,6 +55,21 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      auth_service_agent:
+        condition: service_started
+    volumes:
+      - auth_service_creds:/vault/secrets:ro
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+  auth_service_agent:
+    build: ./services/vault/agents/auth_service
+    depends_on:
+      - vault
+    volumes:
+      - approle:/vault/approle:ro
+      - auth_service_creds:/vault/secrets
     networks:
       - transcendence
     restart: unless-stopped
@@ -76,6 +92,18 @@ volumes:
       type: none
       o: bind
       device: ./data/vault
+
+  approle:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+
+  auth_service_creds:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 
 secrets:
   db_root_password:

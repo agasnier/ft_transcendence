@@ -25,18 +25,28 @@ fi
 	until vault write database/config/mariadb \
 			plugin_name=mysql-database-plugin \
 			connection_url="{{username}}:{{password}}@tcp(database:3306)/" \
-			allowed_roles="auth_service" \
+			allowed_roles="*" \
 			username="vault" \
 			password="${DB_ROOT_PASSWORD}" >/dev/null 2>&1; do
 		sleep 1
 	done
 
-	# define config for auth_service rôle
-	vault write database/roles/auth_service \
-		db_name=mariadb \
-		creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT ALL PRIVILEGES ON \`db_name\`.* TO '{{name}}'@'%';" \
-		default_ttl="24h" \
-		max_ttl="72h"
+	# enable AppRole so each service's agent can authenticate to vault
+	vault auth enable approle
+
+	# apply every service's db role / policy / approle role
+	for dir in /vault/policies/*/; do
+		service=$(basename "$dir")
+		vault write database/roles/"$service" @"${dir}db-role.json"
+		vault policy write "${service}-policy" "${dir}policy.json"
+		vault write auth/approle/role/"$service" @"${dir}approle-role.json"
+
+		# bootstrap creds for this service's agent: role_id is stable, secret_id is generated here
+		mkdir -p /vault/approle/"$service"
+		vault read -field=role_id auth/approle/role/"$service"/role-id > /vault/approle/"$service"/role_id
+		vault write -f -field=secret_id auth/approle/role/"$service"/secret-id > /vault/approle/"$service"/secret_id
+		chmod 640 /vault/approle/"$service"/role_id /vault/approle/"$service"/secret_id
+	done
 } &
 
 exec docker-entrypoint.sh "$@"

@@ -6,6 +6,8 @@ USER    root
 COPY    tools/entrypoint.dev.sh /tools/entrypoint.sh
 RUN     chmod +x /tools/entrypoint.sh
 
+COPY    policies/ /vault/policies/
+
 USER    vault
 
 EXPOSE  8200
