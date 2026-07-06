@@ -13,6 +13,8 @@ services:
 
   vault:
     build: ./services/vault
+    secrets:
+      - db_root_password
     volumes: 
       - vault_data:/vault/file
     networks:
@@ -49,10 +51,6 @@ services:
     build: ./services/backend/auth_service
     env_file:
       - ./env/.env
-    environment:
-      DB_PASSWORD_FILE: /run/secrets/db_root_password
-    secrets:
-      - db_root_password
     depends_on:
       database:
         condition: service_healthy

@@ -1,6 +1,14 @@
 
 FROM    hashicorp/vault:2.0
 
+USER    root
+
+COPY    tools/entrypoint.dev.sh /tools/entrypoint.sh
+RUN     chmod +x /tools/entrypoint.sh
+
+USER    vault
+
 EXPOSE  8200
 
-CMD     ["server", "-dev"]
+ENTRYPOINT ["/tools/entrypoint.sh"]
+CMD        ["server", "-dev", "-dev-listen-address=0.0.0.0:8200"]
