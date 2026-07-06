@@ -3,6 +3,8 @@ listener "tcp" {
   tls_disable = true
 }
 
+api_addr = "http://vault:8200"
+
 storage "file" {
   path = "/vault/file"
 }

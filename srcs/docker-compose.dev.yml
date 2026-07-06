@@ -12,6 +12,7 @@ services:
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_UI: "true"
+      VAULT_API_ADDR: "http://vault:8200"
     ports:
       - "8200:8200"
 
