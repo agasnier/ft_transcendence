@@ -24,10 +24,10 @@ services:
     env_file:
       - ./env/.env
     environment:
-      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_password
-      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MARIADB_PASSWORD_FILE: /run/secrets/db_root_password
     secrets:
-      - db_password
+      - db_root_password
     volumes:
       - db_data:/var/lib/mysql
     networks:
@@ -52,7 +52,7 @@ services:
     environment:
       DB_PASSWORD_FILE: /run/secrets/db_password
     secrets:
-      - db_password
+      - db_root_password
     depends_on:
       database:
         condition: service_healthy
@@ -80,5 +80,5 @@ volumes:
       device: ./data/vault
 
 secrets:
-  db_password:
-    file: ./env/secrets/db_password.txt
+  db_root_password:
+    file: ./env/secrets/db_root_password.txt
