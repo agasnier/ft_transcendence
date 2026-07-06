@@ -26,7 +26,7 @@ fi
 	# enable AppRole so each service's agent can authenticate to vault
 	vault auth enable approle
 
-	# Configure the connexions for roles
+	# Configure the connexions for vault
 	until vault write database/config/mariadb \
 			plugin_name=mysql-database-plugin \
 			connection_url="{{username}}:{{password}}@tcp(database:3306)/" \

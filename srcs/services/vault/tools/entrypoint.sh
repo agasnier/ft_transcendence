@@ -42,15 +42,20 @@ fi
 		vault auth enable approle
 	fi
 
-	# Configure the connexions for roles
-	until vault write database/config/mariadb \
-			plugin_name=mysql-database-plugin \
-			connection_url="{{username}}:{{password}}@tcp(database:3306)/" \
-			allowed_roles="*" \
-			username="vault" \
-			password="${DB_ROOT_PASSWORD}" >/dev/null 2>&1; do
-		sleep 1
-	done
+	# if not already done, configure connexion with db and rotate the password
+	if ! vault read database/config/mariadb >/dev/null 2>&1; then
+		until vault write database/config/mariadb \
+				plugin_name=mysql-database-plugin \
+				connection_url="{{username}}:{{password}}@tcp(database:3306)/" \
+				allowed_roles="*" \
+				username="vault" \
+				password="${DB_ROOT_PASSWORD}" >/dev/null 2>&1; do
+			sleep 1
+		done
+
+		# rotate the vault DB now on only Vault knows it
+		vault write -f database/rotate-root/mariadb
+	fi
 
 	# apply every service's db role / policy / approle role
 	for dir in /vault/policies/*/; do
