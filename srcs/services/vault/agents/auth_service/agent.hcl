@@ -21,6 +21,7 @@ auto_auth {
 
 template {
   destination = "/vault/secrets/db_creds.json"
+  perms       = "0644"
   contents = <<EOT
 {{ with secret "database/creds/auth_service" }}
 {
