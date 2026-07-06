@@ -12,6 +12,9 @@ if [ -z "$DB_ROOT_PASSWORD" ]; then
 fi
 
 {
+	# delete the sentinel for docker healthcheck
+	rm -f /vault/approle/.ready
+
 	# Wait thaht api from vault server respond
 	until vault status >/dev/null 2>&1; do
 		sleep 1
@@ -47,6 +50,9 @@ fi
 		vault write -f -field=secret_id auth/approle/role/"$service"/secret-id > /vault/approle/"$service"/secret_id
 		chmod 640 /vault/approle/"$service"/role_id /vault/approle/"$service"/secret_id
 	done
+
+	# creating sentinel file for docker healthcheck
+	touch /vault/approle/.ready
 } &
 
 exec docker-entrypoint.sh "$@"
