@@ -17,7 +17,7 @@ fi
 
 	# create a Vault user with all privileges
 	mariadb -uroot -p"$DB_ROOT_PASSWORD" <<SQL
-CREATE OR REPLACE USER 'vault'@'%' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
+CREATE USER IF NOT EXISTS 'vault'@'%' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
 GRANT CREATE USER ON *.* TO 'vault'@'%';
 GRANT ALL PRIVILEGES ON \`${MARIADB_DATABASE}\`.* TO 'vault'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;

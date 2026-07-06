@@ -36,3 +36,12 @@ services:
       - ./services/backend/auth_service/app/src:/app/src
       # Mount migrations so newly generated ones are picked up without rebuild
       - ./services/backend/auth_service/app/drizzle:/app/drizzle
+
+# dev volume independent from prod volume
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/mariadb-dev

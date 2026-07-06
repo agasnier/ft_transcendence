@@ -50,7 +50,7 @@ services:
     env_file:
       - ./env/.env
     environment:
-      DB_PASSWORD_FILE: /run/secrets/db_password
+      DB_PASSWORD_FILE: /run/secrets/db_root_password
     secrets:
       - db_root_password
     depends_on:
