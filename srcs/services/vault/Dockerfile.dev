@@ -1,0 +1,6 @@
+
+FROM    hashicorp/vault:2.0
+
+EXPOSE  8200
+
+CMD     ["server", "-dev"]

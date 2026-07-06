@@ -1,14 +1,24 @@
 # Dev override: run the auth_service with hot reload and the source mounted as a volume.
 # Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 services:
+  nginx:
+    volumes:
+      - ./services/nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+
+  vault:
+    build:
+      context: ./services/vault
+      dockerfile: Dockerfile.dev
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root"
+      VAULT_UI: "true"
+    ports:
+      - "8200:8200"
+
   database:
     # expose mariadb into localhost for drizzle
     ports:
       - "3306:3306"
-
-  nginx:
-    volumes:
-      - ./services/nginx/nginx.dev.conf:/etc/nginx/nginx.conf
 
   frontend:
     build:

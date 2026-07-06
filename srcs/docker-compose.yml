@@ -11,6 +11,14 @@ services:
       - transcendence
     restart: unless-stopped
 
+  vault:
+    build: ./services/vault
+    volumes: 
+      - vault_data:/vault/file
+    networks:
+      - transcendence
+    restart: unless-stopped
+
   database:
     build: ./services/database
     env_file:
@@ -63,6 +71,13 @@ volumes:
       type: none
       o: bind
       device: ./data/mariadb
+
+  vault_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/vault
 
 secrets:
   db_password:
