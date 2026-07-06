@@ -2,8 +2,7 @@
 set -e
 
 export VAULT_ADDR=http://127.0.0.1:8200
-export VAULT_TOKEN="${VAULT_DEV_ROOT_TOKEN_ID}"
-DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password) || true 
+DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password) || true
 
 # verify if all required variables are defined
 if [ -z "$DB_ROOT_PASSWORD" ]; then
@@ -16,15 +15,32 @@ fi
 	rm -f /vault/approle/.ready
 
 	# Wait thaht api from vault server respond
-	until vault status >/dev/null 2>&1; do
+	until vault status >/dev/null 2>&1 || [ $? -eq 2 ]; do
 		sleep 1
 	done
 
-	# enable secrets database for dynamic credentials
-	vault secrets enable database
+	# First boot save unseal key + root token.
+	INIT_FILE=/vault/file/init.json
+	if ! vault status -format=json | grep -q '"initialized": *true'; then
+		vault operator init -key-shares=1 -key-threshold=1 -format=json > "$INIT_FILE"
+		chmod 600 "$INIT_FILE"
+	fi
 
-	# enable AppRole so each service's agent can authenticate to vault
-	vault auth enable approle
+	# every boot, unseal file with keys from INIT_FILE
+	if vault status -format=json | grep -q '"sealed": *true'; then
+		vault operator unseal "$(jq -r '.unseal_keys_b64[0]' "$INIT_FILE")" >/dev/null
+	fi
+
+	# root with root_token from INIT FILE
+	export VAULT_TOKEN="$(jq -r '.root_token' "$INIT_FILE")"
+
+	# enable database and approle if it's not already 
+	if ! vault secrets list | grep -q '^database/'; then
+		vault secrets enable database
+	fi
+	if ! vault auth list | grep -q '^approle/'; then
+		vault auth enable approle
+	fi
 
 	# Configure the connexions for roles
 	until vault write database/config/mariadb \
@@ -35,7 +51,6 @@ fi
 			password="${DB_ROOT_PASSWORD}" >/dev/null 2>&1; do
 		sleep 1
 	done
-
 
 	# apply every service's db role / policy / approle role
 	for dir in /vault/policies/*/; do
