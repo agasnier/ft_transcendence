@@ -1,6 +1,6 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 
-import { databaseRoutes } from './modules/hello/hello.route.js'
+import { usersRoutes } from './modules/users/users.route.js'
 
 
 // construct the app without launching it
@@ -11,7 +11,7 @@ export function buildApp(): FastifyInstance {
   })
 
   // all module added must be register here
-  app.register(databaseRoutes, { prefix: '/api' })
+  app.register(usersRoutes, { prefix: '/api/users' })
 
   return app
 }
