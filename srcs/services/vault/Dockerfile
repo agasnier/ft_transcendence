@@ -3,7 +3,7 @@ FROM    hashicorp/vault:2.0
 
 USER    root
 
-RUN     apk add --no-cache jq
+RUN     apk add --no-cache jq gettext
 
 COPY    config/vault.hcl        /vault/config/vault.hcl
 

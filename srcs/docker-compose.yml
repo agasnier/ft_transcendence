@@ -14,6 +14,8 @@ services:
 
   vault:
     build: ./services/vault
+    env_file:
+      - ./env/.env
     secrets:
       - db_root_password
     volumes: 

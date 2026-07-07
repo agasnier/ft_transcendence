@@ -40,7 +40,8 @@ fi
 	# apply every service's db role / policy / approle role
 	for dir in /vault/policies/*/; do
 		service=$(basename "$dir")
-		vault write database/roles/"$service" @"${dir}db-role.json"
+		envsubst '${MARIADB_DATABASE}' < "${dir}db-role.json" > /tmp/db-role.json
+		vault write database/roles/"$service" @/tmp/db-role.json
 		vault policy write "${service}-policy" "${dir}policy.json"
 		vault write auth/approle/role/"$service" @"${dir}approle-role.json"
 
