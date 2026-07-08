@@ -48,3 +48,8 @@ export async function updateUser(id: number, data: { pseudo?: string; password?:
 
   return await getUserById(id)
 }
+
+export async function deleteUser(id: number) {
+  const [result] = await db.delete(users).where(eq(users.id, id))
+  return result.affectedRows > 0
+}

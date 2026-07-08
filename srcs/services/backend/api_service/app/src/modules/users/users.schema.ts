@@ -75,3 +75,13 @@ export const updateUserSchema = {
     },
   },
 }
+
+export const deleteUserSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+    },
+  },
+}

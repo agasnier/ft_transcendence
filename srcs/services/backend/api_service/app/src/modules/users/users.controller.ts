@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { getAllUsers, getUserById, createUser, updateUser } from './users.service.js'
+import { getAllUsers, getUserById, createUser, updateUser, deleteUser } from './users.service.js'
 
 export async function listUsersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
@@ -54,6 +54,22 @@ export async function updateUserController(
       return
     }
     await reply.send(user)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function deleteUserController(
+  request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<void> {
+  try {
+    const id = Number(request.params.id)
+    const deleted = await deleteUser(id)
+    if (!deleted) {
+      await reply.status(404).send({ message: 'User not found' })
+      return
+    }
+    await reply.status(200).send({ message: 'User deleted' })
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })
