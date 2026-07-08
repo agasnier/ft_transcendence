@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { getAllUsers, getUserById } from './users.service.js'
+import { getAllUsers, getUserById, createUser as createUserService } from './users.service.js'
 
 export async function listUsers(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
@@ -26,6 +26,18 @@ export async function getUser(request: FastifyRequest<{ Params: { id: string } }
     }
 
     await reply.send(user)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function createUser(
+  request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
+  try {
+    const { pseudo, password } = request.body
+    const user = await createUserService(pseudo, password)
+    await reply.status(201).send(user)
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

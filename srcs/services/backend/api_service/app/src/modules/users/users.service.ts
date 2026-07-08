@@ -17,3 +17,15 @@ export async function getUserById(id: number) {
     .limit(1)
   return rows[0]
 }
+
+export async function createUser(pseudo: string, password: string) {
+
+  // TODO hash the password when pepper vault plug in
+  const passwordHash = password
+
+  const [result] = await db
+    .insert(users)
+    .values({ pseudo, password: passwordHash })
+
+  return { id: result.insertId, pseudo }
+}
