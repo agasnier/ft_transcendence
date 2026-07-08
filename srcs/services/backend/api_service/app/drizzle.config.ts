@@ -17,6 +17,7 @@ function requireEnv(name: string): string {
 
 export default defineConfig({
   dialect: 'mysql',
+  schema: './src/db/schema.ts',
   out: './src/db',
   dbCredentials: {
     host: '127.0.0.1',
