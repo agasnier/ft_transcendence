@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { listUsers, getUser, createUser } from './users.controller.js'
-import { listUsersSchema, getUserSchema, createUserSchema } from './users.schema.js'
+import { listUsersController, getUserController, createUserController, updateUserController } from './users.controller.js'
+import { listUsersSchema, getUserSchema, createUserSchema, updateUserSchema } from './users.schema.js'
 
 // TODO test, remplace with a function api_key.service that hash the api key with vault pepper
 // and search match into db
@@ -15,9 +15,9 @@ export async function usersRoutes(app: FastifyInstance): Promise<void> {
     }
   })
 
-  app.get('/', { schema: listUsersSchema }, listUsers)
-  app.get('/:id', { schema: getUserSchema }, getUser)
-  app.post('/', { schema: createUserSchema }, createUser)
-  // app.put('/:id', updateUser)
+  app.get('/', { schema: listUsersSchema }, listUsersController)
+  app.get('/:id', { schema: getUserSchema }, getUserController)
+  app.post('/', { schema: createUserSchema }, createUserController)
+  app.put('/:id', { schema: updateUserSchema }, updateUserController)
   // app.delete('/:id', deleteUser)
 }

@@ -50,3 +50,28 @@ export const createUserSchema = {
     },
   },
 }
+
+export const updateUserSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+    },
+  },
+  body: {
+    type: 'object',
+    additionalProperties: false,
+    minProperties: 1,
+    properties: {
+      pseudo: { type: 'string', minLength: 1, maxLength: 255 },
+      password: { type: 'string', minLength: 8, maxLength: 255 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: userProperties,
+    },
+  },
+}
