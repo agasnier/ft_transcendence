@@ -18,7 +18,9 @@ function requireEnv(name: string): string {
 export default defineConfig({
   dialect: 'mysql',
   schema: './src/db/schema.ts',
-  out: './src/db',
+  out: './drizzle',
+  tablesFilter: ['api_keys'],
+  migrations: { table: '__drizzle_migrations_api' },
   dbCredentials: {
     host: '127.0.0.1',
     port: 3306,

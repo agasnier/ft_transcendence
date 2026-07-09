@@ -19,6 +19,8 @@ export default defineConfig({
   dialect: 'mysql',
   schema: './src/db/schema.ts',
   out: './drizzle',
+  tablesFilter: ['users'],
+  migrations: { table: '__drizzle_migrations_users' },
   dbCredentials: {
     host: '127.0.0.1',
     port: 3306,

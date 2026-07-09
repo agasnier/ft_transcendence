@@ -1,11 +1,11 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, unique, int, varchar } from "drizzle-orm/mysql-core"
-import { sql } from "drizzle-orm"
+import { mysqlTable, int, varchar, timestamp } from 'drizzle-orm/mysql-core'
 
-export const users = mysqlTable("users", {
-	id: int().autoincrement().notNull(),
-	pseudo: varchar({ length: 255 }).notNull(),
-	password: varchar({ length: 255 }).notNull(),
-},
-(table) => [
-	unique("users_pseudo_unique").on(table.pseudo),
-]);
+export const apiKeys = mysqlTable('api_keys', {
+  id: int('id').autoincrement().primaryKey(),
+  owner_id: int('owner_id').notNull(),
+  api_hash: varchar('api_hash', { length: 255 }).notNull().unique(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+})
+
+export type ApiKey = typeof apiKeys.$inferSelect
+export type NewApiKey = typeof apiKeys.$inferInsert
