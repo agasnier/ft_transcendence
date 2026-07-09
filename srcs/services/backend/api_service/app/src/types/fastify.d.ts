@@ -1,6 +1,6 @@
 import 'fastify'
 
-// cadding auth field to fastifyResquest
+// adding auth field for role to fastifyResquest
 declare module 'fastify' {
   interface FastifyRequest {
     auth?: {
