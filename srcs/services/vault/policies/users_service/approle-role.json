@@ -1,5 +1,5 @@
 {
-  "token_policies": ["auth_service-policy"],
+  "token_policies": ["users_service-policy"],
   "token_ttl": "1h",
   "token_max_ttl": "4h"
 }

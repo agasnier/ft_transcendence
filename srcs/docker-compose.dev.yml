@@ -1,4 +1,4 @@
-# Dev override: run the auth_service with hot reload and the source mounted as a volume.
+# Dev override: run the users_service with hot reload and the source mounted as a volume.
 # Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 services:
   nginx:
@@ -28,15 +28,15 @@ services:
     volumes:
       - ./services/frontend/app/src:/app/src
 
-  auth_service:
+  users_service:
     build:
-      context: ./services/backend/auth_service
+      context: ./services/backend/users_service
       dockerfile: Dockerfile.dev
     volumes:
       # Mount local source for hot reload
-      - ./services/backend/auth_service/app/src:/app/src
+      - ./services/backend/users_service/app/src:/app/src
       # Mount migrations so newly generated ones are picked up without rebuild
-      - ./services/backend/auth_service/app/drizzle:/app/drizzle
+      - ./services/backend/users_service/app/drizzle:/app/drizzle
 
   api_service:
     build:

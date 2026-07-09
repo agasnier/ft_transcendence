@@ -1,6 +1,6 @@
 {
   "path": {
-    "database/creds/auth_service": {
+    "database/creds/users_service": {
       "capabilities": ["read"]
     }
   }

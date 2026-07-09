@@ -7,7 +7,7 @@ const app = buildApp()
 
 const start = async (): Promise<void> => {
   try {
-    // create the SQL database via Drizzle
+    // create the "users" SQL database via Drizzle
     await runMigrations()
 
     await app.listen({ port: env.port, host: env.host })

@@ -10,11 +10,11 @@ This service only runs a plain MariaDB image. There is nothing to code here: tab
 
 An ORM (Object-Relational Mapper) is a library that lets code interact with the database through objects and method calls instead of raw SQL. Progamation langage, not SQL.
 
-### Where it lives (example: auth_service)
+### Where it lives (example: users_service)
 
 Inside a service's `app/src/db/` folder:
 
-- **schema.ts** — the source of truth for the tables, written as TypeScript. Example: the `users` table (`pseudo`, `password`) in `auth_service`. Drizzle reads this file to know what the database *should* look like.
+- **schema.ts** — the source of truth for the tables, written as TypeScript. Example: the `users` table (`pseudo`, `password`) in `users_service`. Drizzle reads this file to know what the database *should* look like.
 - **index.ts** — opens the connection pool to MariaDB (host, port, user, password, database, all read from environment variables) and exports the `db` object used everywhere else to query.
 - **migrate.ts** — applies the generated SQL migrations to the real database. Called once, at service startup (`server.ts`), before the app starts listening.
 
