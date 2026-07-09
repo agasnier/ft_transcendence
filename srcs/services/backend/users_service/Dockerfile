@@ -24,4 +24,6 @@ COPY	app/drizzle ./drizzle
 
 EXPOSE	3000
 
+USER	node
+
 CMD		["npm", "start"]

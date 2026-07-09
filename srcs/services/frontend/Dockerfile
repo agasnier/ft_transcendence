@@ -16,4 +16,8 @@ COPY    --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE  80
 
+RUN		chown -R node:node /app
+
+USER	node
+
 CMD     ["nginx", "-g", "daemon off;"]

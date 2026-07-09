@@ -1,5 +1,7 @@
 services:
+# NGINX
   nginx:
+    image: ft_nginx
     build: ./services/nginx
     ports:
       - "8080:80"
@@ -9,10 +11,11 @@ services:
       - users_service
       - api_service
     networks:
-      - transcendence
+      - ft
     restart: unless-stopped
-
+# VAULT
   vault:
+    image: ft_vault
     build: ./services/vault
     env_file:
       - ./env/.env
@@ -28,10 +31,11 @@ services:
       retries: 12
       start_period: 5s
     networks:
-      - transcendence
+      - ft
     restart: unless-stopped
-
+# DATABASE
   database:
+    image: ft_database
     build: ./services/database
     env_file:
       - ./env/.env
@@ -48,16 +52,18 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - transcendence
+      - ft
     restart: unless-stopped
-
+# FRONTEND
   frontend:
+    image: ft_frontend
     build: ./services/frontend
     networks:
-      - transcendence
+      - ft
     restart: unless-stopped
-
+# USERS_SERVICE
   users_service:
+    image: ft_users
     build: ./services/backend/users_service
     env_file:
       - ./env/.env
@@ -69,10 +75,11 @@ services:
     volumes:
       - users_service_creds:/vault/secrets:ro
     networks:
-      - transcendence
+      - ft
     restart: unless-stopped
-
+# USERS SERVICE AGENT
   users_service_agent:
+    image: ft_users_agent
     build: ./services/vault/agents/users_service
     depends_on:
       vault:
@@ -87,10 +94,11 @@ services:
       retries: 12
       start_period: 10s
     networks:
-      - transcendence
+      - ft
     restart: unless-stopped
-
+# API SERVICE
   api_service:
+    image: ft_api
     build: ./services/backend/api_service
     env_file:
       - ./env/.env
@@ -102,10 +110,11 @@ services:
     volumes:
       - api_service_creds:/vault/secrets:ro
     networks:
-      - transcendence
+      - ft
     restart: unless-stopped
-
+# API SERVICE AGENT
   api_service_agent:
+    image: ft_api_agent
     build: ./services/vault/agents/api_service
     depends_on:
       vault:
@@ -120,11 +129,11 @@ services:
       retries: 12
       start_period: 10s
     networks:
-      - transcendence
+      - ft
     restart: unless-stopped
 
 networks:
-  transcendence:
+  ft:
     driver: bridge
 
 volumes:
