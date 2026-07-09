@@ -1,55 +1,62 @@
-import { eq } from 'drizzle-orm'
+import { env } from '../../config/env.js'
 
-import { db } from '../../db/index.js'
-import { users } from '../../db/schema.js'
+const BASE = env.usersServiceUrl
+
+function fail(res: Response): never {
+  const err: any = new Error(`users_service -> ${res.status}`)
+  err.statusCode = res.status
+  throw err
+}
 
 export async function getAllUsers() {
-  return await db
-    .select({ id: users.id, pseudo: users.pseudo })
-    .from(users)
+  const res = await fetch(`${BASE}/users`)
+
+  if (!res.ok)
+    fail(res)
+  
+  return res.json()
 }
 
 export async function getUserById(id: number) {
-  const rows = await db
-    .select({ id: users.id, pseudo: users.pseudo })
-    .from(users)
-    .where(eq(users.id, id))
-    .limit(1)
-  return rows[0]
+  const res = await fetch(`${BASE}/users/${id}`)
+
+  if (!res.ok)
+    fail(res)
+
+  return res.json()
 }
 
 export async function createUser(pseudo: string, password: string) {
+  const res = await fetch(`${BASE}/users`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ pseudo, password }),
+  })
+  
+  if (!res.ok)
+    fail(res)
 
-  // TODO hash the password when pepper vault plug in
-  const passwordHash = password
-
-  const [result] = await db
-    .insert(users)
-    .values({ pseudo, password: passwordHash })
-
-  return { id: result.insertId, pseudo }
+  return res.json()
 }
 
 export async function updateUser(id: number, data: { pseudo?: string; password?: string }) {
-  const User = await getUserById(id)
-  if (!User)
-    return null
+  const res = await fetch(`${BASE}/users/${id}`, {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(data),
+  })
 
-  const newData: { pseudo?: string; password?: string } = {}
-  if (data.pseudo !== undefined)
-    newData.pseudo = data.pseudo
-  if (data.password !== undefined) {
+  if (!res.ok)
+    fail(res)
 
-    // TODO hash the password when pepper vault plug in
-    newData.password = data.password
-
-  }
-  await db.update(users).set(newData).where(eq(users.id, id))
-
-  return await getUserById(id)
+  return res.json()
 }
 
 export async function deleteUser(id: number) {
-  const [result] = await db.delete(users).where(eq(users.id, id))
-  return result.affectedRows > 0
+  const res = await fetch(`${BASE}/users/${id}`, { method: 'DELETE' })
+  
+  if (!res.ok)
+    fail(res)
+
+  return res.json()
 }

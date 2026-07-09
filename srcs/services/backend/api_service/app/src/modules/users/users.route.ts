@@ -7,13 +7,13 @@ import { listUsersSchema, getUserSchema, createUserSchema, updateUserSchema, del
 const API_KEY = 'alex'
 
 export async function usersRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
-    const apiKey = request.headers['x-api-key']
-    if (apiKey !== API_KEY) {
-      await reply.status(401).send({ message: 'Invalid API key' })
-      return
-    }
-  })
+  // app.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+  //   const apiKey = request.headers['x-api-key']
+  //   if (apiKey !== API_KEY) {
+  //     await reply.status(401).send({ message: 'Invalid API key' })
+  //     return
+  //   }
+  // })
 
   app.get('/', { schema: listUsersSchema }, listUsersController)
   app.get('/:id', { schema: getUserSchema }, getUserController)
