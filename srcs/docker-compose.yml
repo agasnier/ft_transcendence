@@ -1,4 +1,11 @@
 services:
+# TODO delete before push
+  adminer:
+    image: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: database
+    networks:
+      - ft
 # NGINX
   nginx:
     image: ft_nginx
