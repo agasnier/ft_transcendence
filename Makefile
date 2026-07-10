@@ -1,4 +1,4 @@
-COMPOSE     = docker compose -f srcs/docker-compose.yml
+COMPOSE     = @docker compose -f srcs/docker-compose.yml
 COMPOSE_DEV = $(COMPOSE) -f srcs/docker-compose.dev.yml
 
 all: help
@@ -30,6 +30,9 @@ down:
 logs:
 	$(COMPOSE) logs -f
 
+ps:
+	$(COMPOSE) ps
+
 dev:
 	mkdir -p srcs/data/mariadb-dev
 	$(COMPOSE_DEV) up --build
@@ -45,4 +48,4 @@ fclean: clean
 
 re: fclean up
 
-.PHONY: all help up down logs dev dev-down clean fclean re
+.PHONY: all help up down logs ps dev dev-down clean fclean re

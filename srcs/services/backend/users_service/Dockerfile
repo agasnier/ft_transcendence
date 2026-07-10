@@ -24,4 +24,9 @@ COPY	app/drizzle ./drizzle
 
 EXPOSE	3000
 
+HEALTHCHECK --interval=1s --timeout=3s --retries=60 --start-period=15s \
+	CMD nc -z 127.0.0.1 3000 || exit 1
+
+USER	node
+
 CMD		["npm", "start"]
