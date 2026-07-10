@@ -5,6 +5,9 @@
     },
     "secret/data/api_service/pepper": {
       "capabilities": ["read"]
+    },
+    "secret/data/users_service/jwt_public": {
+      "capabilities": ["read"]
     }
   }
 }

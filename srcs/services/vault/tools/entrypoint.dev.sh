@@ -26,6 +26,12 @@ fi
 	# pepper for users_service
 	vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
 
+	# jwt key pair for users_service
+	PRIV=$(openssl genpkey -algorithm ed25519)
+	PUB=$(echo "$PRIV" | openssl pkey -pubout)
+	vault kv put secret/users_service/jwt_private value="$PRIV"
+	vault kv put secret/users_service/jwt_public  value="$PUB"
+
 	# enable secrets database for dynamic credentials
 	vault secrets enable database
 

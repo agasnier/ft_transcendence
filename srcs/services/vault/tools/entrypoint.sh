@@ -49,7 +49,15 @@ fi
 		vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
 	fi
 
-	# enable database and approle if it's not already 
+	# jwt key pair for users_service
+	if ! vault kv get secret/users_service/jwt_private >/dev/null 2>&1; then
+		PRIV=$(openssl genpkey -algorithm ed25519)
+		PUB=$(echo "$PRIV" | openssl pkey -pubout)
+		vault kv put secret/users_service/jwt_private value="$PRIV"
+		vault kv put secret/users_service/jwt_public  value="$PUB"
+	fi
+
+	# enable database and approle if it's not already
 	if ! vault secrets list | grep -q '^database/'; then
 		vault secrets enable database
 	fi
