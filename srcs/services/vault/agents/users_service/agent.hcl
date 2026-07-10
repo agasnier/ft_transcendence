@@ -55,3 +55,15 @@ template {
 {{ end }}
 EOT
 }
+
+template {
+  destination = "/vault/secrets/jwt_public.json"
+  perms       = "0644"
+  contents = <<EOT
+{{ with secret "secret/data/users_service/jwt_public" }}
+{
+  "publicKey": {{ .Data.data.value | toJSON }}
+}
+{{ end }}
+EOT
+}

@@ -9,6 +9,7 @@ export const env = {
   port: 3000,
   pepper: readVaultSecret('/vault/secrets/pepper.json', 'pepper'),
   jwtPrivateKey: readVaultSecret('/vault/secrets/jwt_private.json', 'privateKey'),
+  jwtPublicKey: readVaultSecret('/vault/secrets/jwt_public.json', 'publicKey'),
   accessTokenExpiration: '15m',
   refreshTokenExpirationDays: 7,
 } as const
