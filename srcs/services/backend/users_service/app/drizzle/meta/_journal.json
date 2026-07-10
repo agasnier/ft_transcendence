@@ -8,6 +8,13 @@
       "when": 1783594944053,
       "tag": "0000_quick_the_twelve",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1783691167983,
+      "tag": "0001_thick_green_goblin",
+      "breakpoints": true
     }
   ]
 }
