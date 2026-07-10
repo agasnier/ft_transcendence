@@ -7,8 +7,8 @@ export const apiKeys = mysqlTable('api_keys', {
 
   // TODO dev only, remove before push
   api_key: varchar('api_key', { length: 255 }),
-  
-  created_at: timestamp('created_at').defaultNow().notNull(),
+
+  expires_at: timestamp('expires_at').notNull(),
 })
 
 export type ApiKey = typeof apiKeys.$inferSelect

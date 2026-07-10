@@ -9,19 +9,21 @@ import { env } from '../../config/env.js'
 // TODO delete this function before push ?
 export async function getAllApiKeys() {
   return await db
-    .select({ id: apiKeys.id, owner_id: apiKeys.owner_id, api_key_hash: apiKeys.api_key_hash, created_at: apiKeys.created_at })
+    .select({ id: apiKeys.id, owner_id: apiKeys.owner_id, api_key_hash: apiKeys.api_key_hash, expires_at: apiKeys.expires_at })
     .from(apiKeys)
 }
 
 // TODO delete this function before push ?
 export async function getApiKeysByOwnerId(owner_id: number) {
   const rows = await db
-    .select({ id: apiKeys.id, owner_id: apiKeys.owner_id, api_key_hash: apiKeys.api_key_hash, created_at: apiKeys.created_at })
+    .select({ id: apiKeys.id, owner_id: apiKeys.owner_id, api_key_hash: apiKeys.api_key_hash, expires_at: apiKeys.expires_at })
     .from(apiKeys)
     .where(eq(apiKeys.owner_id, owner_id))
     .limit(1)
   return rows[0]
 }
+
+const EXPIRATION_DAYS = 15
 
 function generateApiKey() {
   const apiKeyCreated = randomBytes(32).toString('hex')
@@ -32,22 +34,26 @@ function generateApiKey() {
 
 export async function createApiKeys(owner_id: number) {
   const { apiKeyCreated, apiKeyHash } = generateApiKey()
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + EXPIRATION_DAYS)
 
   // TODO dev only, remove before push api_key
   const [result] = await db
     .insert(apiKeys)
-    .values({ owner_id, api_key_hash: apiKeyHash, api_key: apiKeyCreated })
+    .values({ owner_id, api_key_hash: apiKeyHash, api_key: apiKeyCreated, expires_at: expiresAt })
 
   return { id: result.insertId, owner_id, apiKeyCreated }
 }
 
 export async function updateApiKeys(owner_id: number) {
   const { apiKeyCreated, apiKeyHash } = generateApiKey()
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + EXPIRATION_DAYS)
 
   // TODO dev only, remove before push api_key
   const [result] = await db
     .update(apiKeys)
-    .set({ api_key_hash: apiKeyHash, api_key: apiKeyCreated })
+    .set({ api_key_hash: apiKeyHash, api_key: apiKeyCreated, expires_at: expiresAt })
     .where(eq(apiKeys.owner_id, owner_id))
 
   if (result.affectedRows === 0)
