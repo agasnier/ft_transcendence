@@ -21,6 +21,7 @@ help:
 	@echo ""
 
 up:
+	mkdir -p srcs/data/mariadb
 	$(COMPOSE) up --build -d
 
 down:
@@ -30,6 +31,7 @@ logs:
 	$(COMPOSE) logs -f
 
 dev:
+	mkdir -p srcs/data/mariadb-dev
 	$(COMPOSE_DEV) up --build
 
 dev-down:

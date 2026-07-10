@@ -1,0 +1,1 @@
+ALTER TABLE `api_keys` DROP INDEX `api_keys_api_key_hash_unique`;

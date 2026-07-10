@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "270ca7d7-4e75-4868-93e6-d2e27b9bd021",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "76048080-f8be-4cf8-a724-f248dddf7e0c",
+  "prevId": "270ca7d7-4e75-4868-93e6-d2e27b9bd021",
   "tables": {
     "api_keys": {
       "name": "api_keys",
@@ -47,14 +47,7 @@
           ]
         }
       },
-      "uniqueConstraints": {
-        "api_keys_api_key_hash_unique": {
-          "name": "api_keys_api_key_hash_unique",
-          "columns": [
-            "api_key_hash"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "checkConstraint": {}
     }
   },
