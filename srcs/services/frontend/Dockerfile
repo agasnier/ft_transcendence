@@ -19,8 +19,4 @@ EXPOSE  80
 HEALTHCHECK --interval=5s --timeout=3s --retries=10 --start-period=15s \
 	CMD nc -z 127.0.0.1 80 || exit 1
 
-RUN		chown -R node:node /app
-
-USER	node
-
 CMD     ["nginx", "-g", "daemon off;"]
