@@ -1,7 +1,9 @@
+import { createHmac } from 'node:crypto'
 import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
+import { env } from '../../config/env.js'
 
 export async function getAllUsers() {
   return await db
@@ -18,10 +20,13 @@ export async function getUserById(id: number) {
   return rows[0]
 }
 
+function hash(password: string): string {
+  return createHmac('sha256', env.pepper).update(password).digest('hex')
+}
+
 export async function createUser(pseudo: string, password: string) {
 
-  // TODO hash the password when pepper vault plug in
-  const passwordHash = password
+  const passwordHash = hash(password)
 
   const [result] = await db
     .insert(users)

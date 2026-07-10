@@ -1,9 +1,9 @@
+import { randomBytes, createHmac } from 'node:crypto'
 import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { apiKeys } from '../../db/schema.js'
-import { stringify } from 'node:querystring'
-import { StringAsNumber } from 'fastify/types/utils.js'
+import { env } from '../../config/env.js'
 
 
 // TODO delete this function before push ?
@@ -24,12 +24,8 @@ export async function getApiKeysByOwnerId(owner_id: number) {
 }
 
 function generateApiKey() {
-
-  // TODO create an apiKeys
-  const apiKeyCreated = "ApIkEyS"
-
-  // TODO hash the apiKeys when pepper vault plug in
-  const apiKeyHash = "HaSh_ApIkEyS"
+  const apiKeyCreated = randomBytes(32).toString('hex')
+  const apiKeyHash = createHmac('sha256', env.pepper).update(apiKeyCreated).digest('hex')
 
   return { apiKeyCreated, apiKeyHash }
 }
@@ -37,9 +33,10 @@ function generateApiKey() {
 export async function createApiKeys(owner_id: number) {
   const { apiKeyCreated, apiKeyHash } = generateApiKey()
 
+  // TODO dev only, remove before push api_key
   const [result] = await db
     .insert(apiKeys)
-    .values({ owner_id, api_key_hash: apiKeyHash })
+    .values({ owner_id, api_key_hash: apiKeyHash, api_key: apiKeyCreated })
 
   return { id: result.insertId, owner_id, apiKeyCreated }
 }
@@ -47,9 +44,10 @@ export async function createApiKeys(owner_id: number) {
 export async function updateApiKeys(owner_id: number) {
   const { apiKeyCreated, apiKeyHash } = generateApiKey()
 
+  // TODO dev only, remove before push api_key
   const [result] = await db
     .update(apiKeys)
-    .set({ api_key_hash: apiKeyHash })
+    .set({ api_key_hash: apiKeyHash, api_key: apiKeyCreated })
     .where(eq(apiKeys.owner_id, owner_id))
 
   if (result.affectedRows === 0)

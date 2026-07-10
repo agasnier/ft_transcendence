@@ -15,6 +15,13 @@
       "when": 1783677354985,
       "tag": "0001_solid_the_call",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1783690182914,
+      "tag": "0002_bored_stellaris",
+      "breakpoints": true
     }
   ]
 }

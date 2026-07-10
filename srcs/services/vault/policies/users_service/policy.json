@@ -2,6 +2,9 @@
   "path": {
     "database/creds/users_service": {
       "capabilities": ["read"]
+    },
+    "secret/data/users_service/pepper": {
+      "capabilities": ["read"]
     }
   }
 }

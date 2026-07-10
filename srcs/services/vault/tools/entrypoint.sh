@@ -34,6 +34,21 @@ fi
 	# root with root_token from INIT FILE
 	export VAULT_TOKEN="$(jq -r '.root_token' "$INIT_FILE")"
 
+	# enable vault kv v2 for pepper for hashing
+	if ! vault secrets list | grep -q '^secret/'; then
+    	vault secrets enable -path=secret -version=2 kv
+	fi
+
+	# pepper for api_service
+	if ! vault kv get secret/api_service/pepper >/dev/null 2>&1; then
+		vault kv put secret/api_service/pepper value="$(openssl rand -hex 32)"
+	fi
+
+	# pepper for users_service
+	if ! vault kv get secret/users_service/pepper >/dev/null 2>&1; then
+		vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
+	fi
+
 	# enable database and approle if it's not already 
 	if ! vault secrets list | grep -q '^database/'; then
 		vault secrets enable database

@@ -31,3 +31,15 @@ template {
 {{ end }}
 EOT
 }
+
+template {
+  destination = "/vault/secrets/pepper.json"
+  perms       = "0644"
+  contents = <<EOT
+{{ with secret "secret/data/api_service/pepper" }}
+{
+  "pepper": "{{ .Data.data.value }}"
+}
+{{ end }}
+EOT
+}

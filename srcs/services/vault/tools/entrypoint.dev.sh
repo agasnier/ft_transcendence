@@ -20,6 +20,12 @@ fi
 		sleep 1
 	done
 
+	# pepper for api_service
+	vault kv put secret/api_service/pepper value="$(openssl rand -hex 32)"
+
+	# pepper for users_service
+	vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
+
 	# enable secrets database for dynamic credentials
 	vault secrets enable database
 

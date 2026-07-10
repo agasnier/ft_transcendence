@@ -1,7 +1,7 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 
 import { usersRoutes } from './modules/users/users.route.js'
-import { apiKeysRoutes } from './modules/api/api_keys.route.js'
+import { apiKeysRoutes } from './modules/api_keys/api_keys.route.js'
 
 
 // construct the app without launching it

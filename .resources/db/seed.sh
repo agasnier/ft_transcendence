@@ -28,7 +28,7 @@ seed_users() {
   for ((i = 1; i <= 5; i++)); do
     curl -sk -X POST https://127.0.0.1:8443/api/users \
       -H "Content-Type: application/json" \
-      -d "{\"pseudo\": \"pseudo_$i\", \"password\": \"password123\"}"
+      -d "{\"pseudo\": \"pseudo_$i\", \"password\": \"password123_$i\"}"
   done
 }
 
@@ -54,7 +54,7 @@ seed_api_keys() {
 }
 
 del_api_keys() {
-  list_users
+  list_api_keys
   echo -e "\n\nQuels ids ? "
   read -p "séparé par espaces : " ids
   for id in $ids; do

@@ -1,0 +1,1 @@
+ALTER TABLE `api_keys` ADD `api_key` varchar(255);
