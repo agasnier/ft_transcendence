@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { verifyCredentials, createAccessToken, createRefreshToken, deleteRefreshToken, validateRefreshToken, getUserById } from './auth.service.js'
+import { verifyCredentials, createAccessToken, createRefreshToken, deleteRefreshToken, validateRefreshToken, getUserById, validateAccessToken } from './auth.service.js'
 
 export async function loginController(
   request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
@@ -73,6 +73,27 @@ export async function refreshController(request: FastifyRequest, reply: FastifyR
       .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/users' })
 
     await reply.status(200).send()
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function validateAccessTokenController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const token = request.cookies.access_token
+    if (!token) {
+      await reply.status(401).send({ message: 'Not authenticated' })
+      return
+    }
+
+    const user = validateAccessToken(token)
+    if (!user) {
+      await reply.status(401).send({ message: 'Not authenticated' })
+      return
+    }
+
+    await reply.status(200).send(user)
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

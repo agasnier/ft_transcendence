@@ -28,6 +28,14 @@ export function createAccessToken(user: { id: number; pseudo: string; role: stri
   return jwt.sign(user, env.jwtPrivateKey, { algorithm: 'ES256', expiresIn: env.accessTokenExpiration })
 }
 
+export function validateAccessToken(token: string): { id: number; pseudo: string; role: string } | null {
+  try {
+    return jwt.verify(token, env.jwtPublicKey, { algorithms: ['ES256'] }) as { id: number; pseudo: string; role: string }
+  } catch {
+    return null
+  }
+}
+
 export async function createRefreshToken(owner_id: number): Promise<string> {
   const token = randomBytes(32).toString('hex')
 
