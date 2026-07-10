@@ -51,7 +51,7 @@ fi
 
 	# jwt key pair for users_service
 	if ! vault kv get secret/users_service/jwt_private >/dev/null 2>&1; then
-		PRIV=$(openssl genpkey -algorithm ed25519)
+		PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
 		PUB=$(echo "$PRIV" | openssl pkey -pubout)
 		vault kv put secret/users_service/jwt_private value="$PRIV"
 		vault kv put secret/users_service/jwt_public  value="$PUB"

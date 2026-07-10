@@ -23,8 +23,6 @@ export async function getApiKeysByOwnerId(owner_id: number) {
   return rows[0]
 }
 
-const EXPIRATION_DAYS = 15
-
 function generateApiKey() {
   const apiKeyCreated = randomBytes(32).toString('hex')
   const apiKeyHash = createHmac('sha256', env.pepper).update(apiKeyCreated).digest('hex')
@@ -35,7 +33,7 @@ function generateApiKey() {
 export async function createApiKeys(owner_id: number) {
   const { apiKeyCreated, apiKeyHash } = generateApiKey()
   const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + EXPIRATION_DAYS)
+  expiresAt.setDate(expiresAt.getDate() + env.apiKeyExpirationDays)
 
   // TODO dev only, remove before push api_key
   const [result] = await db
@@ -48,7 +46,7 @@ export async function createApiKeys(owner_id: number) {
 export async function updateApiKeys(owner_id: number) {
   const { apiKeyCreated, apiKeyHash } = generateApiKey()
   const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + EXPIRATION_DAYS)
+  expiresAt.setDate(expiresAt.getDate() + env.apiKeyExpirationDays)
 
   // TODO dev only, remove before push api_key
   const [result] = await db

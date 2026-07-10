@@ -10,4 +10,5 @@ export const env = {
   usersServiceUrl: 'http://users_service:3000',
   pepper: readVaultSecret('/vault/secrets/pepper.json', 'pepper'),
   jwtPublicKey: readVaultSecret('/vault/secrets/jwt_public.json', 'publicKey'),
+  apiKeyExpirationDays: 15,
 } as const

@@ -27,7 +27,7 @@ fi
 	vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
 
 	# jwt key pair for users_service
-	PRIV=$(openssl genpkey -algorithm ed25519)
+	PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
 	PUB=$(echo "$PRIV" | openssl pkey -pubout)
 	vault kv put secret/users_service/jwt_private value="$PRIV"
 	vault kv put secret/users_service/jwt_public  value="$PUB"
