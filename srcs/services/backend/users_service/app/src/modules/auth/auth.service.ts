@@ -1,5 +1,5 @@
 import { createHmac, randomBytes } from 'node:crypto'
-import { sign } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
@@ -25,7 +25,7 @@ export async function verifyCredentials(pseudo: string, password: string) {
 }
 
 export function createAccessToken(user: { id: number; pseudo: string; role: string }): string {
-  return sign(user, env.jwtPrivateKey, { algorithm: 'ES256', expiresIn: env.accessTokenExpiration })
+  return jwt.sign(user, env.jwtPrivateKey, { algorithm: 'ES256', expiresIn: env.accessTokenExpiration })
 }
 
 export async function createRefreshToken(owner_id: number): Promise<string> {
