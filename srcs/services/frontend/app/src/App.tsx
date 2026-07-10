@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react'
+import SignupForm from './components/SignupForm'
+import LoginForm from './components/LoginForm'
 
 function App() {
-  const [message, setMessage] = useState<string>('')
-
-  useEffect(() => {
-    fetch('/auth/hello')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-  }, [])
-
-  return <h1>backend : {message}</h1>
+  return (
+    <>
+      <SignupForm />
+      <LoginForm />
+    </>
+  )
 }
 
 export default App

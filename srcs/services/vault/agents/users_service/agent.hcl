@@ -46,7 +46,7 @@ EOT
 
 template {
   destination = "/vault/secrets/jwt_private.json"
-  perms       = "0600"
+  perms       = "0644"
   contents = <<EOT
 {{ with secret "secret/data/users_service/jwt_private" }}
 {
