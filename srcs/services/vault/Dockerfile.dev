@@ -3,7 +3,7 @@ FROM    hashicorp/vault:2.0
 
 USER    root
 
-RUN     apk add --no-cache gettext
+RUN     apk add --no-cache gettext openssl
 
 COPY    tools/entrypoint.dev.sh /tools/entrypoint.sh
 RUN     chmod +x /tools/entrypoint.sh

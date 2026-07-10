@@ -22,6 +22,20 @@
       "when": 1783690182914,
       "tag": "0002_bored_stellaris",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1783708458288,
+      "tag": "0003_awesome_lenny_balinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1783708468496,
+      "tag": "0004_sweet_logan",
+      "breakpoints": true
     }
   ]
 }
