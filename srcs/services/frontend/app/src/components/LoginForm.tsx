@@ -1,9 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function LoginForm() {
   const [pseudo, setPseudo] = useState('')
   const [password, setPassword] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    async function checkSession() {
+      const res = await fetch('/users/access')
+      if (res.ok) {
+        setIsLoggedIn(true)
+        return
+      }
+    }
+
+    checkSession()
+  }, [])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
