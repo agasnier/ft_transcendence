@@ -1,6 +1,10 @@
 COMPOSE     = @docker compose -f srcs/docker-compose.yml
 COMPOSE_DEV = $(COMPOSE) -f srcs/docker-compose.dev.yml
 
+DB_DATA     = srcs/data/mariadb
+DB_DATA_DEV = srcs/data/mariadb-dev
+VAULT_DATA  = srcs/data/vault
+
 all: help
 
 help:
@@ -15,13 +19,13 @@ help:
 	@echo "  dev-down  Stop the dev environment"
 	@echo ""
 	@echo "Cleaning:"
-	@echo "  clean     Stop and remove volumes"
-	@echo "  fclean    clean + prune Docker images and cache"
+	@echo "  clean     Stop and remove volumes except ./data"
+	@echo "  fclean    clean + remove built images and DB data"
 	@echo "  re        fclean then start production"
 	@echo ""
 
 up:
-	mkdir -p srcs/data/mariadb
+	mkdir -p $(DB_DATA) $(VAULT_DATA)
 	$(COMPOSE) up --build -d
 
 down:
@@ -34,7 +38,7 @@ ps:
 	$(COMPOSE) ps
 
 dev:
-	mkdir -p srcs/data/mariadb-dev
+	mkdir -p $(DB_DATA_DEV)
 	$(COMPOSE_DEV) up --build
 
 dev-down:
@@ -44,7 +48,14 @@ clean:
 	$(COMPOSE) down --volumes
 
 fclean: clean
-	docker system prune -af
+	$(COMPOSE) down --rmi all
+	@echo "Delete the persistant data ? : (y/n)"
+	@read ans; if [ "$$ans" = "y" ]; then \
+        rm -rf $(DB_DATA) $(DB_DATA_DEV) $(VAULT_DATA); \
+		echo "Deleted."; \
+    else \
+        echo "Persistant data not deleted."; \
+    fi
 
 re: fclean up
 
