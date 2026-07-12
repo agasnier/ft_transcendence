@@ -7,7 +7,7 @@ function LoginForm() {
 
   useEffect(() => {
     async function checkSession() {
-      const res = await fetch('/users/access')
+      const res = await fetch('/users/session')
       if (res.ok) {
         setIsLoggedIn(true)
         return

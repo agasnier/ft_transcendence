@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { getAllUsers, getUserById, createUser, updateUser, deleteUser } from './users.service.js'
-import { createAccessToken, createRefreshToken } from '../auth/auth.service.js'
+import { createCookie } from '../auth/auth.service.js'
 
 export async function listUsersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
@@ -39,13 +39,8 @@ export async function createUserController(
     const { pseudo, password } = request.body
     const user = await createUser(pseudo, password)
 
-    // from logging to log the user during inscriptions
-    const accessToken = createAccessToken({ id: user.id, pseudo: user.pseudo, role: 'user' })
-    const refreshToken = await createRefreshToken(user.id)
-
-    reply
-      .setCookie('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' })
-      .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/users' })
+    // auto-login on signup: issue tokens + cookies for the new user
+    await createCookie(reply, { id: user.id, pseudo: user.pseudo })
 
     await reply.status(201).send(user)
   } catch (err) {

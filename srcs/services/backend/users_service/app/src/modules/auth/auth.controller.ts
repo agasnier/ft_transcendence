@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { verifyCredentials, createAccessToken, createRefreshToken, deleteRefreshToken, validateRefreshToken, getUserById, validateAccessToken } from './auth.service.js'
+import { verifyCredentials, createCookie, deleteRefreshToken, validateRefreshToken, getUserById, validateAccessToken } from './auth.service.js'
 
 export async function loginController(
   request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
@@ -11,12 +11,7 @@ export async function loginController(
       return
     }
 
-    const accessToken = createAccessToken(user)
-    const refreshToken = await createRefreshToken(user.id)
-
-    reply
-      .setCookie('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' })
-      .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/users' })
+    await createCookie(reply, user)
 
     await reply.status(200).send({ message: 'Logged in' })
   } catch (err) {
@@ -42,56 +37,38 @@ export async function logoutController(request: FastifyRequest, reply: FastifyRe
   }
 }
 
-export async function refreshController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function sessionController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const oldToken = request.cookies.refresh_token
-    if (!oldToken) {
-      await reply.status(401).send({ message: 'Missing refresh token' })
+    const accessToken = request.cookies.access_token
+    if (accessToken) {
+      const user = validateAccessToken(accessToken)
+      if (user) {
+        await reply.status(200).send(user)
+        return
+      }
+    }
+
+    const refreshToken = request.cookies.refresh_token
+    if (!refreshToken) {
+      await reply.status(401).send({ message: 'Not authenticated' })
       return
     }
 
-    const stored = await validateRefreshToken(oldToken)
+    const stored = await validateRefreshToken(refreshToken)
     if (!stored) {
-      await reply.status(401).send({ message: 'Invalid refresh token' })
+      await reply.status(401).send({ message: 'Not authenticated' })
       return
     }
 
-    await deleteRefreshToken(oldToken)
+    await deleteRefreshToken(refreshToken)
 
-    // needed for updating role
     const user = await getUserById(stored.owner_id)
     if (!user) {
-      await reply.status(401).send({ message: 'Invalid refresh token' })
-      return
-    }
-
-    const accessToken = createAccessToken(user)
-    const refreshToken = await createRefreshToken(user.id)
-
-    reply
-      .setCookie('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' })
-      .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/users' })
-
-    await reply.status(200).send()
-  } catch (err) {
-    request.log.error(err)
-    await reply.status(500).send({ message: 'Internal error' })
-  }
-}
-
-export async function validateAccessTokenController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-  try {
-    const token = request.cookies.access_token
-    if (!token) {
       await reply.status(401).send({ message: 'Not authenticated' })
       return
     }
 
-    const user = validateAccessToken(token)
-    if (!user) {
-      await reply.status(401).send({ message: 'Not authenticated' })
-      return
-    }
+    await createCookie(reply, user)
 
     await reply.status(200).send(user)
   } catch (err) {
