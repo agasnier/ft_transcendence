@@ -35,7 +35,9 @@ export async function createApiKeys(owner_id: number) {
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + env.apiKeyExpirationDays)
 
-  // TODO dev only, remove before push api_key
+  await deleteApiKeys(owner_id);
+
+  // TODO dev only, remove api_key before push api_key
   const [result] = await db
     .insert(apiKeys)
     .values({ owner_id, api_key_hash: apiKeyHash, api_key: apiKeyCreated, expires_at: expiresAt })
