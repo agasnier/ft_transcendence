@@ -4,16 +4,18 @@ function LoginForm() {
   const [pseudo, setPseudo] = useState('')
   const [password, setPassword] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userId, setUserId] = useState<number | null>(null)
+
+  async function checkSession() {
+    const res = await fetch('/users/session')
+    if (res.ok) {
+      const user = await res.json()
+      setUserId(user.id)
+      setIsLoggedIn(true)
+    }
+  }
 
   useEffect(() => {
-    async function checkSession() {
-      const res = await fetch('/users/session')
-      if (res.ok) {
-        setIsLoggedIn(true)
-        return
-      }
-    }
-
     checkSession()
   }, [])
 
@@ -27,18 +29,39 @@ function LoginForm() {
     })
 
     if (res.ok)
-      setIsLoggedIn(true)
+      await checkSession()
   }
 
   async function handleLogout() {
     await fetch('/users/logout', { method: 'POST' })
     setIsLoggedIn(false)
+    setUserId(null)
+  }
+
+  async function handleCreateKey() {
+    if (userId === null)
+      return
+
+    await fetch('/api/api_keys/', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ owner_id: userId }),
+    })
+  }
+
+  async function handleDeleteKey() {
+    if (userId === null)
+      return
+
+    await fetch(`/api/api_keys/${userId}`, { method: 'DELETE' })
   }
 
   if (isLoggedIn) {
     return (
       <div>
         <h2>Connexion</h2>
+        <button onClick={handleCreateKey}>Créer clé API</button>
+        <button onClick={handleDeleteKey}>Supprimer clé API</button>
         <button onClick={handleLogout}>Déconnexion</button>
       </div>
     )
