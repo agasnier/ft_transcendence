@@ -1,9 +1,16 @@
 services:
 # TODO delete before push
-  adminer:
-    image: adminer
-    environment:
-      ADMINER_DEFAULT_SERVER: database
+# connect with url : mysql://<user>:<password>@<host>:<port>/<database>
+# del the persistant files
+  drizzle-gateway:
+    image: ghcr.io/drizzle-team/gateway:latest
+    ports:
+      - "8444:4983"
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./data/drizzle-gateway:/app
     networks:
       - ft
 # NGINX

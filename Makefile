@@ -38,7 +38,7 @@ ps:
 	$(COMPOSE) ps
 
 dev:
-	mkdir -p $(DB_DATA_DEV)
+	mkdir -p $(DB_DATA_DEV) $(VAULT_DATA)
 	$(COMPOSE_DEV) up --build
 
 dev-down:
