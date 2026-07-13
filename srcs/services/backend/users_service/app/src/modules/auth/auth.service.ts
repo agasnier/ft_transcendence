@@ -17,7 +17,7 @@ export async function createCookie(reply: FastifyReply, user: { id: number; pseu
 
   reply
     .setCookie('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' })
-    .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/users' })
+    .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/auth' })
 }
 
 export async function verifyCredentials(pseudo: string, password: string) {

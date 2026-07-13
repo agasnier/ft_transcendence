@@ -7,7 +7,7 @@ function LoginForm() {
   const [userId, setUserId] = useState<number | null>(null)
 
   async function checkSession() {
-    const res = await fetch('/users/session')
+    const res = await fetch('/auth/session')
     if (res.ok) {
       const user = await res.json()
       setUserId(user.id)
@@ -22,7 +22,7 @@ function LoginForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const res = await fetch('/users/login', {
+    const res = await fetch('/auth/login', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ pseudo, password }),
@@ -33,7 +33,7 @@ function LoginForm() {
   }
 
   async function handleLogout() {
-    await fetch('/users/logout', { method: 'POST' })
+    await fetch('/auth/logout', { method: 'POST' })
     setIsLoggedIn(false)
     setUserId(null)
   }

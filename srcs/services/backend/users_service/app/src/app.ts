@@ -16,7 +16,7 @@ export function buildApp(): FastifyInstance {
 
   // all module added must be register here
   app.register(usersRoutes, { prefix: '/users' })
-  app.register(authRoutes, { prefix: '/users' })
+  app.register(authRoutes, { prefix: '/auth' })
 
   return app
 }

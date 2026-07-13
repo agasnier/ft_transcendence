@@ -1,5 +1,24 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { verifyCredentials, createCookie, deleteRefreshToken, validateRefreshToken, getUserById, validateAccessToken } from './auth.service.js'
+import { createUser } from '../users/users.service.js'
+
+export async function registerController(
+  request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
+  try {
+    const { pseudo, password } = request.body
+    const user = await createUser(pseudo, password)
+
+    // auto-login on signup: issue tokens + cookies for the new user
+    await createCookie(reply, { id: user.id, pseudo: user.pseudo })
+
+    await reply.status(201).send(user)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+
 
 export async function loginController(
   request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
@@ -28,7 +47,7 @@ export async function logoutController(request: FastifyRequest, reply: FastifyRe
 
     reply
       .clearCookie('access_token', { path: '/' })
-      .clearCookie('refresh_token', { path: '/users' })
+      .clearCookie('refresh_token', { path: '/auth' })
 
     await reply.status(200).send({ message: 'Logged out' })
   } catch (err) {

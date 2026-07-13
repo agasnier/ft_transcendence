@@ -1,6 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { getAllUsers, getUserById, createUser, updateUser, deleteUser } from './users.service.js'
-import { createCookie } from '../auth/auth.service.js'
 
 export async function listUsersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
@@ -38,9 +37,6 @@ export async function createUserController(
   try {
     const { pseudo, password } = request.body
     const user = await createUser(pseudo, password)
-
-    // auto-login on signup: issue tokens + cookies for the new user
-    await createCookie(reply, { id: user.id, pseudo: user.pseudo })
 
     await reply.status(201).send(user)
   } catch (err) {
