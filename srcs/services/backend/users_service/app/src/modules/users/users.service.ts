@@ -43,12 +43,8 @@ export async function updateUser(id: number, data: { pseudo?: string; password?:
   const newData: { pseudo?: string; password?: string } = {}
   if (data.pseudo !== undefined)
     newData.pseudo = data.pseudo
-  if (data.password !== undefined) {
-
-    // TODO hash the password when pepper vault plug in
-    newData.password = data.password
-
-  }
+  if (data.password !== undefined)
+    newData.password = hash(data.password)
   await db.update(users).set(newData).where(eq(users.id, id))
 
   return await getUserById(id)
