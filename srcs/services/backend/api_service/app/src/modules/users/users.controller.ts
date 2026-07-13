@@ -12,17 +12,32 @@ export async function getUserController(request: FastifyRequest<{ Params: { id: 
 }
 
 export async function createUserController(request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
+  if (request.auth?.role !== 'admin') {
+    await reply.status(403).send({ message: 'Forbidden' })
+    return
+  }
+
   const { pseudo, password } = request.body
   const user = await createUser(pseudo, password)
   await reply.status(201).send(user)
 }
 
 export async function updateUserController(request: FastifyRequest<{ Params: { id: string }; Body: { pseudo?: string; password?: string } }>, reply: FastifyReply): Promise<void> {
+  if (request.auth?.role !== 'admin' && request.auth?.ownerId !== Number(request.params.id)) {
+    await reply.status(403).send({ message: 'Forbidden' })
+    return
+  }
+  
   const user = await updateUser(Number(request.params.id), request.body)
   await reply.send(user)
 }
 
 export async function deleteUserController(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<void> {
+  if (request.auth?.role !== 'admin') {
+    await reply.status(403).send({ message: 'Forbidden' })
+    return
+  }
+
   await deleteUser(Number(request.params.id))
   await reply.send({ message: 'User deleted' })
 }
