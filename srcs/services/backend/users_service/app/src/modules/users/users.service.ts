@@ -7,13 +7,13 @@ import { env } from '../../config/env.js'
 
 export async function getAllUsers() {
   return await db
-    .select({ id: users.id, pseudo: users.pseudo })
+    .select({ id: users.id, pseudo: users.pseudo, role: users.role })
     .from(users)
 }
 
 export async function getUserById(id: number) {
   const rows = await db
-    .select({ id: users.id, pseudo: users.pseudo })
+    .select({ id: users.id, pseudo: users.pseudo, role: users.role })
     .from(users)
     .where(eq(users.id, id))
     .limit(1)
@@ -32,7 +32,7 @@ export async function createUser(pseudo: string, password: string) {
     .insert(users)
     .values({ pseudo, password: passwordHash })
 
-  return { id: result.insertId, pseudo }
+  return await getUserById(result.insertId)
 }
 
 export async function updateUser(id: number, data: { pseudo?: string; password?: string }) {

@@ -2,6 +2,7 @@
 const userProperties = {
   id: { type: 'integer' },
   pseudo: { type: 'string' },
+  role: { type: 'string', enum: ['admin', 'user'] },
 }
 
 export const listUsersSchema = {

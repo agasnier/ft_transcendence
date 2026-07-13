@@ -23,9 +23,13 @@ export async function getApiKeysByOwnerId(owner_id: number) {
   return rows[0]
 }
 
+function hashApiKey(apiKey: string) {
+  return createHmac('sha256', env.pepper).update(apiKey).digest('hex')
+}
+
 function generateApiKey() {
   const apiKeyCreated = randomBytes(32).toString('hex')
-  const apiKeyHash = createHmac('sha256', env.pepper).update(apiKeyCreated).digest('hex')
+  const apiKeyHash = hashApiKey(apiKeyCreated);
 
   return { apiKeyCreated, apiKeyHash }
 }
@@ -65,4 +69,22 @@ export async function updateApiKeys(owner_id: number) {
 export async function deleteApiKeys(owner_id: number) {
   const [result] = await db.delete(apiKeys).where(eq(apiKeys.owner_id, owner_id))
   return result.affectedRows > 0
+}
+
+export async function verifyApiKey(apiKey: string): Promise<{ owner_id: number } | null> {
+  const apiKeyHash = hashApiKey(apiKey)
+
+  const rows = await db
+    .select({ owner_id: apiKeys.owner_id, expires_at: apiKeys.expires_at })
+    .from(apiKeys)
+    .where(eq(apiKeys.api_key_hash, apiKeyHash))
+    .limit(1)
+
+  if (!rows[0])
+    return null
+
+  if (rows[0].expires_at < new Date())
+    return null
+
+  return { owner_id: rows[0].owner_id }
 }
