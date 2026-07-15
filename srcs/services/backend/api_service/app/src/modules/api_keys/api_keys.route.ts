@@ -4,9 +4,6 @@ import { listApiKeysSchema, getApiKeysSchema, createApiKeysSchema, updateApiKeys
 
 
 export async function apiKeysRoutes(app: FastifyInstance): Promise<void> {
-
-  // TODO after before prod, bloc external request with header
-
   app.get('/', { schema: listApiKeysSchema }, listApiKeysController)
   app.get('/:owner_id', { schema: getApiKeysSchema }, getApiKeysController)
   app.post('/', { schema: createApiKeysSchema }, createApiKeysController)
