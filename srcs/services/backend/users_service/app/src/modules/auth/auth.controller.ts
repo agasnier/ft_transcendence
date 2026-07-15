@@ -2,6 +2,48 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 import { createCookie, deleteRefreshToken, validateRefreshToken, validateAccessToken } from './auth.service.js'
 import { createUser, verifyCredentials, getUserById } from '../users/users.service.js'
 
+// hooks
+export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const accessToken = request.cookies.access_token
+    if (accessToken) {
+      const user = validateAccessToken(accessToken)
+      if (user) {
+        request.user = user
+        return
+      }
+    }
+
+    const refreshToken = request.cookies.refresh_token
+    if (!refreshToken) {
+      await reply.status(401).send({ message: 'Not authenticated' })
+      return
+    }
+
+    const stored = await validateRefreshToken(refreshToken)
+    if (!stored) {
+      await reply.status(401).send({ message: 'Not authenticated' })
+      return
+    }
+
+    await deleteRefreshToken(refreshToken)
+
+    const user = await getUserById(stored.owner_id)
+    if (!user) {
+      await reply.status(401).send({ message: 'Not authenticated' })
+      return
+    }
+
+    await createCookie(reply, user)
+
+    request.user = user
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+// controllers
 export async function registerController(
   request: FastifyRequest<{ Body: { mail: string; pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
   try {
@@ -55,41 +97,7 @@ export async function logoutController(request: FastifyRequest, reply: FastifyRe
 }
 
 export async function sessionController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-  try {
-    const accessToken = request.cookies.access_token
-    if (accessToken) {
-      const user = validateAccessToken(accessToken)
-      if (user) {
-        await reply.status(200).send(user)
-        return
-      }
-    }
-
-    const refreshToken = request.cookies.refresh_token
-    if (!refreshToken) {
-      await reply.status(401).send({ message: 'Not authenticated' })
-      return
-    }
-
-    const stored = await validateRefreshToken(refreshToken)
-    if (!stored) {
-      await reply.status(401).send({ message: 'Not authenticated' })
-      return
-    }
-
-    await deleteRefreshToken(refreshToken)
-
-    const user = await getUserById(stored.owner_id)
-    if (!user) {
-      await reply.status(401).send({ message: 'Not authenticated' })
-      return
-    }
-
-    await createCookie(reply, user)
-
-    await reply.status(200).send(user)
-  } catch (err) {
-    request.log.error(err)
-    await reply.status(500).send({ message: 'Internal error' })
-  }
+  await reply.status(200).send(request.user)
 }
+
+

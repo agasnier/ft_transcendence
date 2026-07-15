@@ -2,6 +2,24 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 import { getAllApiKeys, getApiKeysByOwnerId, createApiKeys, updateApiKeys, deleteApiKeys, verifyApiKey } from './api_keys.service.js'
 import { getUserById } from '../users/users.service.js'
 
+// hooks
+export async function  apiKeyAuthHook (request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  const apiKey = request.headers['x-api-key']
+
+  if (typeof apiKey !== 'string') {
+    return await reply.status(401).send( {message: 'Missing Api Key' })
+  }
+
+  const dbLine = await verifyApiKey(apiKey)
+  if (!dbLine) {
+    return await reply.status(401).send({ message: 'Invalid API key' })
+  }
+
+  const user = await getUserById(dbLine.owner_id)
+  request.auth = { role: user.role, ownerId: user.id }
+}
+
+// controllers
 export async function listApiKeysController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const apiKeys = await getAllApiKeys()
@@ -89,18 +107,4 @@ export async function deleteApiKeysController(
   }
 }
 
-export async function  apiKeyAuthHook (request: FastifyRequest, reply: FastifyReply): Promise<void> {
-  const apiKey = request.headers['x-api-key']
 
-  if (typeof apiKey !== 'string') {
-    return await reply.status(401).send( {message: 'Missing Api Key' })
-  }
-
-  const dbLine = await verifyApiKey(apiKey)
-  if (!dbLine) {
-    return await reply.status(401).send({ message: 'Invalid API key' })
-  }
-
-  const user = await getUserById(dbLine.owner_id)
-  request.auth = { role: user.role, ownerId: user.id }
-}
