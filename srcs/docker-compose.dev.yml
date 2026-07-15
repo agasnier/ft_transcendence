@@ -2,8 +2,9 @@
 # Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 services:
   nginx:
-    volumes:
-      - ./services/nginx/nginx.dev.conf:/etc/nginx/nginx.conf
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile.dev
 
   vault:
     build:
