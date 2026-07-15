@@ -6,6 +6,7 @@ const apiKeysProperties = {
 }
 
 export const listApiKeysSchema = {
+  hide: true,
   response: {
     200: {
       type: 'array',
@@ -19,6 +20,7 @@ export const listApiKeysSchema = {
 
 // require one owner_id to get the apiKeys
 export const getApiKeysSchema = {
+  hide: true,
   params: {
     type: 'object',
     required: ['owner_id'],
@@ -35,6 +37,7 @@ export const getApiKeysSchema = {
 }
 
 export const createApiKeysSchema = {
+  hide: true,
   body: {
     type: 'object',
     required: ['owner_id'],
@@ -56,6 +59,7 @@ export const createApiKeysSchema = {
 }
 
 export const updateApiKeysSchema = {
+  hide: true,
   params: {
     type: 'object',
     required: ['owner_id'],
@@ -77,6 +81,7 @@ export const updateApiKeysSchema = {
 
 
 export const deleteApiKeysSchema = {
+  hide: true,
   params: {
     type: 'object',
     required: ['owner_id'],
