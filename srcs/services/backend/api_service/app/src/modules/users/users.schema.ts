@@ -7,7 +7,11 @@ const userProperties = {
 }
 
 export const listUsersSchema = {
+  // Docs api
   tags: ['users'],
+  summary: 'Lister tous les utilisateurs',
+
+  // Fastify
   response: {
     200: {
       type: 'array',
@@ -21,7 +25,11 @@ export const listUsersSchema = {
 
 // require one id to get the user
 export const getUserSchema = {
+  // Docs api
   tags: ['users'],
+  summary: 'Lister l\'utilisateurs',
+
+  // Fastify
   params: {
     type: 'object',
     required: ['id'],
@@ -38,7 +46,12 @@ export const getUserSchema = {
 }
 
 export const createUserSchema = {
+  // Docs api
   tags: ['users'],
+  summary: 'Créer un utilisateur',
+  description: 'Réservé au rôle admin.',
+
+  // Fastify
   body: {
     type: 'object',
     required: ['mail', 'pseudo', 'password'],
@@ -58,7 +71,12 @@ export const createUserSchema = {
 }
 
 export const updateUserSchema = {
+  // Docs api
   tags: ['users'],
+  summary: 'Modifier un utilisateur',
+  description: 'Réservé au rôle admin ou au propriétaire du compte.',
+
+  // Fastify
   params: {
     type: 'object',
     required: ['id'],
@@ -85,7 +103,12 @@ export const updateUserSchema = {
 }
 
 export const deleteUserSchema = {
+  // Docs api
   tags: ['users'],
+  summary: 'Supprimer un utilisateur',
+  description: 'Réservé au rôle admin.',
+
+  // Fastify
   params: {
     type: 'object',
     required: ['id'],

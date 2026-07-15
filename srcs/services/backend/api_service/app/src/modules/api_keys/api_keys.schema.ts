@@ -6,7 +6,10 @@ const apiKeysProperties = {
 }
 
 export const listApiKeysSchema = {
+  // Docs api
   hide: true,
+
+  // Fastify
   response: {
     200: {
       type: 'array',
@@ -20,7 +23,10 @@ export const listApiKeysSchema = {
 
 // require one owner_id to get the apiKeys
 export const getApiKeysSchema = {
+  // Docs api
   hide: true,
+
+  // Fastify
   params: {
     type: 'object',
     required: ['owner_id'],
@@ -37,7 +43,10 @@ export const getApiKeysSchema = {
 }
 
 export const createApiKeysSchema = {
+  // Docs api
   hide: true,
+
+  // Fastify
   body: {
     type: 'object',
     required: ['owner_id'],
@@ -59,7 +68,10 @@ export const createApiKeysSchema = {
 }
 
 export const updateApiKeysSchema = {
+  // Docs api
   hide: true,
+
+  // Fastify
   params: {
     type: 'object',
     required: ['owner_id'],
@@ -81,7 +93,10 @@ export const updateApiKeysSchema = {
 
 
 export const deleteApiKeysSchema = {
+  // Docs api
   hide: true,
+
+  // Fastify
   params: {
     type: 'object',
     required: ['owner_id'],
