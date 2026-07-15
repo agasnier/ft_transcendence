@@ -26,12 +26,11 @@ export async function getUserById(id: number) {
   return res.json()
 }
 
-// TODO email adress
-export async function createUser(pseudo: string, password: string) {
+export async function createUser(body: unknown) {
   const res = await fetch(`${BASE}/users`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ pseudo, password }),
+    body: JSON.stringify(body),
   })
   
   if (!res.ok)
@@ -40,11 +39,11 @@ export async function createUser(pseudo: string, password: string) {
   return res.json()
 }
 
-export async function updateUser(id: number, data: { pseudo?: string; password?: string }) {
+export async function updateUser(id: number, body: unknown) {
   const res = await fetch(`${BASE}/users/${id}`, {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(body),
   })
 
   if (!res.ok)

@@ -33,10 +33,10 @@ export async function getUserController(request: FastifyRequest<{ Params: { id: 
 }
 
 export async function createUserController(
-  request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
+  request: FastifyRequest<{ Body: { mail: string; pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
   try {
-    const { pseudo, password } = request.body
-    const user = await createUser(pseudo, password)
+    const { mail, pseudo, password } = request.body
+    const user = await createUser(mail, pseudo, password)
 
     await reply.status(201).send(user)
   } catch (err) {
@@ -46,7 +46,7 @@ export async function createUserController(
 }
 
 export async function updateUserController(
-  request: FastifyRequest<{ Params: { id: string }; Body: { pseudo?: string; password?: string } }>, reply: FastifyReply): Promise<void> {
+  request: FastifyRequest<{ Params: { id: string }; Body: { mail?: string; pseudo?: string; password?: string } }>, reply: FastifyReply): Promise<void> {
   try {
     const id = Number(request.params.id)
     const user = await updateUser(id, request.body)

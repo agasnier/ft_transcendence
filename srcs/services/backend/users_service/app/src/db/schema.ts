@@ -3,6 +3,7 @@ import { mysqlTable, int, varchar, mysqlEnum, timestamp } from 'drizzle-orm/mysq
 // SQL table that stores users content
 export const users = mysqlTable('users', {
   id: int('id').autoincrement().primaryKey(),
+  mail: varchar('mail', { length: 255 }).notNull().unique(),
   pseudo: varchar('pseudo', { length: 255 }).notNull().unique(),
   password: varchar('password', { length: 255 }).notNull(),
   role: mysqlEnum('role', ['admin', 'user']).notNull().default('user'),

@@ -2,6 +2,7 @@
 const userProperties = {
   id: { type: 'integer' },
   pseudo: { type: 'string' },
+  mail: { type: 'string' },
   role: { type: 'string', enum: ['admin', 'user'] },
 }
 
@@ -37,9 +38,10 @@ export const getUserSchema = {
 export const createUserSchema = {
   body: {
     type: 'object',
-    required: ['pseudo', 'password'],
+    required: ['mail', 'pseudo', 'password'],
     additionalProperties: false,
     properties: {
+      mail: { type: 'string', format: 'email', maxLength: 255 },
       pseudo: { type: 'string', minLength: 1, maxLength: 255 },
       password: { type: 'string', minLength: 8, maxLength: 255 },
     },
@@ -65,6 +67,7 @@ export const updateUserSchema = {
     additionalProperties: false,
     minProperties: 1,
     properties: {
+      mail: { type: 'string', format: 'email', maxLength: 255 },
       pseudo: { type: 'string', minLength: 1, maxLength: 255 },
       password: { type: 'string', minLength: 8, maxLength: 255 },
     },

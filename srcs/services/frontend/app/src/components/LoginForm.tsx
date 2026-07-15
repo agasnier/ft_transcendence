@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 function LoginForm() {
-  const [pseudo, setPseudo] = useState('')
+  const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userId, setUserId] = useState<number | null>(null)
@@ -25,7 +25,7 @@ function LoginForm() {
     const res = await fetch('/auth/login', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ pseudo, password }),
+      body: JSON.stringify({ login, password }),
     })
 
     if (res.ok)
@@ -71,11 +71,11 @@ function LoginForm() {
     <form onSubmit={handleSubmit}>
       <h2>Connexion</h2>
       <input
-        id="login-pseudo"
+        id="login-login"
         type="text"
-        placeholder="Pseudo"
-        value={pseudo}
-        onChange={(e) => setPseudo(e.target.value)}
+        placeholder="Mail ou Pseudo"
+        value={login}
+        onChange={(e) => setLogin(e.target.value)}
         required
       />
       <input

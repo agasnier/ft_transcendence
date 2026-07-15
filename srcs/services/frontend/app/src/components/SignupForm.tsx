@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 function SignupForm() {
+  const [mail, setMail] = useState('')
   const [pseudo, setPseudo] = useState('')
   const [password, setPassword] = useState('')
 
@@ -10,13 +11,21 @@ function SignupForm() {
     await fetch('/auth/register', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ pseudo, password }),
+      body: JSON.stringify({ mail, pseudo, password }),
     })
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <h2>Inscription</h2>
+      <input
+        id="signup-mail"
+        type="text"
+        placeholder="Mail"
+        value={mail}
+        onChange={(e) => setMail(e.target.value)}
+        required
+      />
       <input
         id="signup-pseudo"
         type="text"

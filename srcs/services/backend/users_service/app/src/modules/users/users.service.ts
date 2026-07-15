@@ -1,5 +1,5 @@
 import argon2 from 'argon2'
-import { eq } from 'drizzle-orm'
+import { eq, or } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
@@ -19,24 +19,24 @@ export async function verifyPassword(storedHash: string , password: string): Pro
 
 export async function getAllUsers() {
   return await db
-    .select({ id: users.id, pseudo: users.pseudo, role: users.role })
+    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role })
     .from(users)
 }
 
 export async function getUserById(id: number) {
   const rows = await db
-    .select({ id: users.id, pseudo: users.pseudo, role: users.role })
+    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role })
     .from(users)
     .where(eq(users.id, id))
     .limit(1)
   return rows[0]
 }
 
-export async function verifyCredentials(pseudo: string, password: string) {
+export async function verifyCredentials(login: string, password: string) {
   const rows = await db
     .select({ id: users.id, pseudo: users.pseudo, password: users.password })
     .from(users)
-    .where(eq(users.pseudo, pseudo))
+    .where(or(eq(users.mail, login), eq(users.pseudo, login)))
     .limit(1)
 
   const user = rows[0]
@@ -48,23 +48,25 @@ export async function verifyCredentials(pseudo: string, password: string) {
   return { id: user.id, pseudo: user.pseudo }
 }
 
-export async function createUser(pseudo: string, password: string) {
+export async function createUser(mail: string, pseudo: string, password: string) {
 
   const passwordHash = await hashPassword(password)
 
   const [result] = await db
     .insert(users)
-    .values({ pseudo, password: passwordHash })
+    .values({ mail, pseudo, password: passwordHash })
 
   return await getUserById(result.insertId)
 }
 
-export async function updateUser(id: number, data: { pseudo?: string; password?: string }) {
+export async function updateUser(id: number, data: { mail?: string; pseudo?: string; password?: string }) {
   const User = await getUserById(id)
   if (!User)
     return null
 
-  const newData: { pseudo?: string; password?: string } = {}
+  const newData: { mail?: string; pseudo?: string; password?: string } = {}
+  if (data.mail !== undefined)
+    newData.mail = data.mail
   if (data.pseudo !== undefined)
     newData.pseudo = data.pseudo
   if (data.password !== undefined)

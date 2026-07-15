@@ -3,10 +3,10 @@ import { createCookie, deleteRefreshToken, validateRefreshToken, validateAccessT
 import { createUser, verifyCredentials, getUserById } from '../users/users.service.js'
 
 export async function registerController(
-  request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
+  request: FastifyRequest<{ Body: { mail: string; pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
   try {
-    const { pseudo, password } = request.body
-    const user = await createUser(pseudo, password)
+    const { mail, pseudo, password } = request.body
+    const user = await createUser(mail, pseudo, password)
 
     // auto-login on signup: issue tokens + cookies for the new user
     await createCookie(reply, { id: user.id, pseudo: user.pseudo })
@@ -18,13 +18,11 @@ export async function registerController(
   }
 }
 
-
-
 export async function loginController(
-  request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
+  request: FastifyRequest<{ Body: { login: string; password: string } }>, reply: FastifyReply): Promise<void> {
   try {
-    const { pseudo, password } = request.body
-    const user = await verifyCredentials(pseudo, password)
+    const { login, password } = request.body
+    const user = await verifyCredentials(login, password)
     if (!user) {
       await reply.status(401).send({ message: 'Invalid credentials' })
       return
