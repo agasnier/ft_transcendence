@@ -26,6 +26,7 @@ export async function getUserById(id: number) {
   return res.json()
 }
 
+// TODO email adress
 export async function createUser(pseudo: string, password: string) {
   const res = await fetch(`${BASE}/users`, {
     method: 'POST',

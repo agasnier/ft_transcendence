@@ -2,3 +2,4 @@
 .env
 secrets/
 srcs/data/
+README.md

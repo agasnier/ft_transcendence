@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
-import { users, jwtRefreshToken } from '../../db/schema.js'
+import { jwtRefreshToken } from '../../db/schema.js'
 import { env } from '../../config/env.js'
 
 function hash(value: string): string {
@@ -18,20 +18,6 @@ export async function createCookie(reply: FastifyReply, user: { id: number; pseu
   reply
     .setCookie('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' })
     .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/auth' })
-}
-
-export async function verifyCredentials(pseudo: string, password: string) {
-  const rows = await db
-    .select({ id: users.id, pseudo: users.pseudo, password: users.password })
-    .from(users)
-    .where(eq(users.pseudo, pseudo))
-    .limit(1)
-
-  const user = rows[0]
-  if (!user || hash(password) !== user.password)
-    return null
-
-  return { id: user.id, pseudo: user.pseudo }
 }
 
 export function createAccessToken(user: { id: number; pseudo: string }): string {
@@ -77,14 +63,4 @@ export async function validateRefreshToken(token: string) {
     return null
 
   return stored
-}
-
-export async function getUserById(id: number) {
-  const rows = await db
-    .select({ id: users.id, pseudo: users.pseudo })
-    .from(users)
-    .where(eq(users.id, id))
-    .limit(1)
-
-  return rows[0]
 }

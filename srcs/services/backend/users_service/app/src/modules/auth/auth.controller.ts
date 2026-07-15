@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { verifyCredentials, createCookie, deleteRefreshToken, validateRefreshToken, getUserById, validateAccessToken } from './auth.service.js'
-import { createUser } from '../users/users.service.js'
+import { createCookie, deleteRefreshToken, validateRefreshToken, validateAccessToken } from './auth.service.js'
+import { createUser, verifyCredentials, getUserById } from '../users/users.service.js'
 
 export async function registerController(
   request: FastifyRequest<{ Body: { pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
