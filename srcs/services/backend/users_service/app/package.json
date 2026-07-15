@@ -20,7 +20,8 @@
     "drizzle-orm": "^0.45.2",
     "fastify": "^5.9.0",
     "jsonwebtoken": "^9.0.3",
-    "mysql2": "^3.22.5"
+    "mysql2": "^3.22.5",
+    "otplib": "^13.4.1"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",

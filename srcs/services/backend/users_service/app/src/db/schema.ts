@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, mysqlEnum, timestamp } from 'drizzle-orm/mysql-core'
+import { mysqlTable, int, varchar, mysqlEnum, timestamp, boolean } from 'drizzle-orm/mysql-core'
 
 // SQL table that stores users content
 export const users = mysqlTable('users', {
@@ -22,3 +22,15 @@ export const jwtRefreshToken = mysqlTable('jwt_refresh_token', {
 
 export type JwtRefreshToken = typeof jwtRefreshToken.$inferSelect
 export type NewJwtRefreshToken = typeof jwtRefreshToken.$inferInsert
+
+// SQL table that stores 2FA content
+export const twoFA = mysqlTable('two_factor', {
+  id: int('id').autoincrement().primaryKey(),
+  owner_id: int('owner_id').notNull().unique(),
+  secret: varchar('secret', { length: 255 }).notNull(),
+  enabled: boolean('enabled').notNull().default(false),
+})
+
+export type TwoFA = typeof twoFA.$inferSelect
+export type NewTwoFA = typeof twoFA.$inferInsert
+
