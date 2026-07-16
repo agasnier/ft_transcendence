@@ -12,15 +12,14 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
     return
   }
 
-  let user: { id: number; pseudo: string }
   try {
-    user = jwt.verify(accessToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as { id: number; pseudo: string }
+    const user = jwt.verify(accessToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as { id: number; pseudo: string }
+    request.user = user
   } catch {
     await reply.status(401).send({ message: 'Not authenticated' })
     return
   }
 
-  request.user = user
 }
 
 export async function  apiKeyAuthHook (request: FastifyRequest, reply: FastifyReply): Promise<void> {
