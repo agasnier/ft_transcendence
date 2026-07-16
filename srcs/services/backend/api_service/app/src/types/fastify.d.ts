@@ -7,5 +7,9 @@ declare module 'fastify' {
       role: 'admin' | 'user'
       ownerId?: number
     }
+    user?: {
+      id: number
+      pseudo: string
+    }
   }
 }

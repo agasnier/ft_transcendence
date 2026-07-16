@@ -1,6 +1,8 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { createCookie, deleteRefreshToken, validateRefreshToken, validateAccessToken } from './auth.service.js'
 import { createUser, verifyCredentials, getUserById } from '../users/users.service.js'
+import jwt from 'jsonwebtoken'
+import { env } from '../../config/env.js'
 
 // hooks
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -10,8 +12,10 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
     return
   }
 
-  const user = validateAccessToken(accessToken)
-  if (!user) {
+  let user: { id: number; pseudo: string }
+  try {
+    user = jwt.verify(accessToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as { id: number; pseudo: string }
+  } catch {
     await reply.status(401).send({ message: 'Not authenticated' })
     return
   }

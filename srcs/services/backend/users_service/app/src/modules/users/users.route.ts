@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyInstance } from 'fastify'
 import { listUsersController, getUserController, createUserController, updateUserController, deleteUserController } from './users.controller.js'
 import { listUsersSchema, getUserSchema, createUserSchema, updateUserSchema, deleteUserSchema } from './users.schema.js'
 

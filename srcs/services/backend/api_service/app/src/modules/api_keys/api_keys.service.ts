@@ -7,13 +7,6 @@ import { env } from '../../config/env.js'
 
 
 // TODO delete this function before push ?
-export async function getAllApiKeys() {
-  return await db
-    .select({ id: apiKeys.id, owner_id: apiKeys.owner_id, api_key_hash: apiKeys.api_key_hash, expires_at: apiKeys.expires_at })
-    .from(apiKeys)
-}
-
-// TODO delete this function before push ?
 export async function getApiKeysByOwnerId(owner_id: number) {
   const rows = await db
     .select({ id: apiKeys.id, owner_id: apiKeys.owner_id, api_key_hash: apiKeys.api_key_hash, expires_at: apiKeys.expires_at })

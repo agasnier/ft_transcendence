@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from 'fastify'
+import cookie from '@fastify/cookie'
 import swagger from '@fastify/swagger'
 import scalar from '@scalar/fastify-api-reference'
 
@@ -14,10 +15,10 @@ export function buildApp(): FastifyInstance {
     logger: true,
   })
 
+  app.register(cookie)
   app.register(swagger, swaggerSettings)
   app.register(scalar, { routePrefix: '/api/docs' })
 
-  // all module added must be register here
   app.register(usersRoutes, { prefix: '/api/users' })
   app.register(apiKeysRoutes, { prefix: '/api/api_keys' })
 

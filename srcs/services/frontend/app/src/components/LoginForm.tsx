@@ -42,18 +42,14 @@ function LoginForm() {
     if (userId === null)
       return
 
-    await fetch('/api/api_keys/', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ owner_id: userId }),
-    })
+    await fetch('/api/api_keys/', { method: 'POST' })
   }
 
   async function handleDeleteKey() {
     if (userId === null)
       return
 
-    await fetch(`/api/api_keys/${userId}`, { method: 'DELETE' })
+    await fetch('/api/api_keys/', { method: 'DELETE' })
   }
 
   if (isLoggedIn) {

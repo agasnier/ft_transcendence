@@ -1,12 +1,14 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { listApiKeysController, getApiKeysController, createApiKeysController, updateApiKeysController, deleteApiKeysController } from './api_keys.controller.js'
-import { listApiKeysSchema, getApiKeysSchema, createApiKeysSchema, updateApiKeysSchema, deleteApiKeysSchema } from './api_keys.schema.js'
+import type { FastifyInstance } from 'fastify'
+import { getApiKeysController, createApiKeysController, updateApiKeysController, deleteApiKeysController, userAuthHook } from './api_keys.controller.js'
+import { getApiKeysSchema, createApiKeysSchema, updateApiKeysSchema, deleteApiKeysSchema } from './api_keys.schema.js'
 
 
 export async function apiKeysRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/', { schema: listApiKeysSchema }, listApiKeysController)
-  app.get('/:owner_id', { schema: getApiKeysSchema }, getApiKeysController)
+
+  app.addHook('preHandler', userAuthHook)
+
+  app.get('/', { schema: getApiKeysSchema }, getApiKeysController)
   app.post('/', { schema: createApiKeysSchema }, createApiKeysController)
-  app.put('/:owner_id', { schema: updateApiKeysSchema }, updateApiKeysController)
-  app.delete('/:owner_id', { schema: deleteApiKeysSchema }, deleteApiKeysController)
+  app.put('/', { schema: updateApiKeysSchema }, updateApiKeysController)
+  app.delete('/', { schema: deleteApiKeysSchema }, deleteApiKeysController)
 }
