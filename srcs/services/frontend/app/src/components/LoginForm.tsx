@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react'
+import TextField from './TextField'
+import AuthCard from './AuthCard'
 
-function LoginForm() {
+interface LoginFormProps {
+  onSwitchToSignup: () => void
+}
+
+function LoginForm({ onSwitchToSignup }: LoginFormProps) {
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -54,19 +60,30 @@ function LoginForm() {
 
   if (isLoggedIn) {
     return (
-      <div>
-        <h2>Connexion</h2>
-        <button onClick={handleCreateKey}>Créer clé API</button>
-        <button onClick={handleDeleteKey}>Supprimer clé API</button>
-        <button onClick={handleLogout}>Déconnexion</button>
-      </div>
+      <AuthCard title="Connexion" onSubmit={handleSubmit}>
+        <button
+          type="button"
+          onClick={handleCreateKey}
+          className="bg-blue-600 text-white rounded-md py-2 hover:bg-blue-700 transition-colors">
+          Créer clé API</button>
+        <button
+          type="button"
+          onClick={handleDeleteKey}
+          className="bg-yellow-500 text-white rounded-md py-2 hover:bg-yellow-600 transition-colors">
+          Supprimer clé API</button>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="bg-red-600 text-white rounded-md py-2 hover:bg-red-700 transition-colors">
+          Déconnexion</button>
+      </AuthCard>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Connexion</h2>
-      <input
+  <AuthCard title="Connexion" onSubmit={handleSubmit}>
+
+      <TextField
         id="login-login"
         type="text"
         placeholder="Mail ou Pseudo"
@@ -74,7 +91,8 @@ function LoginForm() {
         onChange={(e) => setLogin(e.target.value)}
         required
       />
-      <input
+
+      <TextField
         id="login-password"
         type="password"
         placeholder="Password"
@@ -82,8 +100,19 @@ function LoginForm() {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <button type="submit">Se connecter</button>
-    </form>
+
+      <button
+        type="submit"
+        className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
+        Se connecter</button>
+
+      <button
+        type="button"
+        onClick={onSwitchToSignup}
+        className="text-blue-600 hover:underline text-sm">
+        pas de compte ? S'inscrire
+      </button>
+  </AuthCard>
   )
 }
 
