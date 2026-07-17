@@ -51,7 +51,7 @@ fclean: clean
 	$(COMPOSE) down --rmi all
 	@echo "Delete the persistant data ? : (y/n)"
 	@read ans; if [ "$$ans" = "y" ]; then \
-        rm -rf $(DB_DATA) $(DB_DATA_DEV) $(VAULT_DATA); \
+        sudo rm -rf $(DB_DATA) $(DB_DATA_DEV) $(VAULT_DATA); \
 		echo "Deleted."; \
     else \
         echo "Persistant data not deleted."; \
