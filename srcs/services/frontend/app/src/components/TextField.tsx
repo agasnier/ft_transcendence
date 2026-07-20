@@ -16,7 +16,7 @@ function TextField({ id, type, placeholder, value, onChange, required }: TextFie
 			value={value}
 			onChange={onChange}
 			required={required}
-			className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 ring-offset-2 focus:ring-blue-500"
+			className="border border-gray-300 rounded-md px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-2 ring-offset-2 focus:ring-blue-500"
 		/>
 	)
 }

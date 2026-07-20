@@ -3,117 +3,128 @@ import TextField from './TextField'
 import AuthCard from './AuthCard'
 
 interface LoginFormProps {
-  onSwitchToSignup: () => void
+	onSwitchToSignup: () => void
 }
 
 function LoginForm({ onSwitchToSignup }: LoginFormProps) {
-  const [login, setLogin] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userId, setUserId] = useState<number | null>(null)
+	const [login, setLogin] = useState('')
+	const [password, setPassword] = useState('')
+	const [isLoggedIn, setIsLoggedIn] = useState(false)
+	const [userId, setUserId] = useState<number | null>(null)
+	const [error, setError] = useState<string | null>(null)
 
-  async function checkSession() {
-    const res = await fetch('/auth/session')
-    if (res.ok) {
-      const user = await res.json()
-      setUserId(user.id)
-      setIsLoggedIn(true)
-    }
-  }
+	async function checkSession() {
+		const res = await fetch('/auth/session')
+		if (res.ok) {
+			const user = await res.json()
+			setUserId(user.id)
+			setIsLoggedIn(true)
+		}
+	}
 
-  useEffect(() => {
-    checkSession()
-  }, [])
+	useEffect(() => {
+		checkSession()
+	}, [])
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault()
+		setError(null);
 
-    const res = await fetch('/auth/login', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ login, password }),
-    })
+		const res = await fetch('/auth/login', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ login, password }),
+		})
 
-    if (res.ok)
-      await checkSession()
-  }
+		if (res.ok)
+			await checkSession()
+		else {
+			const body = await res.json()
+			setError(body.message)
+		}
+	}
 
-  async function handleLogout() {
-    await fetch('/auth/logout', { method: 'POST' })
-    setIsLoggedIn(false)
-    setUserId(null)
-  }
+	async function handleLogout() {
+		await fetch('/auth/logout', { method: 'POST' })
+		setIsLoggedIn(false)
+		setUserId(null)
+	}
 
-  async function handleCreateKey() {
-    if (userId === null)
-      return
+	async function handleCreateKey() {
+		if (userId === null)
+			return
 
-    await fetch('/api/api_keys/', { method: 'POST' })
-  }
+		await fetch('/api/api_keys/', { method: 'POST' })
+	}
 
-  async function handleDeleteKey() {
-    if (userId === null)
-      return
+	async function handleDeleteKey() {
+		if (userId === null)
+			return
 
-    await fetch('/api/api_keys/', { method: 'DELETE' })
-  }
+		await fetch('/api/api_keys/', { method: 'DELETE' })
+	}
 
-  if (isLoggedIn) {
-    return (
-      <AuthCard title="Connexion" onSubmit={handleSubmit}>
-        <button
-          type="button"
-          onClick={handleCreateKey}
-          className="bg-blue-600 text-white rounded-md py-2 hover:bg-blue-700 transition-colors">
-          Créer clé API</button>
-        <button
-          type="button"
-          onClick={handleDeleteKey}
-          className="bg-yellow-500 text-white rounded-md py-2 hover:bg-yellow-600 transition-colors">
-          Supprimer clé API</button>
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="bg-red-600 text-white rounded-md py-2 hover:bg-red-700 transition-colors">
-          Déconnexion</button>
-      </AuthCard>
-    )
-  }
+	if (isLoggedIn) {
+		return (
+			<AuthCard title="Connexion" onSubmit={handleSubmit}>
+				<button
+					type="button"
+					onClick={handleCreateKey}
+					className="bg-blue-600 text-white rounded-md py-2 hover:bg-blue-700 transition-colors">
+					Créer clé API
+				</button>
+				<button
+					type="button"
+					onClick={handleDeleteKey}
+					className="bg-yellow-500 text-white rounded-md py-2 hover:bg-yellow-600 transition-colors">
+					Supprimer clé API
+				</button>
+				<button
+					type="button"
+					onClick={handleLogout}
+					className="bg-red-600 text-white rounded-md py-2 hover:bg-red-700 transition-colors">
+					Déconnexion
+				</button>
+			</AuthCard>
+		)
+	}
 
-  return (
-  <AuthCard title="Connexion" onSubmit={handleSubmit}>
+	return (
+	<AuthCard title="Connexion" onSubmit={handleSubmit}>
 
-      <TextField
-        id="login-login"
-        type="text"
-        placeholder="Mail ou Pseudo"
-        value={login}
-        onChange={(e) => setLogin(e.target.value)}
-        required
-      />
+			<TextField
+				id="login-login"
+				type="text"
+				placeholder="Email ou Pseudo"
+				value={login}
+				onChange={(e) => setLogin(e.target.value)}
+				required
+			/>
 
-      <TextField
-        id="login-password"
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
+			<TextField
+				id="login-password"
+				type="password"
+				placeholder="Mot de passe"
+				value={password}
+				onChange={(e) => setPassword(e.target.value)}
+				required
+			/>
+			{error && (<p className="text-red-600 text-sm text-center">{error}</p>)}
 
-      <button
-        type="submit"
-        className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
-        Se connecter</button>
+			<button
+				type="submit"
+				className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
+				Se connecter
+			</button>
 
-      <button
-        type="button"
-        onClick={onSwitchToSignup}
-        className="text-blue-600 hover:underline text-sm">
-        pas de compte ? S'inscrire
-      </button>
-  </AuthCard>
-  )
+			<button
+				type="button"
+				onClick={onSwitchToSignup}
+				className="text-blue-600 hover:underline text-sm">
+				pas de compte ? S'inscrire
+			</button>
+	</AuthCard>
+	)
 }
 
 export default LoginForm
