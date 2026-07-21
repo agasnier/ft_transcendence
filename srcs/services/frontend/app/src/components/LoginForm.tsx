@@ -99,6 +99,7 @@ function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 				value={login}
 				onChange={(e) => setLogin(e.target.value)}
 				required
+				autoFocus
 			/>
 
 			<TextField

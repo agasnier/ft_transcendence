@@ -40,6 +40,7 @@ function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 				value={mail}
 				onChange={(e) => setMail(e.target.value)}
 				required
+				autoFocus
 			/>
 
 			<TextField
