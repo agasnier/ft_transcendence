@@ -12,12 +12,19 @@ function SignupForm({ onSwitchToLogin, onShowPrivacy, onShowTerms }: SignupFormP
 	const [mail, setMail] = useState('')
 	const [pseudo, setPseudo] = useState('')
 	const [password, setPassword] = useState('')
+	const [confirmPassword, setConfirmPassword] = useState('')
 	const [error, setError] = useState<string | null>(null)
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		setError(null);
 
+		if (password !== confirmPassword) {
+			setError('Les mots de passe ne correspondent pas')
+			setPassword('')
+			setConfirmPassword('')
+			return
+		}
 		const res = await fetch('/auth/register', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
@@ -74,10 +81,19 @@ function SignupForm({ onSwitchToLogin, onShowPrivacy, onShowTerms }: SignupFormP
 
 			<TextField
 				id="signup-password"
-				label="Mot de passe"
+				label="Mot de passe: 8 caractères min."
 				type="password"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
+				required
+			/>
+
+			<TextField
+				id="confirm-password"
+				label="Confirmer le mot de passe"
+				type="password"
+				value={confirmPassword}
+				onChange={(e) => setConfirmPassword(e.target.value)}
 				required
 			/>
 

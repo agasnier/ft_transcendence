@@ -42,6 +42,7 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms }: LoginFormPr
 			await checkSession()
 		else {
 			const body = await res.json()
+			setPassword('')
 			setError(body.message)
 		}
 	}
