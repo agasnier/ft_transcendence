@@ -4,9 +4,11 @@ import AuthCard from './AuthCard'
 
 interface SignupFormProps {
 	onSwitchToLogin: () => void
+	onShowPrivacy: () => void
+	onShowTerms: () => void
 }
 
-function SignupForm({ onSwitchToLogin }: SignupFormProps) {
+function SignupForm({ onSwitchToLogin, onShowPrivacy, onShowTerms }: SignupFormProps) {
 	const [mail, setMail] = useState('')
 	const [pseudo, setPseudo] = useState('')
 	const [password, setPassword] = useState('')
@@ -30,8 +32,26 @@ function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 		}
 	}
 
+	const privacyPolicy = (
+		<button
+			type="button"
+			onClick={onShowPrivacy}
+			className="text-black hover:underline text-xs">
+			Politique de confidentialité
+		</button>
+	)
+
+	const termsOfService = (
+		<button
+			type="button"
+			onClick={onShowTerms}
+			className="text-black hover:underline text-xs">
+			Conditions d'utilisation
+		</button>
+	)
+
 	return (
-		<AuthCard title="Inscription" onSubmit={handleSubmit}>
+		<AuthCard title="Inscription" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
 
 			<TextField
 				id="signup-email"
@@ -65,14 +85,14 @@ function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 
 			<button
 				type="submit"
-				className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
+				className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 hover:scale-105 transition">
 				S'inscrire
 			</button>
 
 			<button
 				type="button"
 				onClick={onSwitchToLogin}
-				className="text-blue-600 hover:underline text-sm">
+				className="text-blue-600 hover:underline hover:scale-105 text-sm">
 				déjà un compte ? Se connecter
 			</button>
 

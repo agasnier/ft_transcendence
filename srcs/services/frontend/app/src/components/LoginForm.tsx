@@ -4,9 +4,11 @@ import AuthCard from './AuthCard'
 
 interface LoginFormProps {
 	onSwitchToSignup: () => void
+	onShowPrivacy: () => void
+	onShowTerms: () => void
 }
 
-function LoginForm({ onSwitchToSignup }: LoginFormProps) {
+function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms }: LoginFormProps) {
 	const [login, setLogin] = useState('')
 	const [password, setPassword] = useState('')
 	const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -64,9 +66,27 @@ function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 		await fetch('/api/api_keys/', { method: 'DELETE' })
 	}
 
+	const privacyPolicy = (
+		<button
+			type="button"
+			onClick={onShowPrivacy}
+			className="text-black hover:underline text-xs">
+			Politique de confidentialité
+		</button>
+	)
+
+	const termsOfService = (
+		<button
+			type="button"
+			onClick={onShowTerms}
+			className="text-black hover:underline text-xs">
+			Conditions d'utilisation
+		</button>
+	)
+
 	if (isLoggedIn) {
 		return (
-			<AuthCard title="Connexion" onSubmit={handleSubmit}>
+			<AuthCard title="Connexion" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
 				<button
 					type="button"
 					onClick={handleCreateKey}
@@ -90,7 +110,7 @@ function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 	}
 
 	return (
-	<AuthCard title="Connexion" onSubmit={handleSubmit}>
+	<AuthCard title="Connexion" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
 
 			<TextField
 				id="login-login"
@@ -114,14 +134,14 @@ function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
 			<button
 				type="submit"
-				className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors">
+				className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 hover:scale-105 transition">
 				Se connecter
 			</button>
 
 			<button
 				type="button"
 				onClick={onSwitchToSignup}
-				className="text-blue-600 hover:underline text-sm">
+				className="text-blue-600 hover:underline hover:scale-105 text-sm">
 				pas de compte ? S'inscrire
 			</button>
 	</AuthCard>
