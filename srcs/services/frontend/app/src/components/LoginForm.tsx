@@ -94,8 +94,8 @@ function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
 			<TextField
 				id="login-login"
+				label="E-mail ou pseudo"
 				type="text"
-				placeholder="Email ou Pseudo"
 				value={login}
 				onChange={(e) => setLogin(e.target.value)}
 				required
@@ -103,8 +103,8 @@ function LoginForm({ onSwitchToSignup }: LoginFormProps) {
 
 			<TextField
 				id="login-password"
+				label="Mot de passe"
 				type="password"
-				placeholder="Mot de passe"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				required

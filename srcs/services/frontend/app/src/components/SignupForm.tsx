@@ -35,8 +35,8 @@ function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 
 			<TextField
 				id="signup-email"
+				label="Adresse e-mail"
 				type="email"
-				placeholder="Email: nom@example.com"
 				value={mail}
 				onChange={(e) => setMail(e.target.value)}
 				required
@@ -44,8 +44,8 @@ function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 
 			<TextField
 				id="signup-pseudo"
+				label="Pseudo"
 				type="text"
-				placeholder="Pseudo"
 				value={pseudo}
 				onChange={(e) => setPseudo(e.target.value)}
 				required
@@ -53,8 +53,8 @@ function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 
 			<TextField
 				id="signup-password"
+				label="Mot de passe"
 				type="password"
-				placeholder="Mot de passe"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				required
