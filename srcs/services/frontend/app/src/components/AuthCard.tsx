@@ -15,7 +15,7 @@ function AuthCard({ title, onSubmit, children, privacyPolicy, termsOfService }: 
 				src={bg}
 				className="absolute inset-0 -z-10 w-full h-full object-cover object-right"
 			/>
-			<h1 className="text-center text-white text-8xl font-bold">
+			<h1 className="text-center text-white text-8xl font-bold drop-shadow">
 				Nom du site
 			</h1>
 			<div className="flex flex-col items-center justify-center gap-3 w-full max-w-sm min-h-[420px]">
