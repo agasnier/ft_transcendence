@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import TextField from './TextField'
 import AuthCard from './AuthCard'
 
@@ -6,27 +6,14 @@ interface LoginFormProps {
 	onSwitchToSignup: () => void
 	onShowPrivacy: () => void
 	onShowTerms: () => void
+	onLoginSuccess: () => void
 }
 
-function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms }: LoginFormProps) {
+function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSuccess }: LoginFormProps) {
 	const [login, setLogin] = useState('')
 	const [password, setPassword] = useState('')
-	const [isLoggedIn, setIsLoggedIn] = useState(false)
-	const [userId, setUserId] = useState<number | null>(null)
 	const [error, setError] = useState<string | null>(null)
 
-	async function checkSession() {
-		const res = await fetch('/auth/session')
-		if (res.ok) {
-			const user = await res.json()
-			setUserId(user.id)
-			setIsLoggedIn(true)
-		}
-	}
-
-	useEffect(() => {
-		checkSession()
-	}, [])
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -39,32 +26,12 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms }: LoginFormPr
 		})
 
 		if (res.ok)
-			await checkSession()
+			await onLoginSuccess()
 		else {
 			const body = await res.json()
 			setPassword('')
 			setError(body.message)
 		}
-	}
-
-	async function handleLogout() {
-		await fetch('/auth/logout', { method: 'POST' })
-		setIsLoggedIn(false)
-		setUserId(null)
-	}
-
-	async function handleCreateKey() {
-		if (userId === null)
-			return
-
-		await fetch('/api/api_keys/', { method: 'POST' })
-	}
-
-	async function handleDeleteKey() {
-		if (userId === null)
-			return
-
-		await fetch('/api/api_keys/', { method: 'DELETE' })
 	}
 
 	const privacyPolicy = (
@@ -85,30 +52,30 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms }: LoginFormPr
 		</button>
 	)
 
-	if (isLoggedIn) {
-		return (
-			<AuthCard title="Connexion" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
-				<button
-					type="button"
-					onClick={handleCreateKey}
-					className="bg-blue-600 text-white rounded-md py-2 hover:bg-blue-700 transition-colors">
-					Créer clé API
-				</button>
-				<button
-					type="button"
-					onClick={handleDeleteKey}
-					className="bg-yellow-500 text-white rounded-md py-2 hover:bg-yellow-600 transition-colors">
-					Supprimer clé API
-				</button>
-				<button
-					type="button"
-					onClick={handleLogout}
-					className="bg-red-600 text-white rounded-md py-2 hover:bg-red-700 transition-colors">
-					Déconnexion
-				</button>
-			</AuthCard>
-		)
-	}
+	// if (isLoggedIn) {
+	// 	return (
+	// 		<AuthCard title="Connexion" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
+	// 			<button
+	// 				type="button"
+	// 				onClick={handleCreateKey}
+	// 				className="bg-blue-600 text-white rounded-md py-2 hover:bg-blue-700 transition-colors">
+	// 				Créer clé API
+	// 			</button>
+	// 			<button
+	// 				type="button"
+	// 				onClick={handleDeleteKey}
+	// 				className="bg-yellow-500 text-white rounded-md py-2 hover:bg-yellow-600 transition-colors">
+	// 				Supprimer clé API
+	// 			</button>
+	// 			<button
+	// 				type="button"
+	// 				onClick={handleLogout}
+	// 				className="bg-red-600 text-white rounded-md py-2 hover:bg-red-700 transition-colors">
+	// 				Déconnexion
+	// 			</button>
+	// 		</AuthCard>
+	// 	)
+	// }
 
 	return (
 	<AuthCard title="Connexion" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>

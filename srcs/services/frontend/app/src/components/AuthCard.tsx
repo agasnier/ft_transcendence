@@ -13,7 +13,7 @@ function AuthCard({ title, onSubmit, children, privacyPolicy, termsOfService }: 
 		<div className="relative isolate flex flex-col items-center justify-center gap-4 min-h-screen bg-gray-100">
 			<img
 				src={bg}
-				className="absolute inset-0 -z-10 w-full h-full object-cover"
+				className="absolute inset-0 -z-10 w-full h-full object-cover object-right"
 			/>
 			<h1 className="text-center text-white text-8xl font-bold">
 				Nom du site
