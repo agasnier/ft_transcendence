@@ -4,11 +4,12 @@ import AuthCard from './AuthCard'
 
 interface SignupFormProps {
 	onSwitchToLogin: () => void
+	onSignupSuccess: () => void
 	onShowPrivacy: () => void
 	onShowTerms: () => void
 }
 
-function SignupForm({ onSwitchToLogin, onShowPrivacy, onShowTerms }: SignupFormProps) {
+function SignupForm({ onSwitchToLogin, onSignupSuccess, onShowPrivacy, onShowTerms }: SignupFormProps) {
 	const [mail, setMail] = useState('')
 	const [pseudo, setPseudo] = useState('')
 	const [password, setPassword] = useState('')
@@ -32,7 +33,7 @@ function SignupForm({ onSwitchToLogin, onShowPrivacy, onShowTerms }: SignupFormP
 		})
 
 		if (res.ok)
-			onSwitchToLogin()
+			onSignupSuccess()
 		else {
 			const body = await res.json()
 			setError(body.message)

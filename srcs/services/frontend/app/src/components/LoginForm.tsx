@@ -6,10 +6,11 @@ interface LoginFormProps {
 	onSwitchToSignup: () => void
 	onShowPrivacy: () => void
 	onShowTerms: () => void
-	onLoginSuccess: () => void
+	onLoginSuccess: () => Promise<void>
+	signupSuccess?: boolean
 }
 
-function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSuccess }: LoginFormProps) {
+function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSuccess, signupSuccess }: LoginFormProps) {
 	const [login, setLogin] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState<string | null>(null)
@@ -52,31 +53,6 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSucces
 		</button>
 	)
 
-	// if (isLoggedIn) {
-	// 	return (
-	// 		<AuthCard title="Connexion" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
-	// 			<button
-	// 				type="button"
-	// 				onClick={handleCreateKey}
-	// 				className="bg-blue-600 text-white rounded-md py-2 hover:bg-blue-700 transition-colors">
-	// 				Créer clé API
-	// 			</button>
-	// 			<button
-	// 				type="button"
-	// 				onClick={handleDeleteKey}
-	// 				className="bg-yellow-500 text-white rounded-md py-2 hover:bg-yellow-600 transition-colors">
-	// 				Supprimer clé API
-	// 			</button>
-	// 			<button
-	// 				type="button"
-	// 				onClick={handleLogout}
-	// 				className="bg-red-600 text-white rounded-md py-2 hover:bg-red-700 transition-colors">
-	// 				Déconnexion
-	// 			</button>
-	// 		</AuthCard>
-	// 	)
-	// }
-
 	return (
 	<AuthCard title="Connexion" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
 
@@ -98,6 +74,7 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSucces
 				onChange={(e) => setPassword(e.target.value)}
 				required
 			/>
+			{signupSuccess && !error && (<p className="text-green-600 text-sm text-center">Compte créé, vous pouvez vous connecter</p>)}
 			{error && (<p className="text-red-600 text-sm text-center">{error}</p>)}
 
 			<button
