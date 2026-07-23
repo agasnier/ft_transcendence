@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, mysqlEnum, timestamp, boolean } from 'drizzle-orm/mysql-core'
+import { mysqlTable, int, varchar, text, mysqlEnum, timestamp, boolean, unique } from 'drizzle-orm/mysql-core'
 
 // SQL table that stores users content
 export const users = mysqlTable('users', {
@@ -7,7 +7,23 @@ export const users = mysqlTable('users', {
   pseudo: varchar('pseudo', { length: 255 }).notNull().unique(),
   password: varchar('password', { length: 255 }).notNull(),
   role: mysqlEnum('role', ['admin', 'user']).notNull().default('user'),
+  displayName: varchar('display_name', { length: 50 }),
+  avatarUrl: varchar('avatar_url', { length: 255 }).default('/avatars/default.png'),
+  bio: text('bio'),
+  isOnline: boolean('is_online').default(false),
+  lastSeenAt: timestamp('last_seen_at').defaultNow(),
 })
+
+// SQL table that stores users's friends content
+export const friends = mysqlTable('friends', {
+  id: int('id').autoincrement().primaryKey(),
+  requesterId: int('requester_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  addresseeId: int('addressee_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  status: varchar('status', { length: 20 }).notNull().default('pending'),
+  createdAt: timestamp('created_at').defaultNow(),
+}, (table) => ({
+  uniquePair: unique().on(table.requesterId, table.addresseeId),
+}))
 
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert

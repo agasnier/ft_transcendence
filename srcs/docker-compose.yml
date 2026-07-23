@@ -18,7 +18,7 @@ services:
     image: ft_nginx
     build: ./services/nginx
     environment:
-      ALLOWED_METHODS: "GET HEAD POST OPTIONS PUT DELETE"
+      ALLOWED_METHODS: "GET HEAD POST OPTIONS PUT DELETE PATCH"
     ports:
       - "8080:80"
       - "8443:443"

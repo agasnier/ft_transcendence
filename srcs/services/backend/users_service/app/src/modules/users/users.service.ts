@@ -76,6 +76,22 @@ export async function updateUser(id: number, data: { mail?: string; pseudo?: str
   return await getUserById(id)
 }
 
+export async function updateUserProfile(id: number, data: { displayName?: string; bio?: string }) {
+  await db.update(users).set(data).where(eq(users.id, id))
+  return db.query.users.findFirst({ where: eq(users.id, id )})
+}
+
+export async function getUserProfile(id: number) {
+  return db.query.users.findFirst({
+    where: eq(users.id, id),
+    columns: { id: true, displayName: true, avatarUrl: true, bio: true, isOnline: true, lastSeenAt: true },
+  })
+}
+
+export async function updateAvatar(id: number, avatarUrl: string) {
+  await db.update(users).set({ avatarUrl }).where(eq(users.id, id))
+}
+
 export async function deleteUser(id: number) {
   const [result] = await db.delete(users).where(eq(users.id, id))
   return result.affectedRows > 0

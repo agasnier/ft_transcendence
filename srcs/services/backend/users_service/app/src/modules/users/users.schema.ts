@@ -89,3 +89,62 @@ export const deleteUserSchema = {
     },
   },
 }
+
+export const updateProfileSchema = {
+  body: {
+    type: 'object',
+    additionalProperties: false,
+    minProperties: 1,
+    properties: {
+      displayName: { type: 'string', minLength: 2, maxLength: 50 },
+      bio: { type: 'string', maxLength: 500 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        displayName: { type: ['string', 'null'] },
+        avatarUrl: { type: 'string' },
+        bio: { type: ['string', 'null'] },
+        isOnline: { type: 'boolean' },
+        lastSeenAt: { type: ['string', 'null'], format: 'date-time' },
+      },
+    },
+  },
+}
+
+export const getUserProfileSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        displayName: { type: ['string', 'null'] },
+        avatarUrl: { type: 'string' },
+        bio: { type: ['string', 'null'] },
+        isOnline: { type: 'boolean' },
+        lastSeenAt: { type: ['string', 'null'], format: 'date-time' },
+      },
+    },
+  },
+}
+
+export const uploadAvatarSchema = {
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        avatarUrl: { type: 'string' },
+      },
+    },
+  },
+}
