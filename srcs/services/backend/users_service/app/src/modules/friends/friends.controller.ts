@@ -1,7 +1,7 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
-import { sendFriendRequest, acceptFriendRequest } from './friends.service.js'
+import { sendFriendRequest, acceptFriendRequest, listFriends, declineFriendRequest } from './friends.service.js'
 
-export async function sendFriendRequestController(req: FastifyRequest, reply:FastifyReply) {
+export async function sendFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
 		await reply.code(401).send({ message: 'Not authentificated' })
 		return
@@ -16,7 +16,7 @@ export async function sendFriendRequestController(req: FastifyRequest, reply:Fas
 	return reply.code(201).send({ message: 'Friend request sent' })
 }
 
-export async function acceptFriendRequestController(req: FastifyRequest, reply:FastifyReply) {
+export async function acceptFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
 		await reply.code(401).send({ message: 'Not authentificated' })
 		return
@@ -24,4 +24,24 @@ export async function acceptFriendRequestController(req: FastifyRequest, reply:F
 	const { userId } = req.params as { userId: string }
 	await acceptFriendRequest(Number(userId), req.user.id)
 	return reply.send({ message: 'Friend request accepted' })
+}
+
+export async function declineFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
+	if (!req.user) {
+		await reply.code(401).send({ message: 'Not authentificated' })
+		return
+	}
+	const { userId } =req.params as { userId: string }
+	await declineFriendRequest(Number(userId), req.user.id)
+	return reply.send({ message: 'Friend request declined' })
+}
+
+export async function listFriendsController(req: FastifyRequest, reply :FastifyReply) {
+	if (!req.user) {
+		await reply.code(401).send({ message: 'Not authentificated' })
+		return
+	}
+	const { search } = req.query as { search?: string }
+	const friendsList = await listFriends(req.user.id, search)
+	return reply.send(friendsList)
 }
