@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 import fastifyMultipart from '@fastify/multipart'
+import fastifyWebsocket from '@fastify/websocket'
 import cookie from '@fastify/cookie'
 
 import { usersRoutes } from './modules/users/users.route.js'
@@ -19,6 +20,7 @@ export function buildApp(): FastifyInstance {
   app.register(fastifyMultipart, {
     limits: { fileSize: 5 * 1024 * 1024 }, //5MB max
   })
+  app.register(fastifyWebsocket)
 
   // all module added must be register here
   app.register(usersRoutes, { prefix: '/users' })

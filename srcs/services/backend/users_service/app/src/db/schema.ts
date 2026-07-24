@@ -11,7 +11,6 @@ export const users = mysqlTable('users', {
   avatarUrl: varchar('avatar_url', { length: 255 }).default('/avatars/default.png'),
   bio: text('bio'),
   isOnline: boolean('is_online').default(false),
-  lastSeenAt: timestamp('last_seen_at').defaultNow(),
 })
 
 // SQL table that stores users's friends content
