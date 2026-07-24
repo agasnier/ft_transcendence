@@ -1,5 +1,5 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
-import { sendFriendRequest, acceptFriendRequest, listFriends, declineFriendRequest } from './friends.service.js'
+import { sendFriendRequest, acceptFriendRequest, listFriends, declineFriendRequest, removeFriend } from './friends.service.js'
 
 export async function sendFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
@@ -36,7 +36,7 @@ export async function declineFriendRequestController(req: FastifyRequest, reply:
 	return reply.send({ message: 'Friend request declined' })
 }
 
-export async function listFriendsController(req: FastifyRequest, reply :FastifyReply) {
+export async function listFriendsController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
 		await reply.code(401).send({ message: 'Not authentificated' })
 		return
@@ -44,4 +44,14 @@ export async function listFriendsController(req: FastifyRequest, reply :FastifyR
 	const { search } = req.query as { search?: string }
 	const friendsList = await listFriends(req.user.id, search)
 	return reply.send(friendsList)
+}
+
+export async function removeFriendController(req: FastifyRequest, reply: FastifyReply) {
+	if (!req.user) {
+		await reply.code(401).send({ message: 'Not authentificated' })
+		return
+	}
+	const { userId } = req.params as { userId: string }
+	await removeFriend(req.user.id, Number(userId))
+	return reply.send({ message: 'Friend removed' })
 }

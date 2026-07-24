@@ -53,3 +53,13 @@ export const listFriendsSchema = {
     },
   },
 }
+
+export const removeFriendSchema = {
+  params: {
+    type: 'object',
+    required: ['userId'],
+    properties: {
+      userId: { type: 'integer', minimum: 1 },
+    },
+  },
+}

@@ -61,3 +61,17 @@ export async function listFriends(userId: number, search?: string) {
 			.from(users)
 			.where(conditions)
 }
+
+export async function removeFriend(userId: number, friendId: number) {
+	await db
+		.delete(friends)
+		.where(
+			and(
+				eq(friends.status, 'accepted'),
+				or(
+					and(eq(friends.requesterId, userId), eq(friends.addresseeId, friendId)),
+					and(eq(friends.requesterId, friendId), eq(friends.addresseeId, userId)),
+				)
+			)
+		)
+}
