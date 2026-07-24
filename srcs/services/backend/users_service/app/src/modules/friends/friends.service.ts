@@ -47,7 +47,7 @@ export async function listFriends(userId: number, search?: string) {
 
 		// take friends info, with displayName filter
 		const conditions = search
-			? and(inArray(users.id, friendIds), like(users.displayName, '%${search}%'))
+			? and(inArray(users.id, friendIds), like(users.displayName, `%${search}%`))
 			: inArray(users.id, friendIds)
 
 		return db
