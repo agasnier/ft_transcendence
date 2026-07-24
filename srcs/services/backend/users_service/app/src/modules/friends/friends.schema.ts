@@ -20,6 +20,16 @@ export const acceptFriendRequestSchema = {
   },
 }
 
+export const declineFriendRequestSchema = {
+  params: {
+    type: 'object',
+    required: ['usersId'],
+    properties: {
+      userId: { type: 'integer', minimum: 1 },
+    },
+  },
+}
+
 export const listFriendsSchema = {
   querystring: {
     type: 'object',

@@ -13,6 +13,18 @@ export async function acceptFriendRequest(requesterId: number, addresseeId: numb
 		.where(and(eq(friends.requesterId, requesterId), eq(friends.addresseeId, addresseeId)))
 }
 
+export async function declineFriendRequest(requesterId: number, addresseeId: number) {
+	await db
+		.delete(friends)
+		.where(
+			and(
+				eq(friends.requesterId, requesterId),
+				eq(friends.addresseeId, addresseeId),
+				eq(friends.status, 'pending'), // we can decline only pending request
+			)
+		)
+}
+
 export async function listFriends(userId: number, search?: string) {
 	// take all accepted relations using userId
 	const relations = await db
