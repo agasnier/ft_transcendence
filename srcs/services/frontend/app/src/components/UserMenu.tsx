@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 
 interface UserMenuProps {
 	onLogout: () => void
+	onSwitchToContacts: () => void
 	pseudo: string | null
 }
 
-function UserMenu({onLogout, pseudo}: UserMenuProps) {
+function UserMenu({onLogout, onSwitchToContacts, pseudo}: UserMenuProps) {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const menuRef = useRef<HTMLDivElement>(null)
 
@@ -40,7 +41,11 @@ function UserMenu({onLogout, pseudo}: UserMenuProps) {
 						{pseudo}
 					</button>
 					<p className="border-t text-gray-200"></p>
-					<button className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl">Contacts</button>
+					<button
+						className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl"
+						onClick={onSwitchToContacts}>
+						Contacts
+					</button>
 					<button className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl">Paramètres</button>
 					<p className="border-t text-gray-200"></p>
 					<button
