@@ -24,6 +24,8 @@ function Sidebar({onLogout, onSwitchToContacts, pseudo}: SidebarProp) {
 				setFriends(await res.json())
 		}
 		loadFriends()
+		const intervalId = setInterval(loadFriends, 5000)
+		return () => clearInterval(intervalId)
 	}, [])
 
 	return (
