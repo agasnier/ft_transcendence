@@ -113,7 +113,7 @@ export async function uploadAvatarController(req: FastifyRequest, reply: Fastify
     await reply.code(400).send({ message: 'No file provided' })
     return
   }
-  const allowed = ['image/jpeg', 'image/png', 'image.webp']
+  const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image.webp']
   if (!allowed.includes(data.mimetype)) {
     await reply.code(400).send({ message: 'Invalid file type' })
     return
