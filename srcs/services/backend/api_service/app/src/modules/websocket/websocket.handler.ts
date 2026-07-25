@@ -8,6 +8,7 @@ interface ActiveClient {
 	socket: WebSocket
 	userId: string
 	isAlive: boolean
+	pseudo: string
 }
 
 interface JwtPayload {
@@ -41,7 +42,7 @@ export function broadcast(data: object, excludeuserId?: string) {
 	}
 }
 
-function authenticateWebSocket(req: FastifyRequest, app: FastifyInstance): number | null {
+function authenticateWebSocket(req: FastifyRequest, app: FastifyInstance): JwtPayload | null {
 	try {
 		const rawCookieHeader = req.headers['cookie'] || (req.raw?.headers as any)?.cookie
 		const tokenFromCookie = req.cookies?.access_token || getCookieValue(rawCookieHeader, 'access_token')
@@ -54,7 +55,7 @@ function authenticateWebSocket(req: FastifyRequest, app: FastifyInstance): numbe
 		}
 
 		const decoded = jwt.verify(finalToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as JwtPayload
-		return decoded.id
+		return decoded
 	} catch (err: any) {
 		app.log.warn(`[WS Auth Failed] Vérification JWT échouée : ${err?.message}`)
 		return null
@@ -77,20 +78,21 @@ function closeSocket(connection: any, code: number, reason: string): void {
 export function handleWebSocket(connection: any, req: FastifyRequest, app: FastifyInstance): void {
 	const socket: WebSocket = connection.socket ?? connection.raw ?? connection
 
-	const userIdNum = authenticateWebSocket(req, app)
-	if (userIdNum === null) {
+	const auth = authenticateWebSocket(req, app)
+	if (auth === null) {
 		app.log.warn(WS_ERRORS.UNAUTHORIZED.log)
 		closeSocket(connection, WS_ERRORS.UNAUTHORIZED.code, WS_ERRORS.UNAUTHORIZED.reason)
 		return
 	}
 
-	const userId = String(userIdNum)
+	const userId = String(auth.id)
 	app.log.info(`[WS] Client connecté et authentifié : ID ${userId}`)
 
 	const clientInfo: ActiveClient = {
 		socket,
 		userId,
 		isAlive: true,
+		pseudo: auth.pseudo
 	}
 	activeClients.set(userId, clientInfo)
 	broadcast({ type: 'USER_STATUS', payload: { userId, status: 'online' } }, userId)
@@ -116,6 +118,7 @@ export function handleWebSocket(connection: any, req: FastifyRequest, app: Fasti
 						type: 'NEW_CHAT_MESSAGE',
 						payload: {
 							senderId: userId,
+							senderPseudo: clientInfo.pseudo,
 							text: event.payload?.text,
 							timestamp: new Date().toISOString(),
 						},

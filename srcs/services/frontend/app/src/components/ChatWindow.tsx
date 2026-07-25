@@ -6,6 +6,7 @@ interface Message {
 	senderId: string
 	text: string
 	timestamp: string
+	senderPseudo: string
 }
 
 function ChatWindow() {
@@ -23,6 +24,7 @@ function ChatWindow() {
 				senderId: lastMessage.payload.senderId ?? 'Anonyme',
 				text: lastMessage.payload.text ?? '',
 				timestamp: lastMessage.payload.timestamp ?? new Date().toISOString(),
+				senderPseudo: lastMessage.payload.senderPseudo ?? ''
 			}
 			setMessages((prev) => [...prev, newMessage])
 		}
@@ -63,7 +65,7 @@ function ChatWindow() {
 					messages.map((msg) => (
 						<div key={msg.id} className="flex flex-col items-start bg-blue-50/80 p-3 rounded-2xl max-w-md border border-blue-100 shadow-sm">
 							<div className="flex justify-between w-full text-xs font-semibold text-blue-700 mb-1 gap-4">
-								<span>Utilisateur #{msg.senderId}</span>
+								<span>{msg.senderPseudo || `Utilisateur #${msg.senderId}`}</span>
 								<span className="text-gray-400 font-normal">
 									{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</span>
