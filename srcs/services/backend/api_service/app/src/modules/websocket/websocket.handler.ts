@@ -4,6 +4,10 @@ import jwt from 'jsonwebtoken'
 import { env } from '../../config/env.js'
 import { WS_ERRORS } from './ws.error.js'
 
+// ==========================================
+// Types & Interfaces
+// ==========================================
+
 interface ActiveClient {
 	socket: WebSocket
 	userId: string
@@ -15,14 +19,25 @@ interface JwtPayload {
 	pseudo: string
 }
 
+// Global state tracking all connected WebSocket clients indexed by user ID
 export const activeClients = new Map<string, ActiveClient>()
 
+// ==========================================
+// Helper Functions
+// ==========================================
+
+/**
+ * Extracts a cookie value from the raw Cookie header string.
+ */
 function getCookieValue(cookieHeader: string | undefined, cookieName: string): string | undefined {
 	if (!cookieHeader) return undefined
 	const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${cookieName}=([^;]*)`))
 	return match ? decodeURIComponent(match[1]) : undefined
 }
 
+/**
+ * Sends a JSON payload to a specific user by their ID if their socket is OPEN.
+ */
 export function sendToUser(userId: string, data: object): boolean {
 	const client = activeClients.get(userId)
 	if (client && client.socket.readyState === 1) {
@@ -32,6 +47,9 @@ export function sendToUser(userId: string, data: object): boolean {
 	return false
 }
 
+/**
+ * Broadcasts a JSON payload to all connected clients, optionally excluding a user ID.
+ */
 export function broadcast(data: object, excludeuserId?: string) {
 	const rawData = JSON.stringify(data)
 	for (const [userId, client] of activeClients.entries()) {
@@ -41,6 +59,14 @@ export function broadcast(data: object, excludeuserId?: string) {
 	}
 }
 
+// ==========================================
+// Authentication Helper
+// ==========================================
+
+/**
+ * Authenticates an incoming WebSocket connection using JWT from cookies or query parameters.
+ * Returns the decoded user ID or null if authentication fails.
+ */
 function authenticateWebSocket(req: FastifyRequest, app: FastifyInstance): number | null {
 	try {
 		const rawCookieHeader = req.headers['cookie'] || (req.raw?.headers as any)?.cookie
@@ -49,18 +75,21 @@ function authenticateWebSocket(req: FastifyRequest, app: FastifyInstance): numbe
 		const finalToken = tokenFromCookie || queryToken
 
 		if (!finalToken) {
-			app.log.warn(`[WS Auth Failed] Aucun token trouvé (Cookie header: ${rawCookieHeader})`)
+			app.log.warn(`[WS Auth Failed] No token found (Cookie header: ${rawCookieHeader})`)
 			return null
 		}
 
 		const decoded = jwt.verify(finalToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as JwtPayload
 		return decoded.id
 	} catch (err: any) {
-		app.log.warn(`[WS Auth Failed] Vérification JWT échouée : ${err?.message}`)
+		app.log.warn(`[WS Auth Failed] JWT verification failed: ${err?.message}`)
 		return null
 	}
 }
 
+/**
+ * Safely closes or destroys a WebSocket connection.
+ */
 function closeSocket(connection: any, code: number, reason: string): void {
 	const ws = connection.socket ?? connection.raw ?? connection
 	if (ws && typeof ws.close === 'function') {
@@ -74,6 +103,13 @@ function closeSocket(connection: any, code: number, reason: string): void {
 	}
 }
 
+// ==========================================
+// Main Connection Handler
+// ==========================================
+
+/**
+ * Handles incoming WebSocket connections, authenticates the client, and sets up event listeners.
+ */
 export function handleWebSocket(connection: any, req: FastifyRequest, app: FastifyInstance): void {
 	const socket: WebSocket = connection.socket ?? connection.raw ?? connection
 
@@ -85,7 +121,7 @@ export function handleWebSocket(connection: any, req: FastifyRequest, app: Fasti
 	}
 
 	const userId = String(userIdNum)
-	app.log.info(`[WS] Client connecté et authentifié : ID ${userId}`)
+	app.log.info(`[WS] Client connected and authenticated: ID ${userId}`)
 
 	const clientInfo: ActiveClient = {
 		socket,
@@ -95,6 +131,7 @@ export function handleWebSocket(connection: any, req: FastifyRequest, app: Fasti
 	activeClients.set(userId, clientInfo)
 	broadcast({ type: 'USER_STATUS', payload: { userId, status: 'online' } }, userId)
 
+	// Heartbeat response listener
 	socket.on('pong', () => {
 		const client = activeClients.get(userId)
 		if (client) {
@@ -102,10 +139,11 @@ export function handleWebSocket(connection: any, req: FastifyRequest, app: Fasti
 		}
 	})
 
+	// Message handling
 	socket.on('message', (rawData: RawData) => {
 		try {
 			const event = JSON.parse(rawData.toString())
-			app.log.info(`[WS] Message reçu de ${userId} :`, event)
+			app.log.info(`[WS] Message received from ${userId}:`, event)
 
 			switch (event.type) {
 				case 'PING':
@@ -122,29 +160,38 @@ export function handleWebSocket(connection: any, req: FastifyRequest, app: Fasti
 					})
 					break
 				default:
-					socket.send(JSON.stringify({ type: 'ERROR', payload: 'Événement non pris en charge' }))
+					socket.send(JSON.stringify({ type: 'ERROR', payload: 'Unsupported event type' }))
 			}
 		} catch {
-			socket.send(JSON.stringify({ type: 'ERROR', payload: 'Format JSON invalide' }))
+			socket.send(JSON.stringify({ type: 'ERROR', payload: 'Invalid JSON format' }))
 		}
 	})
 
+	// Connection closure listener
 	socket.on('close', (code: number, reason: Buffer) => {
-		app.log.info(`[WS] Client déconnecté : ${userId} (Code: ${code}, Raison: ${reason ? reason.toString() : ''})`)
+		app.log.info(`[WS] Client disconnected: ${userId} (Code: ${code}, Reason: ${reason ? reason.toString() : ''})`)
 		activeClients.delete(userId)
 		broadcast({ type: 'USER_STATUS', payload: { userId, status: 'offline' } })
 	})
 
+	// Connection error listener
 	socket.on('error', (err: Error) => {
-		app.log.error(err, `[WS] Erreur sur le socket de l'utilisateur ${userId}`)
+		app.log.error(err, `[WS] Error on socket for user ${userId}`)
 	})
 }
 
+// ==========================================
+// Heartbeat Monitor
+// ==========================================
+
+/**
+ * Periodically pings all connected clients every 30 seconds to detect dead connections.
+ */
 export function startHeartbeatMonitor(app: FastifyInstance): void {
 	const interval = setInterval(() => {
 		for (const [userId, client] of activeClients.entries()) {
 			if (client.isAlive === false) {
-				app.log.warn(`[WS] Session morte détectée pour l'utilisateur ${userId}. Fermeture du socket.`)
+				app.log.warn(`[WS] Dead session detected for user ${userId}. Terminating socket.`)
 				if (client.socket && typeof client.socket.terminate === 'function') {
 					client.socket.terminate()
 				}
