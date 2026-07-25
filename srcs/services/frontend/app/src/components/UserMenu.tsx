@@ -6,22 +6,18 @@ interface UserMenuProps {
 	pseudo: string | null
 }
 
-<<<<<<< HEAD
 function UserMenu({onLogout, onSwitchToContacts, pseudo}: UserMenuProps) {
-=======
-function UserMenu({ onLogout, pseudo }: UserMenuProps) {
->>>>>>> origin/matt
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [statusMsg, setStatusMsg] = useState<string | null>(null)
 	const menuRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
-		if (!menuOpen) return
+		if (!menuOpen)
+			return
 
 		function handleClickOutside(event: MouseEvent) {
-			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+			if (menuRef.current && !menuRef.current.contains(event.target as Node))
 				setMenuOpen(false)
-			}
 		}
 
 		document.addEventListener('mousedown', handleClickOutside)
@@ -60,45 +56,30 @@ function UserMenu({ onLogout, pseudo }: UserMenuProps) {
 		<div className="relative" ref={menuRef}>
 			<button
 				onClick={() => setMenuOpen((open) => !open)}
-<<<<<<< HEAD
-				className="w-12 h-12 flex items-center justify-center text-3xl hover:bg-gray-100 rounded-full">
-				≡
-			</button>
-			{menuOpen && (
-				<div className="absolute z-20 top-full left-0 mt-2 w-48 drop-shadow-[0_1px_8px_rgba(0,0,0,0.15)] rounded-2xl bg-white overflow-hidden gap-2 p-1">
-					<button
-						className="w-full flex text-left gap-2 px-4 py-2 hover:bg-gray-100 rounded-2xl font-semibold">
-						<span
-							className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
-							{pseudo?.charAt(0).toUpperCase() ?? '?'}
-						</span>
-						{pseudo}
-					</button>
-					<p className="border-t text-gray-200"></p>
-					<button
-						className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl"
-						onClick={onSwitchToContacts}>
-						Contacts
-					</button>
-					<button className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl">Paramètres</button>
-					<p className="border-t text-gray-200"></p>
-=======
-				className="w-12 h-12 flex items-center justify-center text-3xl hover:bg-gray-200 rounded-full"
+				className="w-12 h-12 flex items-center justify-center text-3xl hover:bg-gray-100 rounded-full"
 				title="Menu utilisateur">
 				≡
 			</button>
 			{menuOpen && (
-				<div className="absolute top-full left-0 mt-2 w-56 border rounded-2xl bg-white overflow-hidden gap-2 p-1 shadow-xl z-50">
+				<div className="absolute z-20 top-full left-0 mt-2 w-56 drop-shadow-[0_1px_8px_rgba(0,0,0,0.15)] border rounded-2xl bg-white overflow-hidden gap-2 p-1">
 					<button
 						className="w-full flex text-left gap-2 px-4 py-2 hover:bg-gray-100 rounded-2xl font-semibold text-gray-800">
-						<span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
-							{pseudo ? pseudo.charAt(0).toUpperCase() : 'U'}
+						<span
+							className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+							{pseudo?.charAt(0).toUpperCase() ?? '?'}
 						</span>
 						<span className="truncate">{pseudo ?? 'Utilisateur'}</span>
 					</button>
 					<p className="border-t text-gray-200 my-1"></p>
-
-					{/* API Keys Actions from root frontend */}
+					<button
+						className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl text-sm"
+						onClick={onSwitchToContacts}>
+						Contacts
+					</button>
+					<button className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl text-sm">
+						Paramètres
+					</button>
+					<p className="border-t text-gray-200 my-1"></p>
 					<button
 						onClick={handleCreateKey}
 						className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-2xl transition-colors">
@@ -115,10 +96,9 @@ function UserMenu({ onLogout, pseudo }: UserMenuProps) {
 					)}
 
 					<p className="border-t text-gray-200 my-1"></p>
->>>>>>> origin/matt
 					<button
 						onClick={onLogout}
-						className="w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600 rounded-2xl transition-colors">
+						className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600 rounded-2xl transition-colors">
 						Déconnexion
 					</button>
 				</div>
@@ -128,3 +108,4 @@ function UserMenu({ onLogout, pseudo }: UserMenuProps) {
 }
 
 export default UserMenu
+
