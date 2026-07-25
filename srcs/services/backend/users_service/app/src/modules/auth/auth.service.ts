@@ -11,13 +11,15 @@ function hash(value: string): string {
   return createHmac('sha256', env.pepper).update(value).digest('hex')
 }
 
-export async function createCookie(reply: FastifyReply, user: { id: number; pseudo: string }): Promise<void> {
+export async function createCookie(reply: FastifyReply, user: { id: number; pseudo: string }): Promise<string> {
   const accessToken = createAccessToken(user)
   const refreshToken = await createRefreshToken(user.id)
 
   reply
     .setCookie('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' })
     .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/auth' })
+
+  return accessToken
 }
 
 export function createAccessToken(user: { id: number; pseudo: string }): string {

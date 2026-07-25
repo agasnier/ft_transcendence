@@ -19,7 +19,6 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
     await reply.status(401).send({ message: 'Not authenticated' })
     return
   }
-
 }
 
 // controllers
@@ -38,6 +37,7 @@ export async function registerController(
     await reply.status(500).send({ message: 'Internal error' })
   }
 }
+
 
 export async function loginController(
   request: FastifyRequest<{ Body: { login: string; password: string } }>, reply: FastifyReply): Promise<void> {
@@ -114,5 +114,3 @@ export async function sessionController(request: FastifyRequest, reply: FastifyR
     await reply.status(500).send({ message: 'Internal error' })
   }
 }
-
-

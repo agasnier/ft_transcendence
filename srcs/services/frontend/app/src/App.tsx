@@ -4,11 +4,13 @@ import LoginForm from './components/LoginForm'
 import PrivacyForm from './components/PrivacyForm'
 import TermsForm from './components/TermsForm'
 import MainApp from './MainApp'
+import { WebSocketProvider } from './context/WebSocketContext'
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false)
 	const [, setUserId] = useState<number | null>(null)
 	const [pseudo, setPseudo] = useState<string | null>(null)
+	const [token, setToken] = useState<string | null>(null)
 	const [view, setView] = useState<'login' | 'signup' | 'privacy' | 'terms'>('login')
 	const [signupSuccess, setSignupSuccess] = useState(false)
 
@@ -18,6 +20,9 @@ function App() {
 			const user = await res.json()
 			setUserId(user.id)
 			setPseudo(user.pseudo)
+			if (user.token) {
+				setToken(user.token)
+			}
 			setIsLoggedIn(true)
 		}
 	}
@@ -30,6 +35,7 @@ function App() {
 		await fetch('/auth/logout', { method: 'POST' })
 		setIsLoggedIn(false)
 		setUserId(null)
+		setToken(null)
 	}
 
 	if (!isLoggedIn) {
@@ -54,7 +60,11 @@ function App() {
 			return <TermsForm onBack={() => setView('login')} />
 	}
 	else {
-		return <MainApp onLogout={handleLogout} pseudo={pseudo}/>
+		return (
+			<WebSocketProvider token={token}>
+				<MainApp onLogout={handleLogout} pseudo={pseudo}/>
+			</WebSocketProvider>
+		)
 	}
 }
 
