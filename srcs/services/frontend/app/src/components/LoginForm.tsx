@@ -7,10 +7,9 @@ interface LoginFormProps {
 	onShowPrivacy: () => void
 	onShowTerms: () => void
 	onLoginSuccess: () => Promise<void>
-	signupSuccess?: boolean
 }
 
-function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSuccess, signupSuccess }: LoginFormProps) {
+function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSuccess }: LoginFormProps) {
 	const [login, setLogin] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState<string | null>(null)
@@ -74,7 +73,6 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSucces
 				onChange={(e) => setPassword(e.target.value)}
 				required
 			/>
-			{signupSuccess && !error && (<p className="text-green-600 text-sm text-center">Compte créé, vous pouvez vous connecter</p>)}
 			{error && (<p className="text-red-600 text-sm text-center">{error}</p>)}
 
 			<button

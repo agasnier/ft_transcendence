@@ -12,7 +12,6 @@ function App() {
 	const [pseudo, setPseudo] = useState<string | null>(null)
 	const [token, setToken] = useState<string | null>(null)
 	const [view, setView] = useState<'login' | 'signup' | 'privacy' | 'terms'>('login')
-	const [signupSuccess, setSignupSuccess] = useState(false)
 
 	async function checkSession() {
 		const res = await fetch('/auth/session')
@@ -41,16 +40,15 @@ function App() {
 	if (!isLoggedIn) {
 		if (view === 'login')
 			return <LoginForm
-				onSwitchToSignup={() => { setSignupSuccess(false); setView('signup') }}
+				onSwitchToSignup={() => { setView('signup') }}
 				onShowPrivacy={() => setView('privacy')}
 				onShowTerms={() => setView('terms')}
 				onLoginSuccess={checkSession}
-				signupSuccess={signupSuccess}
 			/>
 		else if (view === 'signup')
 			return <SignupForm
 				onSwitchToLogin={() => setView('login')}
-				onSignupSuccess={() => { setSignupSuccess(true); checkSession() }}
+				onSignupSuccess={() => { checkSession() }}
 				onShowPrivacy={() => setView('privacy')}
 				onShowTerms={() => setView('terms')}
 			/>
