@@ -19,9 +19,9 @@ services:
     build: ./services/nginx
     environment:
       ALLOWED_METHODS: "GET HEAD POST OPTIONS PUT DELETE PATCH"
-    ports:
-      - "8080:80"
-      - "8443:443"
+    ports: #TODO 443 80
+      - "8080:8080"
+      - "8443:8443"
     depends_on:
       frontend:
         condition: service_healthy
