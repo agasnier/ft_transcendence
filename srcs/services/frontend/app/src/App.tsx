@@ -50,7 +50,7 @@ function App() {
 		else if (view === 'signup')
 			return <SignupForm
 				onSwitchToLogin={() => setView('login')}
-				onSignupSuccess={() => { setSignupSuccess(true); setView('login') }}
+				onSignupSuccess={() => { setSignupSuccess(true); checkSession() }}
 				onShowPrivacy={() => setView('privacy')}
 				onShowTerms={() => setView('terms')}
 			/>
