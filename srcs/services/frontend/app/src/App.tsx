@@ -8,6 +8,7 @@ import { WebSocketProvider } from './context/WebSocketContext'
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false)
+	const [isCheckingSession, setIsCheckingSession] = useState(true)
 	const [, setUserId] = useState<number | null>(null)
 	const [pseudo, setPseudo] = useState<string | null>(null)
 	const [token, setToken] = useState<string | null>(null)
@@ -24,6 +25,7 @@ function App() {
 			}
 			setIsLoggedIn(true)
 		}
+		setIsCheckingSession(false)
 	}
 
 	useEffect(() => {
@@ -36,6 +38,9 @@ function App() {
 		setUserId(null)
 		setToken(null)
 	}
+
+	if (isCheckingSession)
+		return null // TODO add skeleton
 
 	if (!isLoggedIn) {
 		if (view === 'login')
