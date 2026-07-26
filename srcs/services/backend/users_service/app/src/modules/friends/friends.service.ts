@@ -75,3 +75,45 @@ export async function removeFriend(userId: number, friendId: number) {
 			)
 		)
 }
+
+export async function listIncomingRequests(userId: number) {
+  const relations = await db
+    .select()
+    .from(friends)
+    .where(and(eq(friends.addresseeId, userId), eq(friends.status, "pending")))
+
+  if (relations.length === 0) return []
+
+  const requesterIds = relations.map((r) => r.requesterId)
+
+  return db
+    .select({
+      id: users.id,
+      pseudo: users.pseudo,
+      displayName: users.displayName,
+      avatarUrl: users.avatarUrl,
+    })
+    .from(users)
+    .where(inArray(users.id, requesterIds))
+}
+
+export async function listOutgoingRequests(userId: number) {
+  const relations = await db
+    .select()
+    .from(friends)
+    .where(and(eq(friends.requesterId, userId), eq(friends.status, "pending")))
+
+  if (relations.length === 0) return []
+
+  const addresseeIds = relations.map((r) => r.addresseeId)
+
+  return db
+    .select({
+      id: users.id,
+      pseudo: users.pseudo,
+      displayName: users.displayName,
+      avatarUrl: users.avatarUrl,
+    })
+    .from(users)
+    .where(inArray(users.id, addresseeIds))
+}

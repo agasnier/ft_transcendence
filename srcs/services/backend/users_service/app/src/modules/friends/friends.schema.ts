@@ -63,3 +63,22 @@ export const removeFriendSchema = {
     },
   },
 }
+
+const friendRequestUserSchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'integer' },
+    pseudo: { type: 'string' },
+    displayName: { type: ['string', 'null'] },
+    avatarUrl: { type: 'string' },
+  },
+}
+
+export const listFriendRequestsSchema = {
+  response: {
+    200: {
+      type: 'array',
+      items: friendRequestUserSchema,
+    },
+  },
+}
