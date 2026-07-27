@@ -23,7 +23,7 @@ export const acceptFriendRequestSchema = {
 export const declineFriendRequestSchema = {
   params: {
     type: 'object',
-    required: ['usersId'],
+    required: ['userId'],
     properties: {
       userId: { type: 'integer', minimum: 1 },
     },
