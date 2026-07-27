@@ -75,41 +75,20 @@ function Sidebar({onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCreat
 		<aside className={`w-100 shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 ${isSearching ? 'bg-gray-100' : 'bg-white'}`}>
 			<div
 				className="flex items-center gap-2">
-				{isSearching ? (
-					<button
-						type="button"
-						onClick={() => { setIsSearching(false); setSearchQuery('') }}
-						className="w-12 h-12 bg-white text-2xl text-gray-500 leading-none flex items-center justify-center hover:bg-gray-200 rounded-full">
-						⟲
-					</button>
-				) : (
-					<UserMenu
-						onLogout={onLogout}
-						pseudo={pseudo}/>
-				)}
-				<div className="relative flex-1 min-w-0">
-					<input
-						type="text"
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						placeholder="🔍︎ Rechercher"
-						onFocus={() => {
-							if (!isSearching)
-								setSearchScope('conversations')
-							setIsSearching(true)
-						}}
-						className={`w-full text-lg rounded-full pl-3 pr-9 py-2 border border-transparent hover:border hover:border-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:bg-white ${isSearching ? 'bg-white' : 'bg-gray-100'}`}
-					/>
-					{searchQuery !== '' && (
-						<button
-							type="button"
-							onMouseDown={(e) => e.preventDefault()}
-							onClick={() => setSearchQuery('')}
-							className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-2xl w-9 h-9 flex items-center justify-center rounded-full hover:bg-blue-100">
-							✕
-						</button>
-					)}
-				</div>
+				<UserMenu
+					onLogout={onLogout}
+					pseudo={pseudo}/>
+				<input
+					type="text"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					placeholder="🔍︎ Rechercher"
+					onKeyDown={(e) => {
+						if (e.key === 'Escape')
+							e.currentTarget.blur()
+					}}
+					className="flex-1 min-w-0 text-lg bg-gray-100 rounded-full px-3 py-2 border border-transparent hover:border hover:border-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:bg-white"
+				/>
 			</div>
 			{isSearching ? (
 			<div

@@ -126,25 +126,20 @@ function FriendsPanel({ searchQuery, isSearching }: FriendsPanelProps) {
 									setFeedback(null)
 								}
 							}
-							placeholder='Pseudo'
-							onKeyDown={(e) => {
-								if (e.key === 'Escape')
-									e.currentTarget.blur()
-							}}
-							className="peer min-w-0 flex-1 border border-gray-300 rounded-3xl px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white">
-						</input>
-						<button
-							type="button"
-							onClick={handleAddByPseudo}
-							className="text-xs bg-blue-500 text-white rounded-full px-3 py-1 hover:bg-blue-600">
-							Ajouter
-						</button>
-					</div>
-					{feedback && (
-						<p className={`text-sm ${feedback.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
-							{feedback.text}
-						</p>
-					)}
+						}
+						placeholder='Pseudo'
+						onKeyDown={(e) => {
+							if (e.key === 'Escape')
+								e.currentTarget.blur()
+						}}
+						className="peer min-w-0 flex-1 border border-gray-300 rounded-3xl px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white">
+					</input>
+					<button
+						type="button"
+						onClick={handleAddByPseudo}
+						className="text-xs bg-blue-500 text-white rounded-full px-3 py-1 hover:bg-blue-600">
+						Ajouter
+					</button>
 				</div>
 			)}
 			{!isSearching && (
