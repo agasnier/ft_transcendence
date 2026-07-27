@@ -18,9 +18,19 @@ function UserMenu({onLogout, pseudo}: UserMenuProps) {
 			if (menuRef.current && !menuRef.current.contains(event.target as Node))
 				setMenuOpen(false)
 		}
+		function handleKeyDown(event: KeyboardEvent) {
+			if (event.key === 'Escape') {
+				setMenuOpen(false)
+				;(document.activeElement as HTMLElement)?.blur()
+			}
+		}
 
 		document.addEventListener('mousedown', handleClickOutside)
-		return () => document.removeEventListener('mousedown', handleClickOutside)
+		document.addEventListener('keydown', handleKeyDown)
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+			document.removeEventListener('keydown', handleKeyDown)
+		}
 	}, [menuOpen])
 
 	async function handleCreateKey() {

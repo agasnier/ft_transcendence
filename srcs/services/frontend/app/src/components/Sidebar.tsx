@@ -24,7 +24,11 @@ function Sidebar({onLogout, pseudo}: SidebarProp) {
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
 					placeholder="🔍︎ Rechercher"
-					className="flex-1 min-w-0 text-lg border border-gray-300 bg-gray-100 rounded-full px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+					onKeyDown={(e) => {
+						if (e.key === 'Escape')
+							e.currentTarget.blur()
+					}}
+					className="flex-1 min-w-0 text-lg bg-gray-100 rounded-full px-3 py-2 border border-transparent hover:border hover:border-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:bg-white"
 				/>
 			</div>
 			<div
