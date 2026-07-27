@@ -1,65 +1,49 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import UserMenu from './UserMenu'
+import FriendsPanel from './FriendsPanel'
+import ConversationsPanel from './ConversationsPanel'
 
 interface SidebarProp {
 	onLogout: () => void
-	onSwitchToContacts: () => void
 	pseudo: string | null
 }
 
-interface Friend {
-	id: number
-	pseudo: string
-	avatarUrl: string | null
-	isOnline: boolean | null
-}
-
-function Sidebar({onLogout, onSwitchToContacts, pseudo}: SidebarProp) {
-	const [friends, setFriends] = useState<Friend[]>([])
-
-	useEffect(() => {
-		async function loadFriends() {
-			const res = await fetch('/friends')
-			if (res.ok)
-				setFriends(await res.json())
-		}
-		loadFriends()
-		const intervalId = setInterval(loadFriends, 5000)
-		return () => clearInterval(intervalId)
-	}, [])
+function Sidebar({onLogout, pseudo}: SidebarProp) {
+	const [activeTab, setActiveTab] = useState<'friends' | 'conversations' | null>(null)
+	const [searchQuery, setSearchQuery] = useState('')
 
 	return (
 		<aside className="w-80 shrink-0 shadow-2xl rounded-3xl bg-white flex flex-col overflow-y-auto gap-2 p-2">
 			<div
-				className="flex items-center justify-between">
-				<UserMenu onLogout={onLogout} onSwitchToContacts={onSwitchToContacts} pseudo={pseudo}/>
+				className="flex items-center gap-2">
+				<UserMenu
+					onLogout={onLogout}
+					pseudo={pseudo}/>
+				<input
+					type="text"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					placeholder="Rechercher"
+					className="flex-1 min-w-0 text-lg border border-gray-300 bg-gray-100 rounded-full px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+				/>
 			</div>
-			<div className="bg-gray-100 rounded-3xl p-4">
-				<h2 className="font-semibold text-gray-700 mb-2">Amis</h2>
-				{friends.length === 0 ? (
-					<p className="text-sm text-gray-400">Aucun ami</p>
-				) : (
-					<ul className="flex flex-col gap-1">
-						{friends.map((friend) => (
-							<li key={friend.id} className="flex items-center gap-2 px-2 py-1 rounded-2xl hover:bg-gray-200">
-								<span className="relative">
-									<span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold">
-										{friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
-									</span>
-									<span
-										className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-gray-100 ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
-									/>
-								</span>
-								<span className="text-sm text-gray-700">{friend.pseudo}</span>
-							</li>
-						))}
-					</ul>
-				)}
+			<div
+				className="flex bg-gray-100 rounded-full p-1 gap-1">
+				<button
+					type="button"
+					onClick={() => setActiveTab('conversations')}
+					className={`flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500 ${activeTab === 'conversations' ? 'bg-blue-100 text-blue-500' : ''}`}>
+					Conversations
+				</button>
+				<button
+					type="button"
+					onClick={() => setActiveTab('friends')}
+					className={`flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500 ${activeTab === 'friends' ? 'bg-blue-100 text-blue-500 hover:none' : ''}`}>
+					Amis
+				</button>
 			</div>
-			<div className="bg-gray-100 rounded-3xl p-4">
-				<h2 className="font-semibold text-gray-700 mb-2">Conversations</h2>
-				<p className="text-sm text-gray-400">Aucune conversation</p>
-			</div>
+			{activeTab === 'friends' && <FriendsPanel searchQuery={searchQuery} />}
+			{activeTab === 'conversations' && <ConversationsPanel />}
 			<button
 				className="mt-auto self-end bg-blue-500 text-white font-bold w-12 h-12 rounded-full hover:bg-blue-600 flex items-center justify-center text-2xl"title="Créer un salon">
 				+

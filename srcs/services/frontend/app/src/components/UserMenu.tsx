@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 
 interface UserMenuProps {
 	onLogout: () => void
-	onSwitchToContacts: () => void
 	pseudo: string | null
 }
 
-function UserMenu({onLogout, onSwitchToContacts, pseudo}: UserMenuProps) {
+function UserMenu({onLogout, pseudo}: UserMenuProps) {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [statusMsg, setStatusMsg] = useState<string | null>(null)
 	const menuRef = useRef<HTMLDivElement>(null)
@@ -56,7 +55,7 @@ function UserMenu({onLogout, onSwitchToContacts, pseudo}: UserMenuProps) {
 		<div className="relative" ref={menuRef}>
 			<button
 				onClick={() => setMenuOpen((open) => !open)}
-				className="w-12 h-12 flex items-center justify-center text-3xl hover:bg-gray-100 rounded-full"
+				className="w-12 h-12 flex items-center justify-center text-4xl hover:bg-gray-100 rounded-full"
 				title="Menu utilisateur">
 				≡
 			</button>
@@ -71,11 +70,6 @@ function UserMenu({onLogout, onSwitchToContacts, pseudo}: UserMenuProps) {
 						<span className="truncate">{pseudo ?? 'Utilisateur'}</span>
 					</button>
 					<p className="border-t text-gray-200 my-1"></p>
-					<button
-						className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl text-sm"
-						onClick={onSwitchToContacts}>
-						Contacts
-					</button>
 					<button className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl text-sm">
 						Paramètres
 					</button>

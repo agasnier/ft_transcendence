@@ -1,7 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { usePolling } from '../hooks/usePolling'
 
-interface ContactsProps {
-	onBack: () => void
+interface FriendsPanelProps {
+	searchQuery: string
+}
+
+interface Friend {
+	id: number
+	pseudo: string
+	avatarUrl: string | null
+	isOnline: boolean | null
 }
 
 interface PendingRequest {
@@ -15,24 +23,25 @@ interface Feedback {
 	text: string
 }
 
-function Contacts ({onBack}: ContactsProps) {
-	const [pseudoInput, setPseudoInput] = useState('')
+function FriendsPanel({ searchQuery }: FriendsPanelProps) {
+	const [friends, setFriends] = useState<Friend[]>([])
 	const [pending, setPending] = useState<PendingRequest[]>([])
+	const [pseudoInput, setPseudoInput] = useState('')
 	const [feedback, setFeedback] = useState<Feedback | null>(null)
 
-	useEffect(() => {
-		async function loadPendingRequests() {
-			const res = await fetch('/friends/requests/incoming')
-			if (res.ok) {
-				const user = await res.json()
-				setPending(user)
-			}
-		}
-		loadPendingRequests()
-	}, [])
+	usePolling(async () => {
+		const [friendsRes, pendingRes] = await Promise.all([
+			fetch('/friends'),
+			fetch('/friends/requests/incoming'),
+		])
+		if (friendsRes.ok)
+			setFriends(await friendsRes.json())
+		if (pendingRes.ok)
+			setPending(await pendingRes.json())
+	}, 5000)
 
-	async function handleAccept(id:number) {
-		const res = await fetch(`/friends/${id}/accept`, { method: 'PATCH'})
+	async function handleAccept(id: number) {
+		const res = await fetch(`/friends/${id}/accept`, { method: 'PATCH' })
 		if (res.ok)
 			setPending((prev) => prev.filter((p) => p.id !== id))
 	}
@@ -41,6 +50,12 @@ function Contacts ({onBack}: ContactsProps) {
 		const res = await fetch(`/friends/${id}/decline`, { method: 'DELETE' })
 		if (res.ok)
 			setPending((prev) => prev.filter((p) => p.id !== id))
+	}
+
+	async function handleRemoveFriend(id: number) {
+		const res = await fetch(`/friends/${id}`, { method: 'DELETE' })
+		if (res.ok)
+			setFriends((prev) => prev.filter((f) => f.id !== id))
 	}
 
 	async function handleAddByPseudo() {
@@ -77,20 +92,24 @@ function Contacts ({onBack}: ContactsProps) {
 		setFeedback({ type: 'error', text })
 	}
 
+	const filteredFriends = friends.filter((f) =>
+		f.pseudo.toLowerCase().includes(searchQuery.toLowerCase())
+	)
+
 	return (
-		<aside className="w-80 shrink-0 shadow-2xl rounded-3xl bg-white flex flex-col overflow-y-auto gap-2 p-2">
-			<button
-				type="button"
-				onClick={onBack}
-				className="text-blue-500 hover:underline">
-				retour
-			</button>
+		<>
 			<div className="bg-gray-100 rounded-3xl flex flex-col gap-2 p-4">
 				<h2 className="font-semibold text-gray-700 mb-2">Ajouter un ami</h2>
 				<div className="flex gap-2">
 					<input
 						value={pseudoInput}
-						onChange={(e) => setPseudoInput(e.target.value)}
+						onChange={(e) => {
+							const value = e.target.value
+							setPseudoInput(value)
+							if (value.trim() === '')
+								setFeedback(null)
+							}
+						}
 						placeholder='Pseudo'
 						className="peer min-w-0 flex-1 border border-gray-300 rounded-3xl px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-2 ring-offset-2 focus:ring-blue-500">
 					</input>
@@ -125,8 +144,47 @@ function Contacts ({onBack}: ContactsProps) {
 					</ul>
 				)}
 			</div>
-		</aside>
+			<div className="bg-gray-100 rounded-3xl p-4">
+				<h2 className="font-semibold text-gray-700 mb-2">Amis</h2>
+				{filteredFriends.length === 0 ? (
+					<p className="text-sm text-gray-400">Aucun ami</p>
+				) : (
+					<ul className="flex flex-col gap-1">
+						{filteredFriends.map((friend) => (
+							<li key={friend.id} className="group flex items-center justify-between gap-2 px-2 py-1 rounded-2xl hover:bg-gray-200">
+								<span className="flex items-center gap-2">
+									<span className="relative">
+										<span className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold">
+											{friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
+										</span>
+										<span
+											className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-gray-100 ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+										/>
+									</span>
+									<span className="text-sm text-gray-700">{friend.pseudo}</span>
+								</span>
+								<span className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+									<button
+										type="button"
+										title="Message privé"
+										className="text-lg bg-gray-200 text-gray-600 rounded-full w-7 h-7 flex items-center justify-center hover:bg-gray-300">
+										➣
+									</button>
+									<button
+										type="button"
+										onClick={() => handleRemoveFriend(friend.id)}
+										title="Retirer l'ami"
+										className="text-xs bg-gray-200 text-red-600 rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-100">
+										❌
+									</button>
+								</span>
+							</li>
+						))}
+					</ul>
+				)}
+			</div>
+		</>
 	)
 }
 
-export default Contacts
+export default FriendsPanel
