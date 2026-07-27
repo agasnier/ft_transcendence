@@ -4,7 +4,35 @@ import { friends } from '../../db/schema.js'
 import { users } from '../../db/schema.js'
 
 export async function sendFriendRequest(requesterId: number, addresseeId: number) {
-	await db.insert(friends).values({ requesterId, addresseeId, status: 'pending' })
+  // looking for existing relation
+  const existing = await db
+    .select()
+    .from(friends)
+    .where(
+      or(
+        and(eq(friends.requesterId, requesterId), eq(friends.addresseeId, addresseeId)),
+        and(eq(friends.requesterId, addresseeId), eq(friends.addresseeId, requesterId))
+      )
+    )
+    .limit(1)
+
+  const relation = existing[0]
+
+  if (relation) {
+    if (relation.status === 'accepted') {
+      throw new Error('ALREADY_FRIENDS')
+    }
+    if (relation.requesterId === requesterId) {
+      throw new Error('REQUEST_ALREADY_SENT')
+    }
+	
+    // if the adressee already send request, auto accept it
+    await db.update(friends).set({ status: 'accepted' }).where(eq(friends.id, relation.id))
+    return { autoAccepted: true }
+  }
+
+  await db.insert(friends).values({ requesterId, addresseeId, status: 'pending' })
+  return { autoAccepted: false }
 }
 
 export async function acceptFriendRequest(requesterId: number, addresseeId: number) {
