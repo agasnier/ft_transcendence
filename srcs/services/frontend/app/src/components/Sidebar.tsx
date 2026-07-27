@@ -9,7 +9,7 @@ interface SidebarProp {
 }
 
 function Sidebar({onLogout, pseudo}: SidebarProp) {
-	const [activeTab, setActiveTab] = useState<'friends' | 'conversations' | null>(null)
+	const [activeTab, setActiveTab] = useState<'friends' | 'conversations'>('conversations')
 	const [searchQuery, setSearchQuery] = useState('')
 
 	return (
@@ -23,7 +23,7 @@ function Sidebar({onLogout, pseudo}: SidebarProp) {
 					type="text"
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
-					placeholder="Rechercher"
+					placeholder="🔍︎ Rechercher"
 					className="flex-1 min-w-0 text-lg border border-gray-300 bg-gray-100 rounded-full px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
 				/>
 			</div>
