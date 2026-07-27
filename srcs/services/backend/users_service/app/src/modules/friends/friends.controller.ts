@@ -12,8 +12,22 @@ export async function sendFriendRequestController(req: FastifyRequest, reply: Fa
 		await reply.code(400).send({ message: 'Cannot add yourself' })
 		return
 	}
-	await sendFriendRequest(req.user.id, targetId)
-	return reply.code(201).send({ message: 'Friend request sent' })
+	try {
+        const result = await sendFriendRequest(req.user.id, targetId)
+        if (result.autoAccepted) {
+            return reply.code(200).send({ message: 'Friend request accepted' })
+        }
+        return reply.code(201).send({ message: 'Friend request sent' })
+    } catch (err) {
+        if (err instanceof Error && err.message === 'ALREADY_FRIENDS') {
+            return reply.code(409).send({ message: 'Already friends' })
+        }
+        if (err instanceof Error && err.message === 'REQUEST_ALREADY_SENT') {
+            return reply.code(409).send({ message: 'Friend request already sent' })
+        }
+        req.log.error(err)
+        return reply.code(500).send({ message: 'Internal error' })
+    }
 }
 
 export async function acceptFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
