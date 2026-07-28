@@ -21,26 +21,5 @@ export function buildApp(): FastifyInstance {
   app.register(usersRoutes, { prefix: '/api/users' })
   app.register(apiKeysRoutes, { prefix: '/api/api_keys' })
 
-  app.register(fastifyWebsocket, {
-    options: {
-      maxPayload: 1048576,
-    }
-  })
-
-  app.register(async (fastify) => {
-    fastify.route({
-      method: 'GET',
-      url: '/api/ws',
-      handler: (req, reply) => {
-        reply.status(400).send({ message: 'La connexion nécessite un Upgrade WebSocket.' })
-      },
-      wsHandler: (connection, req) => {
-        void handleWebSocket(connection, req, app)
-      }
-    })
-  })
-
-  startHeartbeatMonitor(app)
-
   return app
 }
