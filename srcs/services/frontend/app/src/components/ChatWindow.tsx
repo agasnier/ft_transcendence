@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useWebSocket } from '../context/WebSocketContext'
 
+interface ChatWindowProps {
+	room: Room
+}
+
 interface Message {
 	id: string
 	senderId: string
@@ -9,7 +13,14 @@ interface Message {
 	senderPseudo: string
 }
 
-function ChatWindow() {
+interface Room {
+	id: number
+	name: string
+	description: string
+	type: 'channel' | 'group' | 'discussion'
+}
+
+function ChatWindow({room}: ChatWindowProps) {
 	const { isConnected, lastMessage, sendMessage } = useWebSocket()
 	const [messages, setMessages] = useState<Message[]>([])
 	const [inputText, setInputText] = useState('')
@@ -46,7 +57,7 @@ function ChatWindow() {
 		<main className="flex-1 flex flex-col bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
 			{/* Chat Header */}
 			<div className="p-4 border-b bg-white/50 flex items-center justify-between">
-				<h1 className="font-bold text-gray-800 text-lg">Salon Principal</h1>
+				<h1 className="font-bold text-gray-800 text-lg">{room.name}</h1>
 				<div className="flex items-center gap-2 text-xs font-semibold">
 					<span className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
 					<span className={isConnected ? 'text-green-600' : 'text-red-500'}>
