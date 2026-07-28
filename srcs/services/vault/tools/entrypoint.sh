@@ -60,15 +60,17 @@ fi
 	if ! vault read transit/keys/api-keys >/dev/null 2>&1; then
 		vault write -f transit/keys/api-keys
 	fi
-	# hash key for users_service
+	# hash key for users_service (password HMAC before Argon2)
 	if ! vault read transit/keys/passwords >/dev/null 2>&1; then
 		vault write -f transit/keys/passwords
 	fi
+	# JWT signing key
+	if ! vault read transit/keys/jwt >/dev/null 2>&1; then
+		vault write -f transit/keys/jwt type=ecdsa-p256
+	fi
+	
 
-
-
-
-	# jwt key pair for users_service
+	# jwt key pair for users_service (KV — still used by api_service verify until migrated)
 	if ! vault kv get secret/users_service/jwt_private >/dev/null 2>&1; then
 		PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
 		PUB=$(echo "$PRIV" | openssl pkey -pubout)
