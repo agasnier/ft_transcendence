@@ -43,13 +43,27 @@ fi
 	if ! vault read transit/keys/api-keys >/dev/null 2>&1; then
 		vault write -f transit/keys/api-keys
 	fi
-	# hash key for users_service (password HMAC before Argon2)
-	if ! vault read transit/keys/passwords >/dev/null 2>&1; then
-		vault write -f transit/keys/passwords
+
+
+	
+
+	# Transit: HMAC key for api_service API keys only (default key type)
+	if ! vault secrets list | grep -q '^transit/'; then
+		vault secrets enable transit
 	fi
-	# JWT signing key
-	if ! vault read transit/keys/jwt >/dev/null 2>&1; then
-		vault write -f transit/keys/jwt type=ecdsa-p256
+	if ! vault read transit/keys/api-keys >/dev/null 2>&1; then
+		vault write -f transit/keys/api-keys
+	fi
+
+
+
+
+	# jwt key pair for users_service
+	if ! vault kv get secret/users_service/jwt_private >/dev/null 2>&1; then
+		PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
+		PUB=$(echo "$PRIV" | openssl pkey -pubout)
+		vault kv put secret/users_service/jwt_private value="$PRIV"
+		vault kv put secret/users_service/jwt_public  value="$PUB"
 	fi
 
 	# enable database and approle if it's not already
