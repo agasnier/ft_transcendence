@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '../../db/index.js'
 import { apiKeys } from '../../db/schema.js'
 import { env } from '../../config/env.js'
-import { hashApiKey } from '../vault/hash.js'
+import { vaultHash } from '../vault/hash.js'
 
 
 // TODO delete this function before push ?
@@ -19,7 +19,7 @@ export async function getApiKeysByOwnerId(owner_id: number) {
 
 async function generateApiKey() {
   const apiKeyCreated = randomBytes(32).toString('hex')
-  const apiKeyHash = await hashApiKey(apiKeyCreated);
+  const apiKeyHash = await vaultHash(apiKeyCreated);
 
   return { apiKeyCreated, apiKeyHash }
 }
@@ -62,7 +62,7 @@ export async function deleteApiKeys(owner_id: number) {
 }
 
 export async function verifyApiKey(apiKey: string): Promise<{ owner_id: number } | null> {
-  const apiKeyHash = await hashApiKey(apiKey)
+  const apiKeyHash = await vaultHash(apiKey)
 
   const rows = await db
     .select({ owner_id: apiKeys.owner_id, expires_at: apiKeys.expires_at })

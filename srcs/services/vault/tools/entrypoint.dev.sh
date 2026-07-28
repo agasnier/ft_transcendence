@@ -27,12 +27,6 @@ fi
 	vault write -f transit/keys/passwords 2>/dev/null || true
 	vault write -f transit/keys/jwt type=ecdsa-p256 2>/dev/null || true
 
-	# enable transit
-	vault secrets enable transit 2>/dev/null || true
-	vault write -f transit/keys/api-keys 2>/dev/null || true
-	vault write -f transit/keys/passwords 2>/dev/null || true
-	vault write -f transit/keys/jwt type=ecdsa-p256 2>/dev/null || true
-
 	# enable secrets database for dynamic credentials
 	vault secrets enable database
 

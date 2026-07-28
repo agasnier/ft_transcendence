@@ -9,15 +9,6 @@
     "transit/sign/jwt": {
       "capabilities": ["update"]
     },
-    "secret/data/users_service/jwt_public": {
-      "capabilities": ["read"]
-    },
-    "transit/hmac/passwords": {
-      "capabilities": ["update"]
-    },
-    "transit/sign/jwt": {
-      "capabilities": ["update"]
-    },
     "transit/verify/jwt": {
       "capabilities": ["update"]
     }

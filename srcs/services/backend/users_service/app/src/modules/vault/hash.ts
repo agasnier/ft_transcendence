@@ -2,12 +2,12 @@ import argon2 from 'argon2'
 
 import { env } from '../../config/env.js'
 
-async function vaultHashPassword(password: string): Promise<string> {
+export async function vaultHash(value: string): Promise<string> {
   const res = await fetch(`${env.vaultAgentUrl}/v1/transit/hmac/passwords`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      input: Buffer.from(password, 'utf8').toString('base64'),
+      input: Buffer.from(value, 'utf8').toString('base64'),
       algorithm: 'sha2-256',
     }),
   })
@@ -26,11 +26,12 @@ async function vaultHashPassword(password: string): Promise<string> {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  const vaultHash = await vaultHashPassword(password)
-  return argon2.hash(vaultHash)
+  const vaultHashedPassword = await vaultHash(password)
+  return argon2.hash(vaultHashedPassword)
 }
 
 export async function verifyPassword(storedHash: string, password: string): Promise<boolean> {
-  const vaultHash = await vaultHashPassword(password)
-  return argon2.verify(storedHash, vaultHash)
+  const vaultHashedPassword = await vaultHash(password)
+  return argon2.verify(storedHash, vaultHashedPassword)
 }
+

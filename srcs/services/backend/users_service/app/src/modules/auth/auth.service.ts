@@ -1,15 +1,12 @@
 import type { FastifyReply } from 'fastify'
-import { createHmac, randomBytes } from 'node:crypto'
+import { randomBytes } from 'node:crypto'
 import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { jwtRefreshToken } from '../../db/schema.js'
 import { env } from '../../config/env.js'
+import { vaultHash } from '../vault/hash.js'
 import { createAccessToken } from '../vault/jwt.js'
-
-function hash(value: string): string {
-  return createHmac('sha256', env.pepper).update(value).digest('hex')
-}
 
 export async function createCookie(reply: FastifyReply, user: { id: number; pseudo: string }): Promise<string> {
   const accessToken = await createAccessToken(user)
