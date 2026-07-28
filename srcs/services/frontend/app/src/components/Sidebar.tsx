@@ -71,10 +71,6 @@ function Sidebar({onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCreat
 		}
 	}, [confirmSelection])
 
-	async function handleCreateChannel (name: string, description: string, type:string) {
-		console.log(name, description, type)
-	}
-
 	return (
 		<aside className={`w-80 shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 ${isSearching ? 'bg-gray-100' : 'bg-white'}`}>
 			<div
@@ -148,8 +144,22 @@ function Sidebar({onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCreat
 				</button>
 			</div>
 			)}
-			{visiblePanel === 'friends' && (!isSearching || searchQuery.trim() !== '') && <FriendsPanel searchQuery={searchQuery} isSearching={isSearching} />}
-			{visiblePanel === 'conversations' && (!isSearching || searchQuery.trim() !== '') && <ConversationsPanel isSearching={isSearching} />}
+			{visiblePanel === 'friends' && 
+				(!isSearching || searchQuery.trim() !== '') && 
+				<FriendsPanel
+					searchQuery={searchQuery}
+					isSearching={isSearching}
+				/>
+			}
+			{visiblePanel === 'conversations' && 
+				(!isSearching || searchQuery.trim() !== '') && 
+				<ConversationsPanel
+					isSearching={isSearching}
+					rooms={rooms}
+					selectedRoomId={selectedRoomId}
+					onSelectRoom={onSelectRoom}
+				/>
+			}
 			{!isSearching && (
 				<div data-create-room-popover
 					className="relative mt-auto self-end">
@@ -185,7 +195,7 @@ function Sidebar({onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCreat
 									type={creatingType}
 									onCancel={() => setCreatingType(null)}
 									onCreate={(name, description) => {
-										handleCreateChannel(name, description, creatingType)
+										onCreateRoom(name, description, creatingType)
 										setCreatingType(null)
 										setConfirmSelection(false)
 									}}
