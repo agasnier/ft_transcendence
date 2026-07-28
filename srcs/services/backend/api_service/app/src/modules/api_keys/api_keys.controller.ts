@@ -1,8 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { getApiKeysByOwnerId, createApiKeys, updateApiKeys, deleteApiKeys, verifyApiKey } from './api_keys.service.js'
 import { getUserById } from '../users/users.service.js'
-import jwt from 'jsonwebtoken'
-import { env } from '../../config/env.js'
+import { validateAccessToken } from '../vault/jwt.js'
 
 // hooks
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -12,14 +11,13 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
     return
   }
 
-  try {
-    const user = jwt.verify(accessToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as { id: number; pseudo: string }
-    request.user = user
-  } catch {
+  const user = await validateAccessToken(accessToken)
+  if (!user) {
     await reply.status(401).send({ message: 'Not authenticated' })
     return
   }
 
+  request.user = user
 }
 
 export async function  apiKeyAuthHook (request: FastifyRequest, reply: FastifyReply): Promise<void> {
