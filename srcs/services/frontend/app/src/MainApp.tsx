@@ -1,6 +1,7 @@
 import { BrowserRouter } from 'react-router-dom'
 import { Routes } from 'react-router-dom'
 import { Route } from 'react-router-dom'
+import { useState } from 'react'
 import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
 import bg from './assets/site.webp'
@@ -10,7 +11,23 @@ interface MainAppProp {
 	pseudo: string | null
 }
 
+interface Room {
+	id: number
+	name: string
+	description: string
+	type: 'channel' | 'group' | 'discussion'
+}
+
 function MainApp({onLogout, pseudo}: MainAppProp) {
+	const [rooms, setRooms] = useState<Room[]>([])
+	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
+
+	function handleCreateRoom(name: string, description: string, type: Room['type']) {
+		const newRoom: Room = { id: Date.now(), name, description, type }
+		setRooms((prev) => [...prev, newRoom])
+		setSelectedRoomId(newRoom.id)
+	}
+
 	return (
 		<BrowserRouter>
 			<Routes>
@@ -24,6 +41,10 @@ function MainApp({onLogout, pseudo}: MainAppProp) {
 							<Sidebar
 								onLogout={onLogout}
 								pseudo={pseudo}
+								rooms={rooms}
+								selectedRoomId={selectedRoomId}
+								onSelectRoom={setSelectedRoomId}
+								onCreateRoom={handleCreateRoom}
 							/>
 							<ChatWindow />
 						</div>
