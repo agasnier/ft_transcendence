@@ -1,0 +1,35 @@
+{
+  "name": "chat_service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@fastify/cookie": "^11.1.1",
+    "@fastify/multipart": "^10.1.0",
+    "@fastify/websocket": "^11.3.0",
+    "argon2": "^0.44.0",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.9.0",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.22.5",
+    "otplib": "^13.4.1"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.1.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,18 @@
+# Development image: install all deps (incl. dev tools) and run with hot reload
+FROM    node:24-alpine
+
+WORKDIR /app
+
+COPY    app/package.json ./
+RUN     npm install
+
+COPY    app/ .
+
+EXPOSE  3000
+
+HEALTHCHECK --interval=1s --timeout=3s --retries=60 --start-period=15s \
+	CMD nc -z 127.0.0.1 3000 || exit 1
+
+USER	node
+
+CMD     ["npm", "run", "dev"]
