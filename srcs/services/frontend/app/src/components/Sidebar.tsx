@@ -7,9 +7,20 @@ import CreateRoomForm from './CreateRoomForm'
 interface SidebarProp {
 	onLogout: () => void
 	pseudo: string | null
+	rooms: Room[]
+	selectedRoomId: number | null
+	onSelectRoom: (id: number) => void
+	onCreateRoom: (name: string, description: string, type: 'channel' | 'group' | 'discussion') => void
 }
 
-function Sidebar({onLogout, pseudo}: SidebarProp) {
+interface Room {
+	id: number
+	name: string
+	description: string
+	type: 'channel' | 'group' | 'discussion'
+}
+
+function Sidebar({onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCreateRoom}: SidebarProp) {
 	const [activeTab, setActiveTab] = useState<'friends' | 'conversations'>('conversations')
 	const [searchQuery, setSearchQuery] = useState('')
 	const [isSearching, setIsSearching] = useState(false)
@@ -59,10 +70,6 @@ function Sidebar({onLogout, pseudo}: SidebarProp) {
 			document.removeEventListener('keydown', handleKeyDown)
 		}
 	}, [confirmSelection])
-
-	async function handleCreateChannel (name: string, description: string, type:string) {
-		console.log(name, description, type)
-	}
 
 	return (
 		<aside className={`w-80 shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 ${isSearching ? 'bg-gray-100' : 'bg-white'}`}>
@@ -137,8 +144,22 @@ function Sidebar({onLogout, pseudo}: SidebarProp) {
 				</button>
 			</div>
 			)}
-			{visiblePanel === 'friends' && (!isSearching || searchQuery.trim() !== '') && <FriendsPanel searchQuery={searchQuery} isSearching={isSearching} />}
-			{visiblePanel === 'conversations' && (!isSearching || searchQuery.trim() !== '') && <ConversationsPanel isSearching={isSearching} />}
+			{visiblePanel === 'friends' && 
+				(!isSearching || searchQuery.trim() !== '') && 
+				<FriendsPanel
+					searchQuery={searchQuery}
+					isSearching={isSearching}
+				/>
+			}
+			{visiblePanel === 'conversations' && 
+				(!isSearching || searchQuery.trim() !== '') && 
+				<ConversationsPanel
+					isSearching={isSearching}
+					rooms={rooms}
+					selectedRoomId={selectedRoomId}
+					onSelectRoom={onSelectRoom}
+				/>
+			}
 			{!isSearching && (
 				<div data-create-room-popover
 					className="relative mt-auto self-end">
@@ -174,7 +195,7 @@ function Sidebar({onLogout, pseudo}: SidebarProp) {
 									type={creatingType}
 									onCancel={() => setCreatingType(null)}
 									onCreate={(name, description) => {
-										handleCreateChannel(name, description, creatingType)
+										onCreateRoom(name, description, creatingType)
 										setCreatingType(null)
 										setConfirmSelection(false)
 									}}
