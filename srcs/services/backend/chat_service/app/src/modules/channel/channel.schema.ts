@@ -13,3 +13,24 @@ export const listUserChannelsSchema = {
     },
   },
 }
+
+export const createChannelSchema = {
+  body: {
+    type: 'object',
+    required: ['name'],
+    additionalProperties: false,
+    properties: {
+      name: { type: 'string', minLength: 1, maxLength: 255 },
+    },
+  },
+}
+
+export const deleteChannelSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+    },
+  },
+}
