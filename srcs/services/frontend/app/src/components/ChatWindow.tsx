@@ -3,6 +3,7 @@ import { useWebSocket } from '../context/WebSocketContext'
 
 interface ChatWindowProps {
 	room: Room
+	userId: number | null
 }
 
 interface Message {

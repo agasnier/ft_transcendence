@@ -20,19 +20,21 @@ interface Room {
 	type: 'channel' | 'group' | 'discussion'
 }
 
-function MainApp({onLogout, pseudo}: MainAppProp) {
-	const [rooms, setRooms] = useState<Room[]>([
-		{id: 0, name: 'Salon Principal', description: '', type: 'channel'}
-	])
-	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(0)
+function MainApp({onLogout, pseudo, userId}: MainAppProp) {
+	const [rooms, setRooms] = useState<Room[]>([])
+	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
 	const selectedRoom = rooms.find((r) => r.id === selectedRoomId) ?? null
 
-	function handleCreateRoom(name: string, description: string, type: Room['type']) {
-		const newRoom: Room = { id: Date.now(), name, description, type }
-		setRooms((prev) => [...prev, newRoom])
-		setSelectedRoomId(newRoom.id)
+	// route to backend via websocket
+	async function handleCreateRoom(name: string, _description: string, _type: Room['type']) {
+		await fetch('/chat/channels', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({name})
+		})
 	}
 
+	// manage keyword Escape
 	useEffect(() => {
 		function handleKeyDown(event: KeyboardEvent) {
 			if (event.key === 'Escape') {
@@ -44,6 +46,43 @@ function MainApp({onLogout, pseudo}: MainAppProp) {
 		document.addEventListener('keydown', handleKeyDown)
 		return () => document.removeEventListener('keydown', handleKeyDown)
 	}, [])
+
+	// load the room list on startup
+	useEffect(() => {
+		async function loadChannels() {
+			const res = await fetch('/chat/channels')
+			if (!res.ok)
+				return
+
+			const channelsFromServer: {id: number; name: string; createdAt: string}[] = await res.json()
+			const fetchedRooms: Room[] = channelsFromServer.map((channel) => ({
+				id: channel.id,
+				name: channel.name,
+				description: '',
+				type: 'channel',
+			}))
+			setRooms(fetchedRooms)
+		}
+		loadChannels()
+	}, [])
+
+	// chat_service websocket url
+	const channelEventsSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
+
+	// refresh the room list in real time
+	useReconnectingSocket(channelEventsSocketUrl, (message) => {
+		if (message.type === 'CHANNEL_CREATED') {
+			const createdChannel = message.payload
+			setRooms((prev) =>
+				prev.some((r) => r.id === createdChannel.id)
+					? prev
+					: [...prev, {id: createdChannel.id, name: createdChannel.name, description: '', type: 'channel'}]
+			)
+		}
+		if (message.type === 'CHANNEL_DELETED') {
+			setRooms((prev) => prev.filter((r) => r.id !== message.payload.id))
+		}
+	})
 
 	return (
 		<BrowserRouter>
@@ -63,7 +102,7 @@ function MainApp({onLogout, pseudo}: MainAppProp) {
 								onSelectRoom={setSelectedRoomId}
 								onCreateRoom={handleCreateRoom}
 							/>
-							{selectedRoom && <ChatWindow room={selectedRoom}/>}
+							{selectedRoom && <ChatWindow room={selectedRoom} userId={userId}/>}
 						</div>
 					</div>}
 				/>
