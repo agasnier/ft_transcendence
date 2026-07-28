@@ -1,11 +1,11 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "6f0e9e4c-5770-456f-9275-558f4fb10ee4",
+  "id": "04f63588-d28f-463c-a0e7-91723093f1da",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "channel_members": {
-      "name": "channel_members",
+    "messages": {
+      "name": "messages",
       "columns": {
         "id": {
           "name": "id",
@@ -14,69 +14,16 @@
           "notNull": true,
           "autoincrement": true
         },
-        "channel_id": {
-          "name": "channel_id",
+        "sender_id": {
+          "name": "sender_id",
           "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "joined_at": {
-          "name": "joined_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "channel_members_channel_id_channels_id_fk": {
-          "name": "channel_members_channel_id_channels_id_fk",
-          "tableFrom": "channel_members",
-          "tableTo": "channels",
-          "columnsFrom": [
-            "channel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "channel_members_id": {
-          "name": "channel_members_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "channels": {
-      "name": "channels",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
+        "body": {
+          "name": "body",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -93,21 +40,14 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "channels_id": {
-          "name": "channels_id",
+        "messages_id": {
+          "name": "messages_id",
           "columns": [
             "id"
           ]
         }
       },
-      "uniqueConstraints": {
-        "channels_name_unique": {
-          "name": "channels_name_unique",
-          "columns": [
-            "name"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "checkConstraint": {}
     }
   },

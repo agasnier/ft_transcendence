@@ -2,9 +2,6 @@
   "path": {
     "database/creds/chat_service": {
       "capabilities": ["read"]
-    },
-    "transit/verify/jwt": {
-      "capabilities": ["update"]
     }
   }
 }
