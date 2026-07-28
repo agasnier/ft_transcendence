@@ -3,5 +3,7 @@ export const env = {
   port: 3000,
   usersServiceUrl: 'http://users_service:3000',
   vaultAgentUrl: 'http://api_service_agent:8100',
+  pepper: readVaultSecret('/vault/secrets/pepper.json', 'pepper'),
+  jwtPublicKey: readVaultSecret('/vault/secrets/jwt_public.json', 'publicKey'),
   apiKeyExpirationDays: 15,
 } as const
