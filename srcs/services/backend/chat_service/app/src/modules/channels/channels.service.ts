@@ -15,7 +15,21 @@ export async function listUserChannels(userId: number) {
     .where(eq(channelMembers.userId, userId))
 }
 
-export async function createChannel(name: string, userId: number): Promise<void> {
+export async function channelInfo(channelId: number) {
+  const [row] = await db
+    .select({
+      id: channels.id,
+      name: channels.name,
+      createdAt: channels.createdAt,
+    })
+    .from(channels)
+    .where(eq(channels.id, channelId))
+    .limit(1)
+
+  return row
+}
+
+export async function createChannel(name: string, userId: number) {
   const result = await db.insert(channels).values({ name })
   const channelId = Number(result[0].insertId)
 
@@ -23,6 +37,8 @@ export async function createChannel(name: string, userId: number): Promise<void>
     channelId,
     userId,
   })
+
+  return channelInfo(channelId)
 }
 
 export async function deleteChannel(channelId: number): Promise<void> {

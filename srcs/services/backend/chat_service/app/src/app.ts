@@ -1,8 +1,10 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 import cookie from '@fastify/cookie'
+import fastifyWebsocket from '@fastify/websocket'
 
-import { channelRoutes } from './modules/channel/channel.route.js'
-import { messageRoutes } from './modules/message/message.route.js'
+import { channelsRoutes } from './modules/channels/channels.route.js'
+import { messagesRoutes } from './modules/messages/messages.route.js'
+import { websocketRoutes } from './modules/websocket/websocket.route.js'
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({
@@ -10,9 +12,12 @@ export function buildApp(): FastifyInstance {
   })
 
   app.register(cookie)
+  app.register(fastifyWebsocket)
 
-  app.register(channelRoutes, { prefix: '/channels' })
-  app.register(messageRoutes, { prefix: '/messages' })
+  app.register(channelsRoutes, { prefix: '/chat/channels' })
+  app.register(messagesRoutes, { prefix: '/chat/channels' })
+  app.register(websocketRoutes, { prefix: '/chat' })
 
   return app
 }
+
