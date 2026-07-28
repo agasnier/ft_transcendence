@@ -1,7 +1,7 @@
 import { BrowserRouter } from 'react-router-dom'
 import { Routes } from 'react-router-dom'
 import { Route } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
 import { useReconnectingSocket } from './hooks/useReconnectingSocket'
@@ -21,14 +21,29 @@ interface Room {
 }
 
 function MainApp({onLogout, pseudo}: MainAppProp) {
-	const [rooms, setRooms] = useState<Room[]>([])
-	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
+	const [rooms, setRooms] = useState<Room[]>([
+		{id: 0, name: 'Salon Principal', description: '', type: 'channel'}
+	])
+	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(0)
+	const selectedRoom = rooms.find((r) => r.id === selectedRoomId) ?? null
 
 	function handleCreateRoom(name: string, description: string, type: Room['type']) {
 		const newRoom: Room = { id: Date.now(), name, description, type }
 		setRooms((prev) => [...prev, newRoom])
 		setSelectedRoomId(newRoom.id)
 	}
+
+	useEffect(() => {
+		function handleKeyDown(event: KeyboardEvent) {
+			if (event.key === 'Escape') {
+				setSelectedRoomId(null)
+				;(document.activeElement as HTMLElement)?.blur()
+			}
+		}
+
+		document.addEventListener('keydown', handleKeyDown)
+		return () => document.removeEventListener('keydown', handleKeyDown)
+	}, [])
 
 	return (
 		<BrowserRouter>
@@ -48,7 +63,7 @@ function MainApp({onLogout, pseudo}: MainAppProp) {
 								onSelectRoom={setSelectedRoomId}
 								onCreateRoom={handleCreateRoom}
 							/>
-							{selectedRoom && <ChatWindow room={selectedRoom} userId={userId}/>}
+							{selectedRoom && <ChatWindow room={selectedRoom}/>}
 						</div>
 					</div>}
 				/>

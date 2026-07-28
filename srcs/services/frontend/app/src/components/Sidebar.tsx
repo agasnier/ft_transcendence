@@ -72,7 +72,7 @@ function Sidebar({onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCreat
 	}, [confirmSelection])
 
 	return (
-		<aside className={`w-80 shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 ${isSearching ? 'bg-gray-100' : 'bg-white'}`}>
+		<aside className={`w-100 shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 ${isSearching ? 'bg-gray-100' : 'bg-white'}`}>
 			<div
 				className="flex items-center gap-2">
 				{isSearching ? (
