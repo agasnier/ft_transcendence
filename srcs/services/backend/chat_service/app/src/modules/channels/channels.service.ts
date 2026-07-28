@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { channels, channelMembers } from '../../db/schema.js'
@@ -29,41 +29,14 @@ export async function channelInfo(channelId: number) {
   return row
 }
 
-export async function isChannelMember(channelId: number, userId: number): Promise<boolean> {
-  const [row] = await db
-    .select({ id: channelMembers.id })
-    .from(channelMembers)
-    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
-    .limit(1)
-  
-  if (row == undefined)
-    return false
-  return true 
-}
-
-export async function listChannelMembers(channelId: number): Promise<number[]> {
-  const rows = await db
-    .select({ userId: channelMembers.userId })
-    .from(channelMembers)
-    .where(eq(channelMembers.channelId, channelId))
-
-  return rows.map((row) => row.userId)
-}
-
-export async function addChannelMembers(channelId: number, userIds: number[]): Promise<void> {
-  if (userIds.length === 0)
-    return
-
-  await db.insert(channelMembers).values(
-    userIds.map((userId) => ({ channelId, userId })),
-  )
-}
-
-export async function createChannel(name: string | undefined, memberIds: number[]) {
+export async function createChannel(name: string, userId: number) {
   const result = await db.insert(channels).values({ name })
   const channelId = Number(result[0].insertId)
 
-  await addChannelMembers(channelId, memberIds)
+  await db.insert(channelMembers).values({
+    channelId,
+    userId,
+  })
 
   return channelInfo(channelId)
 }

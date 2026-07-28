@@ -29,9 +29,7 @@ function wsSendAll(data: object): void {
 	}
 }
 
-// TODO type USER ADDED TO CHANNEL
-
-export function wsChannelCreated(channel: { id: number, name: string | null, createdAt: Date | string }): void {
+export function wsChannelCreated(channel: { id: number, name: string, createdAt: Date | string }): void {
 	wsSendAll({ type: 'CHANNEL_CREATED', payload: channel })
 }
 

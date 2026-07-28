@@ -1,10 +1,9 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { validateAccessToken } from '../vault/jwt.js'
-import { createChannel, deleteChannel, isChannelMember, listChannelMembers, listUserChannels } from './channels.service.js'
+import { createChannel, deleteChannel, listUserChannels } from './channels.service.js'
 import { wsChannelCreated, wsChannelDeleted } from '../websocket/websocket.ws.js'
 
-// hooks
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const accessToken = request.cookies.access_token
   if (!accessToken) {
@@ -21,26 +20,25 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
   request.user = user
 }
 
-// controllers
-export async function createChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function listUserChannelsController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const { name, memberIds } = request.body as { name?: string; memberIds: number[] }
-    const channel = await createChannel(name, memberIds)
-
-    // websocket
-    wsChannelCreated(channel)
-
-    await reply.status(201).send()
+    const userChannels = await listUserChannels(request.user!.id)
+    await reply.send(userChannels)
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })
   }
 }
 
-export async function listUserChannelsController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function createChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const userChannels = await listUserChannels(request.user!.id)
-    await reply.send(userChannels)
+    const { name } = request.body as { name: string }
+    const channel = await createChannel(name, request.user!.id)
+
+    // websocket
+    wsChannelCreated(channel)
+
+    await reply.status(201).send()
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })
@@ -57,24 +55,6 @@ export async function deleteChannelController(request: FastifyRequest, reply: Fa
     wsChannelDeleted(channelId)
     
     await reply.status(200).send()
-  } catch (err) {
-    request.log.error(err)
-    await reply.status(500).send({ message: 'Internal error' })
-  }
-}
-
-export async function listChannelMembersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-  try {
-    const { id } = request.params as { id: string }
-    const channelId = Number(id)
-
-    if (!(await isChannelMember(channelId, request.user!.id))) {
-      await reply.status(403).send({ message: 'Not a channel member' })
-      return
-    }
-
-    const memberIds = await listChannelMembers(channelId)
-    await reply.send(memberIds)
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

@@ -6,7 +6,7 @@ export const listUserChannelsSchema = {
         type: 'object',
         properties: {
           id: { type: 'integer' },
-          name: { type: ['string', 'null'] },
+          name: { type: 'string' },
           createdAt: { type: 'string' },
         },
       },
@@ -17,15 +17,10 @@ export const listUserChannelsSchema = {
 export const createChannelSchema = {
   body: {
     type: 'object',
-    required: ['memberIds'],
+    required: ['name'],
     additionalProperties: false,
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 255 },
-      memberIds: {
-        type: 'array',
-        minItems: 1,
-        items: { type: 'integer', minimum: 1 },
-      },
     },
   },
 }
@@ -36,22 +31,6 @@ export const deleteChannelSchema = {
     required: ['id'],
     properties: {
       id: { type: 'integer', minimum: 1 },
-    },
-  },
-}
-
-export const listChannelMembersSchema = {
-  params: {
-    type: 'object',
-    required: ['id'],
-    properties: {
-      id: { type: 'integer', minimum: 1 },
-    },
-  },
-  response: {
-    200: {
-      type: 'array',
-      items: { type: 'integer' },
     },
   },
 }
