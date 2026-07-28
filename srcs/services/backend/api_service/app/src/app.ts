@@ -37,7 +37,7 @@ export function buildApp(): FastifyInstance {
         reply.status(400).send({ message: 'La connexion nécessite un Upgrade WebSocket.' })
       },
       wsHandler: (connection, req) => {
-        handleWebSocket(connection, req, app)
+        void handleWebSocket(connection, req, app)
       }
     })
   })

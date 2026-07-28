@@ -40,39 +40,3 @@ template {
 {{ end }}
 EOT
 }
-
-template {
-  destination = "/vault/secrets/pepper.json"
-  perms       = "0644"
-  contents = <<EOT
-{{ with secret "secret/data/users_service/pepper" }}
-{
-  "pepper": "{{ .Data.data.value }}"
-}
-{{ end }}
-EOT
-}
-
-template {
-  destination = "/vault/secrets/jwt_private.json"
-  perms       = "0644"
-  contents = <<EOT
-{{ with secret "secret/data/users_service/jwt_private" }}
-{
-  "privateKey": {{ .Data.data.value | toJSON }}
-}
-{{ end }}
-EOT
-}
-
-template {
-  destination = "/vault/secrets/jwt_public.json"
-  perms       = "0644"
-  contents = <<EOT
-{{ with secret "secret/data/users_service/jwt_public" }}
-{
-  "publicKey": {{ .Data.data.value | toJSON }}
-}
-{{ end }}
-EOT
-}

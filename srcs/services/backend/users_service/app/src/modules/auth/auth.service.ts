@@ -1,15 +1,12 @@
 import type { FastifyReply } from 'fastify'
-import { createHmac, randomBytes } from 'node:crypto'
+import { randomBytes } from 'node:crypto'
 import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { jwtRefreshToken } from '../../db/schema.js'
 import { env } from '../../config/env.js'
+import { vaultHash } from '../vault/hash.js'
 import { createAccessToken } from '../vault/jwt.js'
-
-function hash(value: string): string {
-  return createHmac('sha256', env.pepper).update(value).digest('hex')
-}
 
 export async function createCookie(reply: FastifyReply, user: { id: number; pseudo: string }): Promise<string> {
   const accessToken = await createAccessToken(user)
@@ -30,7 +27,7 @@ export async function createRefreshToken(owner_id: number): Promise<string> {
 
   await db
     .insert(jwtRefreshToken)
-    .values({ owner_id, token_hash: hash(token), expires_at: expiresAt })
+    .values({ owner_id, token_hash: await vaultHash(token), expires_at: expiresAt })
 
   return token
 }
@@ -38,14 +35,14 @@ export async function createRefreshToken(owner_id: number): Promise<string> {
 export async function deleteRefreshToken(token: string): Promise<void> {
   await db
     .delete(jwtRefreshToken)
-    .where(eq(jwtRefreshToken.token_hash, hash(token)))
+    .where(eq(jwtRefreshToken.token_hash, await vaultHash(token)))
 }
 
 export async function validateRefreshToken(token: string) {
   const rows = await db
     .select()
     .from(jwtRefreshToken)
-    .where(eq(jwtRefreshToken.token_hash, hash(token)))
+    .where(eq(jwtRefreshToken.token_hash, await vaultHash(token)))
     .limit(1)
 
   const stored = rows[0]
