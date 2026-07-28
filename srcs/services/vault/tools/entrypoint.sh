@@ -49,6 +49,20 @@ fi
 		vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
 	fi
 
+
+	
+
+	# Transit: HMAC key for api_service API keys only (default key type)
+	if ! vault secrets list | grep -q '^transit/'; then
+		vault secrets enable transit
+	fi
+	if ! vault read transit/keys/api-keys >/dev/null 2>&1; then
+		vault write -f transit/keys/api-keys
+	fi
+
+
+
+
 	# jwt key pair for users_service
 	if ! vault kv get secret/users_service/jwt_private >/dev/null 2>&1; then
 		PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
