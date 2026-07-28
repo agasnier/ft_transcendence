@@ -1,11 +1,11 @@
 import { env } from '../../config/env.js'
 
-export async function vaultHash(value: string): Promise<string> {
+export async function hashApiKey(apiKey: string): Promise<string> {
   const res = await fetch(`${env.vaultAgentUrl}/v1/transit/hmac/api-keys`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      input: Buffer.from(value, 'utf8').toString('base64'),
+      input: Buffer.from(apiKey, 'utf8').toString('base64'),
       algorithm: 'sha2-256',
     }),
   })
