@@ -1,0 +1,7 @@
+{
+  "path": {
+    "database/creds/chat_service": {
+      "capabilities": ["read"]
+    }
+  }
+}

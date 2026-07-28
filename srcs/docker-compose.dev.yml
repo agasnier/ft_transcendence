@@ -36,8 +36,6 @@ services:
     volumes:
       # Mount local source for hot reload
       - ./services/backend/users_service/app/src:/app/src
-      # Mount migrations so newly generated ones are picked up without rebuild
-      - ./services/backend/users_service/app/drizzle:/app/drizzle
 
   api_service:
     build:
@@ -46,8 +44,13 @@ services:
     volumes:
       # Mount local source for hot reload
       - ./services/backend/api_service/app/src:/app/src
-      # Mount migrations so newly generated ones are picked up without rebuild
-      - ./services/backend/api_service/app/drizzle:/app/drizzle
+
+  chat_service:
+    build:
+      context: ./services/backend/chat_service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/backend/chat_service/app/src:/app/src
 
 # dev volume independent from prod volume
 volumes:
