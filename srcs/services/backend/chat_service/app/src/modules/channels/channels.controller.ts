@@ -1,7 +1,8 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { validateAccessToken } from '../vault/jwt.js'
-import { createChannel, deleteChannel, listUserChannels } from './channel.service.js'
+import { createChannel, deleteChannel, listUserChannels } from './channels.service.js'
+import { wsChannelCreated, wsChannelDeleted } from '../websocket/websocket.ws.js'
 
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const accessToken = request.cookies.access_token
@@ -32,7 +33,11 @@ export async function listUserChannelsController(request: FastifyRequest, reply:
 export async function createChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { name } = request.body as { name: string }
-    await createChannel(name, request.user!.id)
+    const channel = await createChannel(name, request.user!.id)
+
+    // websocket
+    wsChannelCreated(channel)
+
     await reply.status(201).send()
   } catch (err) {
     request.log.error(err)
@@ -43,7 +48,12 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
 export async function deleteChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
-    await deleteChannel(Number(id))
+    const channelId = Number(id)
+    await deleteChannel(channelId)
+
+    // websocket
+    wsChannelDeleted(channelId)
+    
     await reply.status(200).send()
   } catch (err) {
     request.log.error(err)
