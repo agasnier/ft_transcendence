@@ -1,18 +1,18 @@
 import type { FastifyReply } from 'fastify'
 import { createHmac, randomBytes } from 'node:crypto'
-import jwt from 'jsonwebtoken'
 import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { jwtRefreshToken } from '../../db/schema.js'
 import { env } from '../../config/env.js'
+import { createAccessToken } from '../vault/jwt.js'
 
 function hash(value: string): string {
   return createHmac('sha256', env.pepper).update(value).digest('hex')
 }
 
 export async function createCookie(reply: FastifyReply, user: { id: number; pseudo: string }): Promise<string> {
-  const accessToken = createAccessToken(user)
+  const accessToken = await createAccessToken(user)
   const refreshToken = await createRefreshToken(user.id)
 
   reply
@@ -20,18 +20,6 @@ export async function createCookie(reply: FastifyReply, user: { id: number; pseu
     .setCookie('refresh_token', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/auth' })
 
   return accessToken
-}
-
-export function createAccessToken(user: { id: number; pseudo: string }): string {
-  return jwt.sign(user, env.jwtPrivateKey, { algorithm: 'ES256', expiresIn: env.accessTokenExpiration })
-}
-
-export function validateAccessToken(token: string): { id: number; pseudo: string } | null {
-  try {
-    return jwt.verify(token, env.jwtPublicKey, { algorithms: ['ES256'] }) as { id: number; pseudo: string }
-  } catch {
-    return null
-  }
 }
 
 export async function createRefreshToken(owner_id: number): Promise<string> {

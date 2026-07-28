@@ -1,8 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { createCookie, deleteRefreshToken, validateRefreshToken, validateAccessToken } from './auth.service.js'
+import { createCookie, deleteRefreshToken, validateRefreshToken } from './auth.service.js'
 import { createUser, verifyCredentials, getUserById } from '../users/users.service.js'
-import jwt from 'jsonwebtoken'
-import { env } from '../../config/env.js'
+import { validateAccessToken } from '../vault/jwt.js'
 
 // hooks
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -12,13 +11,13 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
     return
   }
 
-  try {
-    const user = jwt.verify(accessToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as { id: number; pseudo: string }
-    request.user = user
-  } catch {
+  const user = await validateAccessToken(accessToken)
+  if (!user) {
     await reply.status(401).send({ message: 'Not authenticated' })
     return
   }
+
+    request.user = user
 }
 
 // controllers
@@ -79,7 +78,7 @@ export async function sessionController(request: FastifyRequest, reply: FastifyR
   try {
     const accessToken = request.cookies.access_token
     if (accessToken) {
-      const user = validateAccessToken(accessToken)
+      const user = await validateAccessToken(accessToken)
       if (user) {
         await reply.status(200).send(user)
         return
