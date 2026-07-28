@@ -32,9 +32,10 @@ fi
 	vault kv put secret/users_service/jwt_private value="$PRIV"
 	vault kv put secret/users_service/jwt_public  value="$PUB"
 
-	# Transit: HMAC key for api_service API keys only (default key type)
+	# enable transit
 	vault secrets enable transit 2>/dev/null || true
 	vault write -f transit/keys/api-keys 2>/dev/null || true
+	vault write -f transit/keys/passwords 2>/dev/null || true
 
 	# enable secrets database for dynamic credentials
 	vault secrets enable database
