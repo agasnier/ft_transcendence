@@ -11,8 +11,6 @@ services:
       context: ./services/vault
       dockerfile: Dockerfile.dev
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "root"
-      VAULT_UI: "true"
       VAULT_API_ADDR: "http://vault:8200"
     ports:
       - "8200:8200"
@@ -60,3 +58,10 @@ volumes:
       type: none
       o: bind
       device: ./data/mariadb-dev
+
+  vault_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/vault-dev
