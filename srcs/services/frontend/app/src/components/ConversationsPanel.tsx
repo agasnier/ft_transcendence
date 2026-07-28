@@ -13,7 +13,6 @@ interface Room {
 }
 
 function ConversationsPanel({ isSearching, rooms, selectedRoomId, onSelectRoom }: ConversationsPanelProps) {
-	const typeIcon = { channel: '📢', group: '👥', discussion: '👤' }
 
 	if (rooms.length === 0) {
 		return (
@@ -29,8 +28,12 @@ function ConversationsPanel({ isSearching, rooms, selectedRoomId, onSelectRoom }
 				<button
 					key={room.id}
 					onClick={() => onSelectRoom(room.id)}
-					className={`text-left px-3 py-2 rounded-2xl ${isSearching ? 'bg-white' : 'bg-gray-100'} ${selectedRoomId === room.id ? 'ring-2 ring-blue-400' : ''} hover:bg-blue-50`}>
-					{typeIcon[room.type]} {room.name}
+					className={`flex text-left font-bold px-3 py-2 rounded-2xl ${selectedRoomId === room.id ? 'bg-blue-400' : 'hover:bg-gray-100'} `}>
+					<span
+						className="bg-blue-500 text-white text-lg rounded-full w-15 h-15 flex items-center justify-center">
+						{room.name?.charAt(0).toUpperCase() ?? '?'}
+					</span>
+					<span className={`truncate px-3 ${selectedRoomId === room.id ? 'text-white' : ''}`}>{room.name ?? 'Channel'}</span>
 				</button>
 			))}
 		</div>
