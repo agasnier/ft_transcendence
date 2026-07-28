@@ -18,7 +18,7 @@ export function dataInput(user: { id: number; pseudo: string }): string {
 	return header + '.' + payload
 }
 
-export async function createAccessToken(user: { id: number; pseudo: string }): Promise<string> {
+export async function signAccessToken(user: { id: number; pseudo: string }): Promise<string> {
 	const data = dataInput(user)
 
 	const res = await fetch(`${env.vaultAgentUrl}/v1/transit/sign/jwt`, {
