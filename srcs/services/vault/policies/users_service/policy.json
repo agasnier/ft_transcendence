@@ -14,6 +14,12 @@
     },
     "transit/hmac/passwords": {
       "capabilities": ["update"]
+    },
+    "transit/sign/jwt": {
+      "capabilities": ["update"]
+    },
+    "transit/verify/jwt": {
+      "capabilities": ["update"]
     }
   }
 }
