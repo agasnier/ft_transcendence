@@ -3,6 +3,7 @@ import { useWebSocket } from '../context/WebSocketContext'
 
 interface ChatWindowProps {
 	room: Room
+	userId: number | null
 }
 
 interface Message {
@@ -74,14 +75,14 @@ function ChatWindow({room}: ChatWindowProps) {
 					</div>
 				) : (
 					messages.map((msg) => (
-						<div key={msg.id} className="flex flex-col items-start bg-blue-50/80 p-3 rounded-2xl max-w-md border border-blue-100 shadow-sm">
+						<div key={msg.id} className="flex flex-col items-start bg-white p-3 rounded-2xl max-w-md border border-blue-100 shadow-sm">
 							<div className="flex justify-between w-full text-xs font-semibold text-blue-700 mb-1 gap-4">
 								<span>{msg.senderPseudo || `Utilisateur #${msg.senderId}`}</span>
 								<span className="text-gray-400 font-normal">
 									{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 								</span>
 							</div>
-							<p className="text-gray-800 text-sm break-words">{msg.text}</p>
+							<p className="text-gray-800 text-sm wrap-break-words">{msg.text}</p>
 						</div>
 					))
 				)}

@@ -30,10 +30,10 @@ function ConversationsPanel({ isSearching, rooms, selectedRoomId, onSelectRoom }
 					onClick={() => onSelectRoom(room.id)}
 					className={`flex text-left font-bold px-3 py-2 rounded-2xl ${selectedRoomId === room.id ? 'bg-blue-400' : 'hover:bg-gray-100'} `}>
 					<span
-						className="bg-blue-500 text-white text-lg rounded-full w-15 h-15 flex items-center justify-center">
+						className="bg-orange-400/90 text-white text-2xl font-thin rounded-full w-15 h-15 flex items-center justify-center shrink-0">
 						{room.name?.charAt(0).toUpperCase() ?? '?'}
 					</span>
-					<span className={`truncate px-3 ${selectedRoomId === room.id ? 'text-white' : ''}`}>{room.name ?? 'Channel'}</span>
+					<span className={`truncate min-w-0 px-3 ${selectedRoomId === room.id ? 'text-white' : ''}`}>{room.name ?? 'Channel'}</span>
 				</button>
 			))}
 		</div>
