@@ -11,6 +11,9 @@
     },
     "transit/hmac/api-keys": {
       "capabilities": ["update"]
+    },
+    "transit/verify/jwt": {
+      "capabilities": ["update"]
     }
   }
 }
