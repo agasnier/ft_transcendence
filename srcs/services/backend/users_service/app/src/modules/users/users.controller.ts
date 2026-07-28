@@ -4,7 +4,10 @@ import { pipeline } from 'stream/promises'
 import { createWriteStream } from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
-import { updateUserProfile, getUserProfile, updateAvatar } from './users.service.js'
+import { updateUserProfile, getUserProfile, updateAvatar} from './users.service.js'
+import { eq } from 'drizzle-orm'
+import { db } from '../../db/index.js'
+import { users } from '../../db/schema.js'
 
 
 export async function listUsersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -17,15 +20,16 @@ export async function listUsersController(request: FastifyRequest, reply: Fastif
   }
 }
 
-export async function getUserController(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<void> {
+export async function getUserController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const id = Number(request.params.id)
-    if (!Number.isInteger(id) || id <= 0) {
+    const { id } = request.params as { id: string }
+  
+    if (!Number.isInteger(id) || Number(id) <= 0) {
       await reply.status(400).send({ message: 'Invalid id' })
       return
     }
 
-    const user = await getUserById(id)
+    const user = await getUserById(Number(id))
     if (!user) {
       await reply.status(404).send({ message: 'User not found' })
       return
@@ -51,11 +55,30 @@ export async function createUserController(
   }
 }
 
-export async function updateUserController(
-  request: FastifyRequest<{ Params: { id: string }; Body: { mail?: string; pseudo?: string; password?: string } }>, reply: FastifyReply): Promise<void> {
+export async function updateUserController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const id = Number(request.params.id)
-    const user = await updateUser(id, request.body)
+    if (!request.user) {
+      await reply.status(401).send({ message: 'Not authetificated' })
+      return
+    }
+
+    const { id } = request.params as { id: string }
+    const body = request.body as { mail?: string; pseudo?: string; password?: string; role?: 'admin' | 'moderator' | 'user' | 'guest' }
+  
+    // Only admin can change role.
+    if (body.role) {
+      const dbUser = await db.query.users.findFirst({
+        where: eq(users.id, request.user.id),
+        columns: { role: true },
+      })
+      if (dbUser?.role !== 'admin') {
+        await reply.status(403).send({ message: 'Only admins can change roles' })
+        return
+      }
+    }
+
+    const user = await updateUser(Number(id), body)
+
     if (!user) {
       await reply.status(404).send({ message: 'User not found' })
       return
@@ -68,10 +91,10 @@ export async function updateUserController(
 }
 
 export async function deleteUserController(
-  request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<void> {
+  request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const id = Number(request.params.id)
-    const deleted = await deleteUser(id)
+    const { id } = request.params as { id: string }
+    const deleted = await deleteUser(Number(id))
     if (!deleted) {
       await reply.status(404).send({ message: 'User not found' })
       return

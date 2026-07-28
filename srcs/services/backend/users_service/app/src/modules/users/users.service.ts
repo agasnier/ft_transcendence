@@ -47,18 +47,22 @@ export async function createUser(mail: string, pseudo: string, password: string)
   return await getUserById(result.insertId)
 }
 
-export async function updateUser(id: number, data: { mail?: string; pseudo?: string; password?: string }) {
+type UserRole = 'admin' | 'moderator' | 'user' | 'guest'
+
+export async function updateUser(id: number, data: { mail?: string; pseudo?: string; password?: string; role?: UserRole }) {
   const User = await getUserById(id)
   if (!User)
     return null
 
-  const newData: { mail?: string; pseudo?: string; password?: string } = {}
+  const newData: { mail?: string; pseudo?: string; password?: string; role?: UserRole } = {}
   if (data.mail !== undefined)
     newData.mail = data.mail
   if (data.pseudo !== undefined)
     newData.pseudo = data.pseudo
   if (data.password !== undefined)
     newData.password = await hashPassword(data.password)
+  if (data.role !== undefined)
+    newData.role = data.role
   await db.update(users).set(newData).where(eq(users.id, id))
 
   return await getUserById(id)
