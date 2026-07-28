@@ -1,21 +1,9 @@
-import argon2 from 'argon2'
 import { eq, or } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
-import { env } from '../../config/env.js'
+import { hashPassword, verifyPassword } from '../vault/hash.js'
 
-
-// argon2 need to have real octect not in hex
-const pepper = Buffer.from(env.pepper, 'hex')
-
-export async function hashPassword(password: string): Promise<string> {
-  return await argon2.hash(password, { secret: pepper })
-}
-
-export async function verifyPassword(storedHash: string , password: string): Promise<boolean> {
-  return await argon2.verify(storedHash, password, { secret: pepper })
-}
 
 export async function getAllUsers() {
   return await db
