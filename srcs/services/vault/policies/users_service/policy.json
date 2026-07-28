@@ -11,6 +11,9 @@
     },
     "secret/data/users_service/jwt_public": {
       "capabilities": ["read"]
+    },
+    "transit/hmac/passwords": {
+      "capabilities": ["update"]
     }
   }
 }

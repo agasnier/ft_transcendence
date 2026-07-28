@@ -52,12 +52,17 @@ fi
 
 	
 
-	# Transit: HMAC key for api_service API keys only (default key type)
+	# Enable Transit
 	if ! vault secrets list | grep -q '^transit/'; then
 		vault secrets enable transit
 	fi
+	# hash key for api_keys service
 	if ! vault read transit/keys/api-keys >/dev/null 2>&1; then
 		vault write -f transit/keys/api-keys
+	fi
+	# hash key for users_service
+	if ! vault read transit/keys/passwords >/dev/null 2>&1; then
+		vault write -f transit/keys/passwords
 	fi
 
 
