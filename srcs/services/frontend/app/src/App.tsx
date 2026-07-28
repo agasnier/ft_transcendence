@@ -9,7 +9,7 @@ import { WebSocketProvider } from './context/WebSocketContext'
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false)
 	const [isCheckingSession, setIsCheckingSession] = useState(true)
-	const [, setUserId] = useState<number | null>(null)
+	const [userId, setUserId] = useState<number | null>(null)
 	const [pseudo, setPseudo] = useState<string | null>(null)
 	const [token, setToken] = useState<string | null>(null)
 	const [view, setView] = useState<'login' | 'signup' | 'privacy' | 'terms'>('login')
@@ -65,7 +65,7 @@ function App() {
 	else {
 		return (
 			<WebSocketProvider token={token}>
-				<MainApp onLogout={handleLogout} pseudo={pseudo}/>
+				<MainApp onLogout={handleLogout} pseudo={pseudo} userId={userId}/>
 			</WebSocketProvider>
 		)
 	}
