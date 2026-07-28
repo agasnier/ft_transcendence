@@ -1,23 +1,17 @@
 import Fastify, { type FastifyInstance } from 'fastify'
-import cookie from '@fastify/cookie'
-import fastifyWebsocket from '@fastify/websocket'
 
-import { channelsRoutes } from './modules/channels/channels.route.js'
-import { messagesRoutes } from './modules/messages/messages.route.js'
-import { websocketRoutes } from './modules/websocket/websocket.route.js'
+import { chatRoutes } from './modules/chat/chat.route.js'
+import { roomRoutes } from './modules/room/room.route.js'
 
+// construct the app without launching it
 export function buildApp(): FastifyInstance {
   const app = Fastify({
     logger: true,
   })
 
-  app.register(cookie)
-  app.register(fastifyWebsocket)
-
-  app.register(channelsRoutes, { prefix: '/chat/channels' })
-  app.register(messagesRoutes, { prefix: '/chat/channels' })
-  app.register(websocketRoutes, { prefix: '/chat' })
+  // all modules must be registered here
+  app.register(chatRoutes, { prefix: '/chat' })
+  app.register(roomRoutes, { prefix: '/rooms' })
 
   return app
 }
-
