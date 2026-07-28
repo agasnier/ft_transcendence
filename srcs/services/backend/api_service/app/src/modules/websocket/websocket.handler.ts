@@ -1,7 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import type { WebSocket, RawData } from 'ws'
-import jwt from 'jsonwebtoken'
-import { env } from '../../config/env.js'
+import { validateAccessToken } from '../vault/jwt.js'
 import { WS_ERRORS } from './ws.error.js'
 
 interface ActiveClient {
@@ -42,24 +41,24 @@ export function broadcast(data: object, excludeuserId?: string) {
 	}
 }
 
-function authenticateWebSocket(req: FastifyRequest, app: FastifyInstance): JwtPayload | null {
-	try {
-		const rawCookieHeader = req.headers['cookie'] || (req.raw?.headers as any)?.cookie
-		const tokenFromCookie = req.cookies?.access_token || getCookieValue(rawCookieHeader, 'access_token')
-		const queryToken = (req.query as any)?.token
-		const finalToken = tokenFromCookie || queryToken
+async function authenticateWebSocket(req: FastifyRequest, app: FastifyInstance): Promise<JwtPayload | null> {
+	const rawCookieHeader = req.headers['cookie'] || (req.raw?.headers as any)?.cookie
+	const tokenFromCookie = req.cookies?.access_token || getCookieValue(rawCookieHeader, 'access_token')
+	const queryToken = (req.query as any)?.token
+	const finalToken = tokenFromCookie || queryToken
 
-		if (!finalToken) {
-			app.log.warn(`[WS Auth Failed] Aucun token trouvé (Cookie header: ${rawCookieHeader})`)
-			return null
-		}
-
-		const decoded = jwt.verify(finalToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as JwtPayload
-		return decoded
-	} catch (err: any) {
-		app.log.warn(`[WS Auth Failed] Vérification JWT échouée : ${err?.message}`)
+	if (!finalToken) {
+		app.log.warn(`[WS Auth Failed] Aucun token trouvé (Cookie header: ${rawCookieHeader})`)
 		return null
 	}
+
+	const user = await validateAccessToken(finalToken)
+	if (!user) {
+		app.log.warn('[WS Auth Failed] Vérification JWT Vault échouée')
+		return null
+	}
+
+	return user
 }
 
 function closeSocket(connection: any, code: number, reason: string): void {
@@ -75,10 +74,10 @@ function closeSocket(connection: any, code: number, reason: string): void {
 	}
 }
 
-export function handleWebSocket(connection: any, req: FastifyRequest, app: FastifyInstance): void {
+export async function handleWebSocket(connection: any, req: FastifyRequest, app: FastifyInstance): Promise<void> {
 	const socket: WebSocket = connection.socket ?? connection.raw ?? connection
 
-	const auth = authenticateWebSocket(req, app)
+	const auth = await authenticateWebSocket(req, app)
 	if (auth === null) {
 		app.log.warn(WS_ERRORS.UNAUTHORIZED.log)
 		closeSocket(connection, WS_ERRORS.UNAUTHORIZED.code, WS_ERRORS.UNAUTHORIZED.reason)

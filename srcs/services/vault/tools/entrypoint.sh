@@ -34,23 +34,6 @@ fi
 	# root with root_token from INIT FILE
 	export VAULT_TOKEN="$(jq -r '.root_token' "$INIT_FILE")"
 
-	# enable vault kv v2 for pepper for hashing
-	if ! vault secrets list | grep -q '^secret/'; then
-    	vault secrets enable -path=secret -version=2 kv
-	fi
-
-	# pepper for api_service
-	if ! vault kv get secret/api_service/pepper >/dev/null 2>&1; then
-		vault kv put secret/api_service/pepper value="$(openssl rand -hex 32)"
-	fi
-
-	# pepper for users_service
-	if ! vault kv get secret/users_service/pepper >/dev/null 2>&1; then
-		vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
-	fi
-
-
-	
 
 	# Enable Transit
 	if ! vault secrets list | grep -q '^transit/'; then
@@ -67,15 +50,6 @@ fi
 	# JWT signing key
 	if ! vault read transit/keys/jwt >/dev/null 2>&1; then
 		vault write -f transit/keys/jwt type=ecdsa-p256
-	fi
-	
-
-	# jwt key pair for users_service (KV — still used by api_service verify until migrated)
-	if ! vault kv get secret/users_service/jwt_private >/dev/null 2>&1; then
-		PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
-		PUB=$(echo "$PRIV" | openssl pkey -pubout)
-		vault kv put secret/users_service/jwt_private value="$PRIV"
-		vault kv put secret/users_service/jwt_public  value="$PUB"
 	fi
 
 	# enable database and approle if it's not already

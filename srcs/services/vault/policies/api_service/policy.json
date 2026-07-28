@@ -3,12 +3,6 @@
     "database/creds/api_service": {
       "capabilities": ["read"]
     },
-    "secret/data/api_service/pepper": {
-      "capabilities": ["read"]
-    },
-    "secret/data/users_service/jwt_public": {
-      "capabilities": ["read"]
-    },
     "transit/hmac/api-keys": {
       "capabilities": ["update"]
     },

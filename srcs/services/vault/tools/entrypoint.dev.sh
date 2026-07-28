@@ -20,17 +20,6 @@ fi
 		sleep 1
 	done
 
-	# pepper for api_service
-	vault kv put secret/api_service/pepper value="$(openssl rand -hex 32)"
-
-	# pepper for users_service
-	vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
-
-	# jwt key pair for users_service
-	PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
-	PUB=$(echo "$PRIV" | openssl pkey -pubout)
-	vault kv put secret/users_service/jwt_private value="$PRIV"
-	vault kv put secret/users_service/jwt_public  value="$PUB"
 
 	# enable transit
 	vault secrets enable transit 2>/dev/null || true
