@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { channels, channelMembers } from '../../db/schema.js'
@@ -27,6 +27,27 @@ export async function channelInfo(channelId: number) {
     .limit(1)
 
   return row
+}
+
+export async function isChannelMember(channelId: number, userId: number): Promise<boolean> {
+  const [row] = await db
+    .select({ id: channelMembers.id })
+    .from(channelMembers)
+    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+    .limit(1)
+  
+  if (row == undefined)
+    return false
+  return true 
+}
+
+export async function listChannelMembers(channelId: number): Promise<number[]> {
+  const rows = await db
+    .select({ userId: channelMembers.userId })
+    .from(channelMembers)
+    .where(eq(channelMembers.channelId, channelId))
+
+  return rows.map((row) => row.userId)
 }
 
 export async function addChannelMembers(channelId: number, userIds: number[]): Promise<void> {

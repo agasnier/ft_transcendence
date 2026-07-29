@@ -39,3 +39,19 @@ export const deleteChannelSchema = {
     },
   },
 }
+
+export const listChannelMembersSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+    },
+  },
+  response: {
+    200: {
+      type: 'array',
+      items: { type: 'integer' },
+    },
+  },
+}
