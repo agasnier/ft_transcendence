@@ -6,6 +6,7 @@ declare module 'fastify' {
     user?: {
       id: number
       pseudo: string
+      role: string
     }
   }
 }
