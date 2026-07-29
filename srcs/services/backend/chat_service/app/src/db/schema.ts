@@ -2,7 +2,7 @@ import { mysqlTable, int, varchar, timestamp } from 'drizzle-orm/mysql-core'
 
 export const channels = mysqlTable('channels', {
   id: int('id').autoincrement().primaryKey(),
-  name: varchar('name', { length: 255 }).notNull().unique(),
+  name: varchar('name', { length: 255 }).unique(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 

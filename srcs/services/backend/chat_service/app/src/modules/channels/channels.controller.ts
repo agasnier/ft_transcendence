@@ -32,8 +32,8 @@ export async function listUserChannelsController(request: FastifyRequest, reply:
 
 export async function createChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const { name } = request.body as { name: string }
-    const channel = await createChannel(name, request.user!.id)
+    const { name, memberIds } = request.body as { name?: string; memberIds: number[] }
+    const channel = await createChannel(name, memberIds)
 
     // websocket
     wsChannelCreated(channel)

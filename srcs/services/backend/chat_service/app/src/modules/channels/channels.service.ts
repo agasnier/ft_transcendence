@@ -29,14 +29,20 @@ export async function channelInfo(channelId: number) {
   return row
 }
 
-export async function createChannel(name: string, userId: number) {
+export async function addChannelMembers(channelId: number, userIds: number[]): Promise<void> {
+  if (userIds.length === 0)
+    return
+
+  await db.insert(channelMembers).values(
+    userIds.map((userId) => ({ channelId, userId })),
+  )
+}
+
+export async function createChannel(name: string | undefined, memberIds: number[]) {
   const result = await db.insert(channels).values({ name })
   const channelId = Number(result[0].insertId)
 
-  await db.insert(channelMembers).values({
-    channelId,
-    userId,
-  })
+  await addChannelMembers(channelId, memberIds)
 
   return channelInfo(channelId)
 }
