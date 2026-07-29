@@ -5,6 +5,9 @@ import { createChannel, deleteChannel, isChannelMember, listChannelMembers, list
 import { wsChannelCreated, wsChannelDeleted } from '../websocket/websocket.ws.js'
 
 // hooks
+
+// TODO hook is a channel members
+
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const accessToken = request.cookies.access_token
   if (!accessToken) {
