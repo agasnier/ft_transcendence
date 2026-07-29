@@ -7,6 +7,7 @@ import { usersRoutes } from './modules/users/users.route.js'
 import { friendsRoutes } from './modules/friends/friends.route.js'
 import { authRoutes } from './modules/auth/auth.route.js'
 import { presenceRoutes } from './modules/presence/presence.route.js'
+import { websocketRoutes } from './modules/websocket/websocket.route.js'
 
 
 // construct the app without launching it
@@ -27,6 +28,7 @@ export function buildApp(): FastifyInstance {
   app.register(friendsRoutes, { prefix: "/friends" })
   app.register(authRoutes, { prefix: '/auth' })
   app.register(presenceRoutes, { prefix: '/presence' })
+  app.register(websocketRoutes, { prefix: '/users' })
 
   return app
 }
