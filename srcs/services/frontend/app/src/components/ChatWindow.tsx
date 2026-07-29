@@ -8,7 +8,7 @@ interface ChatWindowProps {
 
 interface Message {
 	id: string
-	senderId: string
+	senderId: number | null
 	text: string
 	timestamp: string
 	senderPseudo: string
@@ -21,7 +21,7 @@ interface Room {
 	type: 'channel' | 'group' | 'discussion'
 }
 
-function ChatWindow({room}: ChatWindowProps) {
+function ChatWindow({room, userId}: ChatWindowProps) {
 	const { isConnected, lastMessage, sendMessage } = useWebSocket()
 	const [messages, setMessages] = useState<Message[]>([])
 	const [inputText, setInputText] = useState('')
@@ -33,7 +33,7 @@ function ChatWindow({room}: ChatWindowProps) {
 		if (lastMessage.type === 'NEW_CHAT_MESSAGE' && lastMessage.payload) {
 			const newMessage: Message = {
 				id: Math.random().toString(36).substring(2, 9),
-				senderId: lastMessage.payload.senderId ?? 'Anonyme',
+				senderId: lastMessage.payload.senderId ?? null,
 				text: lastMessage.payload.text ?? '',
 				timestamp: lastMessage.payload.timestamp ?? new Date().toISOString(),
 				senderPseudo: lastMessage.payload.senderPseudo ?? ''
@@ -45,6 +45,14 @@ function ChatWindow({room}: ChatWindowProps) {
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}, [messages])
+
+	// TODO delete after websocket message working
+	useEffect(() => {
+		setMessages([
+			{ id: '1', senderId: userId, text: 'moi messageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', timestamp: new Date().toISOString(), senderPseudo: 'Moi' },
+			{ id: '2', senderId: 2, text: "autre messagewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", timestamp: new Date().toISOString(), senderPseudo: 'Autre' },
+		])
+	}, [])
 
 	function handleSend(e: React.FormEvent) {
 		e.preventDefault()
@@ -74,17 +82,26 @@ function ChatWindow({room}: ChatWindowProps) {
 						{isConnected ? 'Aucun message pour l\'instant. Commencez la discussion !' : 'Connexion au serveur de chat...'}
 					</div>
 				) : (
-					messages.map((msg) => (
-						<div key={msg.id} className="flex flex-col items-start bg-white p-3 rounded-2xl max-w-md border border-blue-100 shadow-sm">
-							<div className="flex justify-between w-full text-xs font-semibold text-blue-700 mb-1 gap-4">
-								<span>{msg.senderPseudo || `Utilisateur #${msg.senderId}`}</span>
-								<span className="text-gray-400 font-normal">
-									{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-								</span>
+					messages.map((msg) => {
+						const isOwn = msg.senderId !== null && msg.senderId === userId
+						return (
+							<div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+								<div className={`flex flex-col min-w-0 p-3 rounded-2xl max-w-md shadow-sm
+									${isOwn
+									? 'items-end bg-blue-200'
+									: 'items-start bg-white border-blue-100'}
+								`}>
+									<div className="flex justify-between w-full text-xs font-semibold text-blue-700 mb-1 gap-4">
+										<span>{msg.senderPseudo || `Utilisateur #${msg.senderId}`}</span>
+										<span className="text-gray-400 font-normal">
+											{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+										</span>
+									</div>
+									<p className="text-gray-800 text-sm font-light wrap-break-word min-w-0 w-full">{msg.text}</p>
+								</div>
 							</div>
-							<p className="text-gray-800 text-sm wrap-break-words">{msg.text}</p>
-						</div>
-					))
+						)
+					})
 				)}
 				<div ref={messagesEndRef} />
 			</div>
