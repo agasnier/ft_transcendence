@@ -1,10 +1,9 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { getAllUsers, getUserById, createUser, updateUser, deleteUser } from './users.service.js'
+import { getAllUsers, getUserById, createUser, updateUser, deleteUser, listUsers, updateUserProfile, getUserProfile, updateAvatar } from './users.service.js'
 import { pipeline } from 'stream/promises'
 import { createWriteStream } from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
-import { updateUserProfile, getUserProfile, updateAvatar} from './users.service.js'
 import { eq } from 'drizzle-orm'
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
@@ -12,9 +11,20 @@ import { users } from '../../db/schema.js'
 
 export async function listUsersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const users = await getAllUsers()
-    await reply.send(users)
-  } catch (err) {
+    if (!request.user) {
+      await reply.status(401).send({ message: 'Not authenticated'})
+      return
+    }
+
+    const dbUser = await db.query.users.findFirst({
+      where: eq(users.id, request.user.id),
+      columns: { role: true },
+    })
+
+    const list = await listUsers(dbUser?.role as 'admin' | 'moderator' | 'user')
+    await reply.send(list)
+  }
+  catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })
   }
@@ -58,12 +68,12 @@ export async function createUserController(
 export async function updateUserController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     if (!request.user) {
-      await reply.status(401).send({ message: 'Not authetificated' })
+      await reply.status(401).send({ message: 'Not authenticated' })
       return
     }
 
     const { id } = request.params as { id: string }
-    const body = request.body as { mail?: string; pseudo?: string; password?: string; role?: 'admin' | 'moderator' | 'user' | 'guest' }
+    const body = request.body as { mail?: string; pseudo?: string; password?: string; role?: 'admin' | 'moderator' | 'user' }
   
     // Only admin can change role.
     if (body.role) {
@@ -108,7 +118,7 @@ export async function deleteUserController(
 
 export async function updateProfileController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
-		await reply.code(401).send({ message: 'Not authentificated' })
+		await reply.code(401).send({ message: 'Not authenticated' })
 		return
 	}
   const body = req.body as { displayName?: string; bio?: string }
@@ -128,7 +138,7 @@ export async function getUserProfileController(req: FastifyRequest, reply: Fasti
 
 export async function uploadAvatarController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
-		await reply.code(401).send({ message: 'Not authentificated' })
+		await reply.code(401).send({ message: 'Not authenticated' })
 		return
 	}
   const data = await req.file();

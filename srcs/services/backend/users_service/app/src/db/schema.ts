@@ -6,7 +6,7 @@ export const users = mysqlTable('users', {
   mail: varchar('mail', { length: 255 }).notNull().unique(),
   pseudo: varchar('pseudo', { length: 255 }).notNull().unique(),
   password: varchar('password', { length: 255 }).notNull(),
-  role: mysqlEnum('role', ['admin', 'moderator', 'user', 'guest']).notNull().default('user'),
+  role: mysqlEnum('role', ['admin', 'moderator', 'user']).notNull().default('user'),
   displayName: varchar('display_name', { length: 50 }),
   avatarUrl: varchar('avatar_url', { length: 255 }).default('/avatars/default.png'),
   bio: text('bio'),

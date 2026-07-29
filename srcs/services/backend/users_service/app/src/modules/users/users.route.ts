@@ -6,7 +6,7 @@ import { requireSelfOrRole } from '../auth/permissions.js'
 
 
 export async function usersRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/', { schema: listUsersSchema, preHandler: [userAuthHook, requireSelfOrRole('admin', 'moderator', 'guest', 'user')] }, listUsersController) //TODO supprimer le guest et le user quand la fonction de recherche user sera dispo
+  app.get('/', { schema: listUsersSchema, preHandler: [userAuthHook] }, listUsersController) //TODO supprimer le user quand la fonction de recherche user sera dispo
   app.get('/:id', { schema: getUserSchema, preHandler: [userAuthHook] }, getUserController)
   app.post('/', { schema: createUserSchema }, createUserController)
   app.put('/:id', { schema: updateUserSchema, preHandler: [userAuthHook, requireSelfOrRole('admin')] }, updateUserController)

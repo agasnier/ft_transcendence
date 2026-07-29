@@ -3,7 +3,7 @@ import { sendFriendRequest, acceptFriendRequest, listFriends, declineFriendReque
 
 export async function sendFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
-		await reply.code(401).send({ message: 'Not authentificated' })
+		await reply.code(401).send({ message: 'Not authenticated' })
 		return
 	}
 	const { userId } = req.params as { userId: string }
@@ -32,7 +32,7 @@ export async function sendFriendRequestController(req: FastifyRequest, reply: Fa
 
 export async function acceptFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
-		await reply.code(401).send({ message: 'Not authentificated' })
+		await reply.code(401).send({ message: 'Not authenticated' })
 		return
 	}
 	const { userId } = req.params as { userId: string }
@@ -42,7 +42,7 @@ export async function acceptFriendRequestController(req: FastifyRequest, reply: 
 
 export async function declineFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
-		await reply.code(401).send({ message: 'Not authentificated' })
+		await reply.code(401).send({ message: 'Not authenticated' })
 		return
 	}
 	const { userId } =req.params as { userId: string }
@@ -52,7 +52,7 @@ export async function declineFriendRequestController(req: FastifyRequest, reply:
 
 export async function listFriendsController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
-		await reply.code(401).send({ message: 'Not authentificated' })
+		await reply.code(401).send({ message: 'Not authenticated' })
 		return
 	}
 	const { search } = req.query as { search?: string }
@@ -62,7 +62,7 @@ export async function listFriendsController(req: FastifyRequest, reply: FastifyR
 
 export async function removeFriendController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
-		await reply.code(401).send({ message: 'Not authentificated' })
+		await reply.code(401).send({ message: 'Not authenticated' })
 		return
 	}
 	const { userId } = req.params as { userId: string }
@@ -72,7 +72,7 @@ export async function removeFriendController(req: FastifyRequest, reply: Fastify
 
 export async function listIncomingRequestsController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
-    	await reply.code(401).send({ message: 'Not authentificated' })
+    	await reply.code(401).send({ message: 'Not authenticated' })
 		return
   }
   const requests = await listIncomingRequests(req.user.id)
@@ -81,7 +81,7 @@ export async function listIncomingRequestsController(req: FastifyRequest, reply:
 
 export async function listOutgoingRequestsController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
-		await reply.code(401).send({ message: 'Not authentificated' })
+		await reply.code(401).send({ message: 'Not authenticated' })
 		return
   }
   const requests = await listOutgoingRequests(req.user.id)

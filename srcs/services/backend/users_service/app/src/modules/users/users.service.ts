@@ -47,7 +47,7 @@ export async function createUser(mail: string, pseudo: string, password: string)
   return await getUserById(result.insertId)
 }
 
-type UserRole = 'admin' | 'moderator' | 'user' | 'guest'
+type UserRole = 'admin' | 'moderator' | 'user'
 
 export async function updateUser(id: number, data: { mail?: string; pseudo?: string; password?: string; role?: UserRole }) {
   const User = await getUserById(id)
@@ -68,6 +68,27 @@ export async function updateUser(id: number, data: { mail?: string; pseudo?: str
   return await getUserById(id)
 }
 
+export async function listUsers(requesterRole: 'admin' | 'moderator' | 'user') {
+  if (requesterRole === 'admin' || requesterRole === 'moderator') {
+    return db.select({
+      id: users.id,
+      pseudo: users.pseudo,
+      mail: users.mail,
+      role: users.role,
+      displayName: users.displayName,
+      avatarUrl: users.avatarUrl,
+    }).from(users)
+  }
+
+  // public vue for normal users
+  return db.select({
+    id:users.id,
+    pseudo: users.pseudo,
+    displayName: users.displayName,
+    avatarUrl: users.avatarUrl,
+  }).from(users)
+}
+
 export async function updateUserProfile(id: number, data: { displayName?: string; bio?: string }) {
   await db.update(users).set(data).where(eq(users.id, id))
   return db.query.users.findFirst({ where: eq(users.id, id )})
@@ -76,7 +97,7 @@ export async function updateUserProfile(id: number, data: { displayName?: string
 export async function getUserProfile(id: number) {
   return db.query.users.findFirst({
     where: eq(users.id, id),
-    columns: { id: true, displayName: true, avatarUrl: true, bio: true, isOnline: true},
+    columns: { id: true, displayName: true, avatarUrl: true, bio: true, isOnline: true, role: true },
   })
 }
 

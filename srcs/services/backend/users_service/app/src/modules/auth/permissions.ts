@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm'
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
 
-type Role = 'admin' | 'moderator' | 'user' | 'guest'
+type Role = 'admin' | 'moderator' | 'user'
 
 export function requireSelfOrRole(...allowedRoles: Role[]) {
   return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
