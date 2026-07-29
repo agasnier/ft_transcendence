@@ -30,7 +30,7 @@ function MainApp({onLogout, pseudo, userId}: MainAppProp) {
 		await fetch('/chat/channels', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({name})
+			body: JSON.stringify({name, memberIds: [userId]})
 		})
 	}
 
