@@ -12,7 +12,7 @@ export async function getUserController(request: FastifyRequest<{ Params: { id: 
 }
 
 export async function createUserController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-  if (request.auth?.role !== 'admin') {
+  if (request.user?.role !== 'admin') {
     await reply.status(403).send({ message: 'Forbidden' })
     return
   }
@@ -22,7 +22,7 @@ export async function createUserController(request: FastifyRequest, reply: Fasti
 }
 
 export async function updateUserController(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<void> {
-  if (request.auth?.role !== 'admin' && request.auth?.ownerId !== Number(request.params.id)) {
+  if (request.user?.role !== 'admin' && request.user?.id !== Number(request.params.id)) {
     await reply.status(403).send({ message: 'Forbidden' })
     return
   }
@@ -32,7 +32,7 @@ export async function updateUserController(request: FastifyRequest<{ Params: { i
 }
 
 export async function deleteUserController(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply): Promise<void> {
-  if (request.auth?.role !== 'admin') {
+  if (request.user?.role !== 'admin') {
     await reply.status(403).send({ message: 'Forbidden' })
     return
   }

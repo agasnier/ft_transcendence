@@ -28,7 +28,7 @@ export async function registerController(
     const user = await createUser(mail, pseudo, password)
 
     // auto-login on signup: issue tokens + cookies for the new user
-    await createCookie(reply, { id: user.id, pseudo: user.pseudo })
+    await createCookie(reply, { id: user.id, pseudo: user.pseudo, role: user.role })
 
     await reply.status(201).send(user)
   } catch (err) {

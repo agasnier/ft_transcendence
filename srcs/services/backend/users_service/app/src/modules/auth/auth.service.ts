@@ -8,7 +8,7 @@ import { env } from '../../config/env.js'
 import { vaultHash } from '../vault/hash.js'
 import { createAccessToken } from '../vault/jwt.js'
 
-export async function createCookie(reply: FastifyReply, user: { id: number; pseudo: string }): Promise<string> {
+export async function createCookie(reply: FastifyReply, user: { id: number; pseudo: string; role: string }): Promise<string> {
   const accessToken = await createAccessToken(user)
   const refreshToken = await createRefreshToken(user.id)
 

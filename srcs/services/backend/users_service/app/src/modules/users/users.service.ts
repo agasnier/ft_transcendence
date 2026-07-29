@@ -22,7 +22,7 @@ export async function getUserById(id: number) {
 
 export async function verifyCredentials(login: string, password: string) {
   const rows = await db
-    .select({ id: users.id, pseudo: users.pseudo, password: users.password })
+    .select({ id: users.id, pseudo: users.pseudo, role: users.role, password: users.password })
     .from(users)
     .where(or(eq(users.mail, login), eq(users.pseudo, login)))
     .limit(1)
@@ -33,7 +33,7 @@ export async function verifyCredentials(login: string, password: string) {
   if (!(await verifyPassword(user.password, password)))
     return null
 
-  return { id: user.id, pseudo: user.pseudo }
+  return { id: user.id, pseudo: user.pseudo, role: user.role }
 }
 
 export async function createUser(mail: string, pseudo: string, password: string) {

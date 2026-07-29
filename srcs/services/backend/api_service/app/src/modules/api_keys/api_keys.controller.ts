@@ -33,7 +33,7 @@ export async function  apiKeyAuthHook (request: FastifyRequest, reply: FastifyRe
   }
 
   const user = await getUserById(dbLine.owner_id)
-  request.auth = { role: user.role, ownerId: user.id }
+  request.user = { id: user.id, pseudo: user.pseudo, role: user.role }
 }
 
 // controllers
