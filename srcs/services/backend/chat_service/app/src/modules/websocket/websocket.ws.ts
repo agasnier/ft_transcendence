@@ -36,3 +36,13 @@ export function wsChannelCreated(channel: { id: number, name: string, createdAt:
 export function wsChannelDeleted(id: number): void {
 	wsSendAll({ type: 'CHANNEL_DELETED', payload: { id } })
 }
+
+export function wsMessageCreated(message: {
+	id: number
+	channelId: number
+	senderId: number
+	content: string
+	createdAt: Date | string
+}): void {
+	wsSendAll({ type: 'MESSAGE_CREATED', payload: message })
+}
