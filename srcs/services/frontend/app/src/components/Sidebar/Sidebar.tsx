@@ -56,7 +56,7 @@ function Sidebar({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCrea
 						onSelectRoom={onSelectRoom}
 					/>
 				)
-			case 'createChannel':
+			case 'createChannel': // TODO create a new component
 				return (
 					<>
 						<button
@@ -74,7 +74,7 @@ function Sidebar({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCrea
 						/>
 					</>
 				)
-			case 'createGroup':
+			case 'createGroup': // TODO create a new component
 				return (
 					<button
 						onClick={() => setView({ kind: 'home' })}
@@ -82,7 +82,7 @@ function Sidebar({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCrea
 						return
 					</button>
 				)
-			case 'createDiscussion':
+			case 'createDiscussion': // TODO create a new component
 				return (
 					<button
 						onClick={() => setView({ kind: 'home' })}
