@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import FriendsPanel from '../FriendsPanel'
-import ConversationsPanel from '../ConversationsPanel'
+import ConversationsPanel from './ConversationsPanel'
+import BackButton from './BackButton'
 import type { SidebarView } from './Sidebar'
 
 interface Room {
@@ -37,15 +38,12 @@ function SearchView({ searchQuery, setSearchQuery, setView, rooms, selectedRoomI
     return (
         <>
             <div className="flex items-center gap-2">
-                <button
-                    type="button"
+                <BackButton
                     onClick={() => {
                         setSearchQuery('')
                         setView({ kind: 'home' })
                     }}
-                    className="w-12 h-12 bg-white text-2xl text-gray-500 leading-none flex items-center justify-center hover:bg-gray-200 rounded-full">
-                    ⟲
-                </button>
+                />
                 <div className="relative flex-1 min-w-0">
                     <input
                         type="text"

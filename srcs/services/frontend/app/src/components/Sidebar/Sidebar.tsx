@@ -3,6 +3,8 @@ import HomeView from './HomeView'
 import SearchView from './SearchView'
 import CreateRoomButton from './CreateRoomButton'
 import CreateChannelView from './CreateChannelView'
+import CreateGroupView from './CreateGroupView'
+import CreateDiscussionView from './CreateDiscussionView'
 
 interface SidebarProp {
 	onLogout: () => void
@@ -63,21 +65,19 @@ function Sidebar({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCrea
 						onCreateRoom={onCreateRoom}
 					/>
 				)
-			case 'createGroup': // TODO create a new component
+			case 'createGroup':
 				return (
-					<button
-						onClick={() => setView({ kind: 'home' })}
-						className="text-blue-500 hover:underline">
-						return
-					</button>
+					<CreateGroupView
+						setView={setView}
+						onCreateRoom={onCreateRoom}
+					/>
 				)
-			case 'createDiscussion': // TODO create a new component
+			case 'createDiscussion':
 				return (
-					<button
-						onClick={() => setView({ kind: 'home' })}
-						className="text-blue-500 hover:underline">
-						return
-					</button>
+					<CreateDiscussionView
+						setView={setView}
+						onCreateRoom={onCreateRoom}
+					/>
 				)
 		}
 	}

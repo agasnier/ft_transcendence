@@ -1,4 +1,5 @@
 import CreateRoomForm from '../CreateRoomForm'
+import BackButton from './BackButton'
 import type { SidebarView } from './Sidebar'
 
 interface CreateChannelViewProps {
@@ -9,11 +10,10 @@ interface CreateChannelViewProps {
 function CreateChannelView({ setView, onCreateRoom }: CreateChannelViewProps) {
 	return (
 		<>
-			<button
-				onClick={() => setView({ kind: 'home' })}
-				className="text-blue-500 hover:underline">
-				return
-			</button>
+			<div className="flex items-center gap-2">
+				<BackButton onClick={() => setView({ kind: 'home' })} />
+				<h2 className="text-xl font-bold">Nouveau canal</h2>
+			</div>
 			<CreateRoomForm
 				type="channel"
 				onCancel={() => setView({kind: 'home'})}
