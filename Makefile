@@ -5,8 +5,8 @@ DB_DATA       = srcs/data/mariadb
 DB_DATA_DEV   = srcs/data/mariadb-dev
 VAULT_DATA    = srcs/data/vault
 VAULT_DATA_DEV = srcs/data/vault-dev
-PROM_DATA     = srcs/data/promotheus
-PROM_DATA_DEV = srcs/data/promotheus-dev
+PROM_DATA     = srcs/data/prometheus
+PROM_DATA_DEV = srcs/data/prometheus-dev
 GRAFANA_DATA  = srcs/data/grafana
 GRAFANA_DATA_DEV = srcs/data/grafana-dev
 
