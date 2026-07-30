@@ -2,7 +2,7 @@ import { useState } from 'react'
 import HomeView from './HomeView'
 import SearchView from './SearchView'
 import CreateRoomButton from './CreateRoomButton'
-import CreateRoomForm from '../CreateRoomForm'
+import CreateChannelView from './CreateChannelView'
 
 interface SidebarProp {
 	onLogout: () => void
@@ -56,23 +56,12 @@ function Sidebar({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCrea
 						onSelectRoom={onSelectRoom}
 					/>
 				)
-			case 'createChannel': // TODO create a new component
+			case 'createChannel':
 				return (
-					<>
-						<button
-							onClick={() => setView({ kind: 'home' })}
-							className="text-blue-500 hover:underline">
-							return
-						</button>
-						<CreateRoomForm
-							type="channel"
-							onCancel={() => setView({kind: 'home'})}
-							onCreate={(name, description) => {
-								onCreateRoom(name, description, 'channel');
-								setView({kind: 'home'})
-							}}
-						/>
-					</>
+					<CreateChannelView
+						setView={setView}
+						onCreateRoom={onCreateRoom}
+					/>
 				)
 			case 'createGroup': // TODO create a new component
 				return (
