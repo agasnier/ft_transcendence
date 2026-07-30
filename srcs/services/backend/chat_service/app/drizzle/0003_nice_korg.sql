@@ -1,0 +1,1 @@
+ALTER TABLE `channels` ADD `type` varchar(32) NOT NULL;

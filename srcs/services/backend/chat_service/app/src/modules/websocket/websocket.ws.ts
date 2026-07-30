@@ -29,7 +29,7 @@ function wsSendAll(data: object): void {
 	}
 }
 
-export function wsChannelCreated(channel: { id: number, name: string | null, createdAt: Date | string }): void {
+export function wsChannelCreated(channel: { id: number, name: string | null, type: string, createdAt: Date | string }): void {
 	wsSendAll({ type: 'CHANNEL_CREATED', payload: channel })
 }
 

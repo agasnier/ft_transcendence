@@ -20,32 +20,18 @@ interface Room {
 	type: 'channel' | 'group' | 'discussion'
 }
 
-function Chat({onLogout, pseudo, userId}: ChatProps) {
+// hook for channel -> function are now in variabkle reusable by chat()
+function useChannel(userId: number | null) {
 	const [rooms, setRooms] = useState<Room[]>([])
-	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
-	const selectedRoom = rooms.find((r) => r.id === selectedRoomId) ?? null
 
 	// route to backend via websocket
-	async function handleCreateRoom(name: string, _description: string, _type: Room['type']) {
+	async function createChannel(name: string, _description: string, _type: Room['type']) {
 		await fetch('/chat/channels', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({name, memberIds: [userId]})
 		})
 	}
-
-	// manage keyword Escape
-	useEffect(() => {
-		function handleKeyDown(event: KeyboardEvent) {
-			if (event.key === 'Escape') {
-				setSelectedRoomId(null)
-				;(document.activeElement as HTMLElement)?.blur()
-			}
-		}
-
-		document.addEventListener('keydown', handleKeyDown)
-		return () => document.removeEventListener('keydown', handleKeyDown)
-	}, [])
 
 	// load the room list on startup
 	useEffect(() => {
@@ -64,6 +50,31 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 			setRooms(fetchedRooms)
 		}
 		loadChannels()
+	}, [])
+
+	return {
+		rooms,
+		setRooms,
+		createChannel,
+	}
+}
+
+function Chat({onLogout, pseudo, userId}: ChatProps) {
+	const { rooms, setRooms, createChannel } = useChannel(userId)
+	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
+	const selectedRoom = rooms.find((r) => r.id === selectedRoomId) ?? null
+
+	// manage keyword Escape
+	useEffect(() => {
+		function handleKeyDown(event: KeyboardEvent) {
+			if (event.key === 'Escape') {
+				setSelectedRoomId(null)
+				;(document.activeElement as HTMLElement)?.blur()
+			}
+		}
+
+		document.addEventListener('keydown', handleKeyDown)
+		return () => document.removeEventListener('keydown', handleKeyDown)
 	}, [])
 
 	// chat_service websocket url
@@ -100,7 +111,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 								rooms={rooms}
 								selectedRoomId={selectedRoomId}
 								onSelectRoom={setSelectedRoomId}
-								onCreateRoom={handleCreateRoom}
+								onCreateRoom={createChannel}
 							/>
 							{selectedRoom && <ChatWindow room={selectedRoom} userId={userId}/>}
 						</div>

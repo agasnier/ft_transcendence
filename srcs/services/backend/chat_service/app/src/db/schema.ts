@@ -3,6 +3,7 @@ import { mysqlTable, int, varchar, timestamp, mysqlEnum, unique } from 'drizzle-
 export const channels = mysqlTable('channels', {
   id: int('id').autoincrement().primaryKey(),
   name: varchar('name', { length: 255 }).unique(),
+  type: varchar('type', { length: 32 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 

@@ -2,13 +2,13 @@ import { and, eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { channels, channelMembers } from '../../db/schema.js'
-import { channel } from 'node:diagnostics_channel'
 
 export async function listUserChannels(userId: number) {
   return db
     .select({
       id: channels.id,
       name: channels.name,
+      type: channels.type,
       createdAt: channels.createdAt,
     })
     .from(channels)
@@ -21,6 +21,7 @@ export async function channelInfo(channelId: number) {
     .select({
       id: channels.id,
       name: channels.name,
+      type: channels.type,
       createdAt: channels.createdAt,
     })
     .from(channels)
@@ -60,8 +61,8 @@ export async function addChannelMembers(channelId: number, userIds: number[], ro
   )
 }
 
-export async function createChannel(name: string | undefined, creatorId: number, memberIds: number[] = []) {
-  const result = await db.insert(channels).values({ name })
+export async function createChannel(name: string | undefined, creatorId: number, type: string, memberIds: number[] = []) {
+  const result = await db.insert(channels).values({ name, type })
   const channelId = Number(result[0].insertId)
 
   // Creator become moderator
