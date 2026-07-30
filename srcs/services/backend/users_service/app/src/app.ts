@@ -7,6 +7,7 @@ import { usersRoutes } from './modules/users/users.route.js'
 import { friendsRoutes } from './modules/friends/friends.route.js'
 import { authRoutes } from './modules/auth/auth.route.js'
 import { presenceRoutes } from './modules/presence/presence.route.js'
+import { metricsRoutes } from './modules/metrics/metrics.route.js'
 
 
 // construct the app without launching it
@@ -21,6 +22,9 @@ export function buildApp(): FastifyInstance {
     limits: { fileSize: 5 * 1024 * 1024 }, //5MB max
   })
   app.register(fastifyWebsocket)
+
+  // metrics route for prometheus
+  app.register(metricsRoutes)
 
   // all module added must be register here
   app.register(usersRoutes, { prefix: '/users' })

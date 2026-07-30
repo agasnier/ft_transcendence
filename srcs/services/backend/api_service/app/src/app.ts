@@ -6,6 +6,7 @@ import scalar from '@scalar/fastify-api-reference'
 import { swaggerSettings } from './config/swagger.js'
 import { usersRoutes } from './modules/users/users.route.js'
 import { apiKeysRoutes } from './modules/api_keys/api_keys.route.js'
+import { metricsRoutes } from './modules/metrics/metrics.route.js'
 
 // construct the app without launching it
 // herite from FasitfyInstance for method get, post, register, listen
@@ -17,6 +18,9 @@ export function buildApp(): FastifyInstance {
   app.register(cookie)
   app.register(swagger, swaggerSettings)
   app.register(scalar, { routePrefix: '/api/docs' })
+
+  // metrics route for prometheus
+  app.register(metricsRoutes)
 
   app.register(usersRoutes, { prefix: '/api/users' })
   app.register(apiKeysRoutes, { prefix: '/api/api_keys' })
