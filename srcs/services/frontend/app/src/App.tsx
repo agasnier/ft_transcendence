@@ -3,7 +3,7 @@ import SignupForm from './components/SignupForm'
 import LoginForm from './components/LoginForm'
 import PrivacyForm from './components/PrivacyForm'
 import TermsForm from './components/TermsForm'
-import MainApp from './MainApp'
+import Chat from './chat/Chat'
 import { WebSocketProvider } from './context/WebSocketContext'
 
 function App() {
@@ -65,7 +65,7 @@ function App() {
 	else {
 		return (
 			<WebSocketProvider token={token}>
-				<MainApp onLogout={handleLogout} pseudo={pseudo} userId={userId}/>
+				<Chat onLogout={handleLogout} pseudo={pseudo} userId={userId}/>
 			</WebSocketProvider>
 		)
 	}

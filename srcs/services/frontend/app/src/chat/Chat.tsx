@@ -2,12 +2,12 @@ import { BrowserRouter } from 'react-router-dom'
 import { Routes } from 'react-router-dom'
 import { Route } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import Sidebar from './components/Sidebar/Sidebar'
-import ChatWindow from './components/ChatWindow'
-import { useReconnectingSocket } from './hooks/useReconnectingSocket'
-import bg from './assets/site.webp'
+import Sidebar from './Sidebar/Sidebar'
+import ChatWindow from './ChatWindow'
+import { useReconnectingSocket } from '../hooks/useReconnectingSocket'
+import bg from '../assets/site.webp'
 
-interface MainAppProp {
+interface ChatProps {
 	onLogout: () => void
 	pseudo: string | null
 	userId: number | null
@@ -20,7 +20,7 @@ interface Room {
 	type: 'channel' | 'group' | 'discussion'
 }
 
-function MainApp({onLogout, pseudo, userId}: MainAppProp) {
+function Chat({onLogout, pseudo, userId}: ChatProps) {
 	const [rooms, setRooms] = useState<Room[]>([])
 	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
 	const selectedRoom = rooms.find((r) => r.id === selectedRoomId) ?? null
@@ -111,4 +111,4 @@ function MainApp({onLogout, pseudo, userId}: MainAppProp) {
 	)
 }
 
-export default MainApp
+export default Chat
