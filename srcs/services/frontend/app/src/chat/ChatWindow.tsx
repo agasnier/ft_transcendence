@@ -4,14 +4,16 @@ import { useWebSocket } from '../context/WebSocketContext'
 interface ChatWindowProps {
 	channel: Channel
 	userId: number | null
+	messages: Message[]
+	onSendMessage: (content: string) => void
 }
 
 interface Message {
-	id: string
-	senderId: number | null
-	text: string
-	timestamp: string
-	senderPseudo: string
+	id: number
+	channelId: number
+	senderId: number
+	content: string
+	createdAt: string
 }
 
 interface Channel {
@@ -21,44 +23,20 @@ interface Channel {
 	type: 'channel' | 'group' | 'discussion'
 }
 
-function ChatWindow({ channel, userId}: ChatWindowProps) {
-	const { isConnected, lastMessage, sendMessage } = useWebSocket()
-	const [messages, setMessages] = useState<Message[]>([])
+function ChatWindow({ channel, userId, messages, onSendMessage }: ChatWindowProps) {
+	const { isConnected } = useWebSocket()
 	const [inputText, setInputText] = useState('')
 	const messagesEndRef = useRef<HTMLDivElement>(null)
-
-	useEffect(() => {
-		if (!lastMessage) return
-
-		if (lastMessage.type === 'NEW_CHAT_MESSAGE' && lastMessage.payload) {
-			const newMessage: Message = {
-				id: Math.random().toString(36).substring(2, 9),
-				senderId: lastMessage.payload.senderId ?? null,
-				text: lastMessage.payload.text ?? '',
-				timestamp: lastMessage.payload.timestamp ?? new Date().toISOString(),
-				senderPseudo: lastMessage.payload.senderPseudo ?? ''
-			}
-			setMessages((prev) => [...prev, newMessage])
-		}
-	}, [lastMessage])
 
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}, [messages])
 
-	// TODO delete after websocket message working
-	useEffect(() => {
-		setMessages([
-			{ id: '1', senderId: userId, text: 'moi messageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', timestamp: new Date().toISOString(), senderPseudo: 'Moi' },
-			{ id: '2', senderId: 2, text: "autre messagewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", timestamp: new Date().toISOString(), senderPseudo: 'Autre' },
-		])
-	}, [])
-
 	function handleSend(e: React.FormEvent) {
 		e.preventDefault()
-		if (!inputText.trim() || !isConnected) return
+		if (!inputText.trim()) return
 
-		sendMessage('CHAT_MESSAGE', { text: inputText.trim() })
+		onSendMessage(inputText.trim())
 		setInputText('')
 	}
 
@@ -83,7 +61,7 @@ function ChatWindow({ channel, userId}: ChatWindowProps) {
 					</div>
 				) : (
 					messages.map((msg) => {
-						const isOwn = msg.senderId !== null && msg.senderId === userId
+						const isOwn = msg.senderId === userId
 						return (
 							<div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
 								<div className={`flex flex-col min-w-0 p-3 rounded-2xl max-w-md shadow-sm
@@ -92,12 +70,12 @@ function ChatWindow({ channel, userId}: ChatWindowProps) {
 									: 'items-start bg-white border-blue-100'}
 								`}>
 									<div className="flex justify-between w-full text-xs font-semibold text-blue-700 mb-1 gap-4">
-										<span>{msg.senderPseudo || `Utilisateur #${msg.senderId}`}</span>
+										<span>{`Utilisateur #${msg.senderId}`}</span>
 										<span className="text-gray-400 font-normal">
-											{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+											{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 										</span>
 									</div>
-									<p className="text-gray-800 text-sm font-light wrap-break-word min-w-0 w-full">{msg.text}</p>
+									<p className="text-gray-800 text-sm font-light wrap-break-word min-w-0 w-full">{msg.content}</p>
 								</div>
 							</div>
 						)
@@ -112,13 +90,12 @@ function ChatWindow({ channel, userId}: ChatWindowProps) {
 					type="text"
 					value={inputText}
 					onChange={(e) => setInputText(e.target.value)}
-					disabled={!isConnected}
-					placeholder={isConnected ? 'Écris un message...' : 'Connexion en cours...'}
-					className="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+					placeholder="Écris un message..."
+					className="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 				/>
 				<button
 					type="submit"
-					disabled={!isConnected || !inputText.trim()}
+					disabled={!inputText.trim()}
 					className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-xl text-sm transition-colors hover:scale-105 disabled:bg-blue-300 disabled:scale-100 disabled:cursor-not-allowed">
 					Envoyer
 				</button>

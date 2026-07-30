@@ -20,51 +20,104 @@ interface Channel {
 	type: 'channel' | 'group' | 'discussion'
 }
 
-// hook for channel -> function are now in variabkle reusable by chat()
-// - channels rename into channels
+interface Message {
+	id: number
+	channelId: number
+	senderId: number
+	content: string
+	createdAt: string
+}
+
+// hook for channel -> function are now in variable reusable by chat()
+// romms rename into channels
+// simplify the function load with return from fucntion channels from chat service
+// hook for message
+
 
 function useChannel(userId: number | null) {
 	const [channels, setChannels] = useState<Channel[]>([])
 
-	// route to backend via websocket
-	async function createChannel(name: string, _description: string, _type: Channel['type']) {
-		await fetch('/chat/channels', {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({name, memberIds: [userId]})
-		})
-	}
-
-	// load the room list on startup
+	// load the channel list on startup
 	useEffect(() => {
 		async function loadChannels() {
 			const res = await fetch('/chat/channels')
 			if (!res.ok)
 				return
-
-			const channelsFromServer: {id: number; name: string; createdAt: string}[] = await res.json()
-			const fetchedChannels: Channel[] = channelsFromServer.map((channel) => ({
-				id: channel.id,
-				name: channel.name,
-				description: '',
-				type: 'channel',
-			}))
-			setChannels(fetchedChannels)
+			setChannels(await res.json())
 		}
 		loadChannels()
 	}, [])
 
+	async function createChannel(name: string, description: string, type: Channel['type']) {
+		await fetch('/chat/channels', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({name, description, type, memberIds: [userId]})
+		})
+	}
+
+	// chat_service websocket url
+	const channelEventsSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
+
+	// refresh the channel list in real time
+	useReconnectingSocket(channelEventsSocketUrl, (message) => {
+		if (message.type === 'CHANNEL_CREATED') {
+			const createdChannel = message.payload
+			setChannels((prev) =>
+				prev.some((c) => c.id === createdChannel.id)
+					? prev
+					: [...prev, createdChannel]
+			)
+		}
+		if (message.type === 'CHANNEL_DELETED') {
+			setChannels((prev) => prev.filter((c) => c.id !== message.payload.id))
+		}
+	})
+
 	return {
 		channels,
-		setChannels,
 		createChannel,
 	}
 }
 
+function useMessage(channelId: number | null) {
+	const [messages, setMessages] = useState<Message[]>([])
+
+	// load messages when selected channel changes
+	useEffect(() => {
+		if (channelId === null) {
+			setMessages([])
+			return
+		}
+
+		async function loadMessages() {
+			const res = await fetch(`/chat/channels/${channelId}/messages`)
+			if (!res.ok)
+				return
+			setMessages(await res.json())
+		}
+		loadMessages()
+	}, [channelId])
+
+	async function createMessage(content: string) {
+	if (channelId === null) return
+	await fetch(`/chat/channels/${channelId}/messages`, {
+		method: 'POST',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify({ content }),
+	})
+	}
+
+	return {
+		messages, createMessage
+	}
+}
+
 function Chat({onLogout, pseudo, userId}: ChatProps) {
-	const { channels, setChannels, createChannel } = useChannel(userId)
+	const { channels, createChannel } = useChannel(userId)
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
-	const selectedChannel = channels.find((r) => r.id === selectedChannelId) ?? null
+	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
+	const { messages, createMessage } = useMessage(selectedChannelId)
 
 	// manage keyword Escape
 	useEffect(() => {
@@ -78,24 +131,6 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 		document.addEventListener('keydown', handleKeyDown)
 		return () => document.removeEventListener('keydown', handleKeyDown)
 	}, [])
-
-	// chat_service websocket url
-	const channelEventsSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
-
-	// refresh the room list in real time
-	useReconnectingSocket(channelEventsSocketUrl, (message) => {
-		if (message.type === 'CHANNEL_CREATED') {
-			const createdChannel = message.payload
-			setChannels((prev) =>
-				prev.some((r) => r.id === createdChannel.id)
-					? prev
-					: [...prev, {id: createdChannel.id, name: createdChannel.name, description: '', type: 'channel'}]
-			)
-		}
-		if (message.type === 'CHANNEL_DELETED') {
-			setChannels((prev) => prev.filter((r) => r.id !== message.payload.id))
-		}
-	})
 
 	return (
 		<BrowserRouter>
@@ -115,7 +150,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 								onSelectChannel={setSelectedChannelId}
 								onCreateChannel={createChannel}
 							/>
-							{selectedChannel && <ChatWindow channel={selectedChannel} userId={userId}/>}
+							{selectedChannel && <ChatWindow channel={selectedChannel} userId={userId} messages={messages} onSendMessage={createMessage}/>}
 						</div>
 					</div>}
 				/>
