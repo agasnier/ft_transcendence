@@ -27,8 +27,8 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
 // controllers
 export async function createChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const { name, memberIds, type } = request.body as { name?: string; memberIds: number[]; type: string }
-    const channel = await createChannel(name, request.user!.id, type, memberIds)
+    const { name, memberIds, type, description } = request.body as { name?: string; memberIds: number[]; type: string; description?: string }
+    const channel = await createChannel(name, request.user!.id, type, memberIds, description)
 
     // websocket
     wsChannelCreated(channel)

@@ -9,13 +9,13 @@ import CreateDiscussionView from './views/CreateDiscussionView'
 interface SidebarProp {
 	onLogout: () => void
 	pseudo: string | null
-	rooms: Room[]
-	selectedRoomId: number | null
-	onSelectRoom: (id: number) => void
-	onCreateRoom: (name: string, description: string, type: 'channel' | 'group' | 'discussion') => void
+	channels: Channel[]
+	selectedChannelId: number | null
+	onSelectChannel: (id: number) => void
+	onCreateChannel: (name: string, description: string, type: 'channel' | 'group' | 'discussion') => void
 }
 
-interface Room {
+interface Channel {
 	id: number
 	name: string
 	description: string
@@ -29,7 +29,7 @@ export type SidebarView =
 	| { kind: 'createGroup' }
 	| { kind: 'createDiscussion' }
 
-function Sidebar({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCreateRoom }: SidebarProp) {
+function Sidebar({ onLogout, pseudo, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SidebarProp) {
 	const [view, setView] = useState<SidebarView>({ kind: 'home' })
 	const [searchQuery, setSearchQuery] = useState('')
 
@@ -40,9 +40,9 @@ function Sidebar({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCrea
 					<HomeView
 						onLogout={onLogout}
 						pseudo={pseudo}
-						rooms={rooms}
-						selectedRoomId={selectedRoomId}
-						onSelectRoom={onSelectRoom}
+						channels={channels}
+						selectedChannelId={selectedChannelId}
+						onSelectChannel={onSelectChannel}
 						searchQuery={searchQuery}
 						setView={setView}
 					/>
@@ -53,30 +53,30 @@ function Sidebar({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, onCrea
 						searchQuery={searchQuery}
 						setSearchQuery={setSearchQuery}
 						setView={setView}
-						rooms={rooms}
-						selectedRoomId={selectedRoomId}
-						onSelectRoom={onSelectRoom}
+						channels={channels}
+						selectedChannelId={selectedChannelId}
+						onSelectChannel={onSelectChannel}
 					/>
 				)
 			case 'createChannel':
 				return (
 					<CreateChannelView
 						setView={setView}
-						onCreateRoom={onCreateRoom}
+						onCreateChannel={onCreateChannel}
 					/>
 				)
 			case 'createGroup':
 				return (
 					<CreateGroupView
 						setView={setView}
-						onCreateRoom={onCreateRoom}
+						onCreateChannel={onCreateChannel}
 					/>
 				)
 			case 'createDiscussion':
 				return (
 					<CreateDiscussionView
 						setView={setView}
-						onCreateRoom={onCreateRoom}
+						onCreateChannel={onCreateChannel}
 					/>
 				)
 		}

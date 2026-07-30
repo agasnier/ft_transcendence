@@ -4,7 +4,7 @@ import ConversationsPanel from '../ui/ConversationsPanel'
 import FriendsPanel from '../../FriendsPanel'
 import type { SidebarView } from '../Sidebar'
 
-interface Room {
+interface Channel {
 	id: number
 	name: string
 	description: string
@@ -14,14 +14,14 @@ interface Room {
 interface HomeViewProps {
 	onLogout: () => void
 	pseudo: string | null
-	rooms: Room[]
-	selectedRoomId: number | null
-	onSelectRoom: (id: number) => void
+	channels: Channel[]
+	selectedChannelId: number | null
+	onSelectChannel: (id: number) => void
 	searchQuery: string
 	setView: (view: SidebarView) => void
 }
 
-function HomeView({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, searchQuery, setView }: HomeViewProps) {
+function HomeView({ onLogout, pseudo, channels, selectedChannelId, onSelectChannel, searchQuery, setView }: HomeViewProps) {
 	const [activeTab, setActiveTab] = useState<'friends' | 'conversations'>('conversations')
 
 	return (
@@ -61,9 +61,9 @@ function HomeView({ onLogout, pseudo, rooms, selectedRoomId, onSelectRoom, searc
                 <ConversationsPanel
                     isSearching={false}
                     searchQuery={searchQuery}
-                    rooms={rooms}
-                    selectedRoomId={selectedRoomId}
-                    onSelectRoom={onSelectRoom}
+                    channels={channels}
+                    selectedChannelId={selectedChannelId}
+                    onSelectChannel={onSelectChannel}
                 />
             }
 		</>

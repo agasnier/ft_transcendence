@@ -4,7 +4,7 @@ import ConversationsPanel from '../ui/ConversationsPanel'
 import BackButton from '../ui/BackButton'
 import type { SidebarView } from '../Sidebar'
 
-interface Room {
+interface Channel {
 	id: number
 	name: string
 	description: string
@@ -15,12 +15,12 @@ interface SearchViewProps {
 	searchQuery: string
 	setSearchQuery: (query: string) => void
 	setView: (view: SidebarView) => void
-	rooms: Room[]
-	selectedRoomId: number | null
-	onSelectRoom: (id: number) => void
+	channels: Channel[]
+	selectedChannelId: number | null
+	onSelectChannel: (id: number) => void
 }
 
-function SearchView({ searchQuery, setSearchQuery, setView, rooms, selectedRoomId, onSelectRoom }: SearchViewProps) {
+function SearchView({ searchQuery, setSearchQuery, setView, channels, selectedChannelId, onSelectChannel }: SearchViewProps) {
     const [searchScope, setSearchScope] = useState<'conversations' | 'friends'>('conversations')
 
     useEffect(() => {
@@ -85,9 +85,9 @@ function SearchView({ searchQuery, setSearchQuery, setView, rooms, selectedRoomI
                 <ConversationsPanel
                     isSearching={true}
                     searchQuery={searchQuery}
-                    rooms={rooms}
-                    selectedRoomId={selectedRoomId}
-                    onSelectRoom={onSelectRoom}
+                    channels={channels}
+                    selectedChannelId={selectedChannelId}
+                    onSelectChannel={onSelectChannel}
                 />
             }
         </>

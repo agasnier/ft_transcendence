@@ -3,7 +3,7 @@ import BackButton from '../ui/BackButton'
 
 interface CreateDiscussionViewProps {
 	setView: (view: SidebarView) => void
-	onCreateRoom: (name: string, description: string, type: 'discussion') => void
+	onCreateChannel: (name: string, description: string, type: 'discussion') => void
 }
 
 function CreateDiscussionView({ setView }: CreateDiscussionViewProps) {

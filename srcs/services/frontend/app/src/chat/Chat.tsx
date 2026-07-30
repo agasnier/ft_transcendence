@@ -13,7 +13,7 @@ interface ChatProps {
 	userId: number | null
 }
 
-interface Room {
+interface Channel {
 	id: number
 	name: string
 	description: string
@@ -21,11 +21,13 @@ interface Room {
 }
 
 // hook for channel -> function are now in variabkle reusable by chat()
+// - channels rename into channels
+
 function useChannel(userId: number | null) {
-	const [rooms, setRooms] = useState<Room[]>([])
+	const [channels, setChannels] = useState<Channel[]>([])
 
 	// route to backend via websocket
-	async function createChannel(name: string, _description: string, _type: Room['type']) {
+	async function createChannel(name: string, _description: string, _type: Channel['type']) {
 		await fetch('/chat/channels', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
@@ -41,34 +43,34 @@ function useChannel(userId: number | null) {
 				return
 
 			const channelsFromServer: {id: number; name: string; createdAt: string}[] = await res.json()
-			const fetchedRooms: Room[] = channelsFromServer.map((channel) => ({
+			const fetchedChannels: Channel[] = channelsFromServer.map((channel) => ({
 				id: channel.id,
 				name: channel.name,
 				description: '',
 				type: 'channel',
 			}))
-			setRooms(fetchedRooms)
+			setChannels(fetchedChannels)
 		}
 		loadChannels()
 	}, [])
 
 	return {
-		rooms,
-		setRooms,
+		channels,
+		setChannels,
 		createChannel,
 	}
 }
 
 function Chat({onLogout, pseudo, userId}: ChatProps) {
-	const { rooms, setRooms, createChannel } = useChannel(userId)
-	const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null)
-	const selectedRoom = rooms.find((r) => r.id === selectedRoomId) ?? null
+	const { channels, setChannels, createChannel } = useChannel(userId)
+	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
+	const selectedChannel = channels.find((r) => r.id === selectedChannelId) ?? null
 
 	// manage keyword Escape
 	useEffect(() => {
 		function handleKeyDown(event: KeyboardEvent) {
 			if (event.key === 'Escape') {
-				setSelectedRoomId(null)
+				setSelectedChannelId(null)
 				;(document.activeElement as HTMLElement)?.blur()
 			}
 		}
@@ -84,14 +86,14 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 	useReconnectingSocket(channelEventsSocketUrl, (message) => {
 		if (message.type === 'CHANNEL_CREATED') {
 			const createdChannel = message.payload
-			setRooms((prev) =>
+			setChannels((prev) =>
 				prev.some((r) => r.id === createdChannel.id)
 					? prev
 					: [...prev, {id: createdChannel.id, name: createdChannel.name, description: '', type: 'channel'}]
 			)
 		}
 		if (message.type === 'CHANNEL_DELETED') {
-			setRooms((prev) => prev.filter((r) => r.id !== message.payload.id))
+			setChannels((prev) => prev.filter((r) => r.id !== message.payload.id))
 		}
 	})
 
@@ -108,12 +110,12 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 							<Sidebar
 								onLogout={onLogout}
 								pseudo={pseudo}
-								rooms={rooms}
-								selectedRoomId={selectedRoomId}
-								onSelectRoom={setSelectedRoomId}
-								onCreateRoom={createChannel}
+								channels={channels}
+								selectedChannelId={selectedChannelId}
+								onSelectChannel={setSelectedChannelId}
+								onCreateChannel={createChannel}
 							/>
-							{selectedRoom && <ChatWindow room={selectedRoom} userId={userId}/>}
+							{selectedChannel && <ChatWindow channel={selectedChannel} userId={userId}/>}
 						</div>
 					</div>}
 				/>

@@ -8,6 +8,7 @@ export const listUserChannelsSchema = {
           id: { type: 'integer' },
           name: { type: ['string', 'null'] },
           type: { type: 'string' },
+          description: { type: ['string', 'null'] },
           createdAt: { type: 'string' },
         },
       },
@@ -23,6 +24,7 @@ export const createChannelSchema = {
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 255 },
       type: { type: 'string', enum: ['channel', 'group', 'discussion'] },
+      description: { type: 'string', maxLength: 255 },
       memberIds: {
         type: 'array',
         minItems: 1,

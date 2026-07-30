@@ -3,24 +3,24 @@ import AvatarNameCard from './AvatarNameCard'
 interface ConversationsPanelProps {
 	isSearching: boolean
 	searchQuery: string
-	rooms: Room[]
-	selectedRoomId: number | null
-	onSelectRoom: (id: number) => void
+	channels: Channel[]
+	selectedChannelId: number | null
+	onSelectChannel: (id: number) => void
 }
 
-interface Room {
+interface Channel {
 	id: number
 	name: string
 	description: string
 	type: 'channel' | 'group' | 'discussion'
 }
 
-function ConversationsPanel({ isSearching, searchQuery, rooms, selectedRoomId, onSelectRoom }: ConversationsPanelProps) {
-	const filteredRooms = rooms.filter((r) =>
-		r.name.toLowerCase().includes(searchQuery.toLowerCase())
+function ConversationsPanel({ isSearching, searchQuery, channels, selectedChannelId, onSelectChannel }: ConversationsPanelProps) {
+	const filteredChannels = channels.filter((c) =>
+		c.name.toLowerCase().includes(searchQuery.toLowerCase())
 	)
 
-	if (filteredRooms.length === 0) {
+	if (filteredChannels.length === 0) {
 		return (
 			<div className={`${isSearching ? 'bg-white' : 'bg-gray-100'} rounded-3xl p-4`}>
 				<p className="text-sm text-gray-400">Aucune conversation</p>
@@ -30,12 +30,12 @@ function ConversationsPanel({ isSearching, searchQuery, rooms, selectedRoomId, o
 
 	return (
 		<div className="flex flex-col gap-1">
-			{filteredRooms.map((room) => (
+			{filteredChannels.map((channel) => (
 				<AvatarNameCard
-					key={room.id}
-					name={room.name}
-					selected={selectedRoomId === room.id}
-					onClick={() => onSelectRoom(room.id)}
+					key={channel.id}
+					name={channel.name}
+					selected={selectedChannelId === channel.id}
+					onClick={() => onSelectChannel(channel.id)}
 				/>
 			))}
 		</div>
