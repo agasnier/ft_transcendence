@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import UserMenu from '../UserMenu'
-import ConversationsPanel from './ConversationsPanel'
-import FriendsPanel from '../FriendsPanel'
-import type { SidebarView } from './Sidebar'
+import UserMenu from '../../UserMenu'
+import ConversationsPanel from '../ui/ConversationsPanel'
+import FriendsPanel from '../../FriendsPanel'
+import type { SidebarView } from '../Sidebar'
 
 interface Room {
 	id: number

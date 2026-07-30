@@ -1,5 +1,5 @@
-import type { SidebarView } from './Sidebar'
-import BackButton from './BackButton'
+import type { SidebarView } from '../Sidebar'
+import BackButton from '../ui/BackButton'
 
 interface CreateGroupViewProps {
 	setView: (view: SidebarView) => void

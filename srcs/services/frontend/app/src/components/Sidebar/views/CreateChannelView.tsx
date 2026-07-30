@@ -1,6 +1,6 @@
-import CreateRoomForm from '../CreateRoomForm'
-import BackButton from './BackButton'
-import type { SidebarView } from './Sidebar'
+import CreateRoomForm from '../../CreateRoomForm'
+import BackButton from '../ui/BackButton'
+import type { SidebarView } from '../Sidebar'
 
 interface CreateChannelViewProps {
 	setView: (view: SidebarView) => void

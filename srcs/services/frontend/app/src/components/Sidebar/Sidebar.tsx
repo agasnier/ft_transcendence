@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import HomeView from './HomeView'
-import SearchView from './SearchView'
-import CreateRoomButton from './CreateRoomButton'
-import CreateChannelView from './CreateChannelView'
-import CreateGroupView from './CreateGroupView'
-import CreateDiscussionView from './CreateDiscussionView'
+import HomeView from './views/HomeView'
+import SearchView from './views/SearchView'
+import CreateRoomButton from './ui/CreateRoomButton'
+import CreateChannelView from './views/CreateChannelView'
+import CreateGroupView from './views/CreateGroupView'
+import CreateDiscussionView from './views/CreateDiscussionView'
 
 interface SidebarProp {
 	onLogout: () => void

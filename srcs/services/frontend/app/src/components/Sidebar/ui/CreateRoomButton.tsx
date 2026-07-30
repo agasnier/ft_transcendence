@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { SidebarView } from './Sidebar'
+import type { SidebarView } from '../Sidebar'
 
 interface CreateRoomButtonProps {
 		setView: (view: SidebarView) => void

@@ -1,3 +1,5 @@
+import AvatarNameCard from './AvatarNameCard'
+
 interface ConversationsPanelProps {
 	isSearching: boolean
 	searchQuery: string
@@ -15,7 +17,7 @@ interface Room {
 
 function ConversationsPanel({ isSearching, searchQuery, rooms, selectedRoomId, onSelectRoom }: ConversationsPanelProps) {
 	const filteredRooms = rooms.filter((r) =>
-		(r.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+		r.name.toLowerCase().includes(searchQuery.toLowerCase())
 	)
 
 	if (filteredRooms.length === 0) {
@@ -29,16 +31,12 @@ function ConversationsPanel({ isSearching, searchQuery, rooms, selectedRoomId, o
 	return (
 		<div className="flex flex-col gap-1">
 			{filteredRooms.map((room) => (
-				<button
+				<AvatarNameCard
 					key={room.id}
+					name={room.name}
+					selected={selectedRoomId === room.id}
 					onClick={() => onSelectRoom(room.id)}
-					className={`flex text-left font-bold px-3 py-2 rounded-2xl ${selectedRoomId === room.id ? 'bg-blue-400' : 'hover:bg-gray-100'} `}>
-					<span
-						className="bg-orange-400/90 text-white text-2xl font-thin rounded-full w-15 h-15 flex items-center justify-center shrink-0">
-						{room.name?.charAt(0).toUpperCase() ?? '?'}
-					</span>
-					<span className={`truncate min-w-0 px-3 ${selectedRoomId === room.id ? 'text-white' : ''}`}>{room.name ?? 'Channel'}</span>
-				</button>
+				/>
 			))}
 		</div>
 	)
