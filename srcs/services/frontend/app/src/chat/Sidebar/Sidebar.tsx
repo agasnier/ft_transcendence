@@ -9,16 +9,17 @@ import CreateDiscussionView from './views/CreateDiscussionView'
 interface SidebarProp {
 	onLogout: () => void
 	pseudo: string | null
+	userId: number | null
 	channels: Channel[]
 	selectedChannelId: number | null
 	onSelectChannel: (id: number) => void
-	onCreateChannel: (name: string, description: string, type: 'channel' | 'group' | 'discussion') => void
+	onCreateChannel: (type: 'channel' | 'group' | 'discussion', memberIds: number[], name?: string, description?: string) => void
 }
 
 interface Channel {
 	id: number
-	name: string
-	description: string
+	name: string | null
+	description: string | null
 	type: 'channel' | 'group' | 'discussion'
 }
 
@@ -29,7 +30,7 @@ export type SidebarView =
 	| { kind: 'createGroup' }
 	| { kind: 'createDiscussion' }
 
-function Sidebar({ onLogout, pseudo, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SidebarProp) {
+function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SidebarProp) {
 	const [view, setView] = useState<SidebarView>({ kind: 'home' })
 	const [searchQuery, setSearchQuery] = useState('')
 
@@ -62,6 +63,7 @@ function Sidebar({ onLogout, pseudo, channels, selectedChannelId, onSelectChanne
 				return (
 					<CreateChannelView
 						setView={setView}
+						userId={userId}
 						onCreateChannel={onCreateChannel}
 					/>
 				)
@@ -69,13 +71,13 @@ function Sidebar({ onLogout, pseudo, channels, selectedChannelId, onSelectChanne
 				return (
 					<CreateGroupView
 						setView={setView}
-						onCreateChannel={onCreateChannel}
 					/>
 				)
 			case 'createDiscussion':
 				return (
 					<CreateDiscussionView
 						setView={setView}
+						userId={userId}
 						onCreateChannel={onCreateChannel}
 					/>
 				)

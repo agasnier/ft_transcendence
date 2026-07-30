@@ -15,9 +15,10 @@ interface ChatProps {
 
 interface Channel {
 	id: number
-	name: string
-	description: string
+	name: string | null
+	description: string | null
 	type: 'channel' | 'group' | 'discussion'
+	memberIds?: number[]
 }
 
 interface Message {
@@ -28,13 +29,8 @@ interface Message {
 	createdAt: string
 }
 
-// hook for channel -> function are now in variable reusable by chat()
-// romms rename into channels
-// simplify the function load with return from fucntion channels from chat service
-// hook for message
-
-
-function useChannel(userId: number | null) {
+// hook channel function
+function useChannel() {
 	const [channels, setChannels] = useState<Channel[]>([])
 
 	// load the channel list on startup
@@ -48,48 +44,45 @@ function useChannel(userId: number | null) {
 		loadChannels()
 	}, [])
 
-	async function createChannel(name: string, description: string, type: Channel['type']) {
+	async function createChannel(
+		type: Channel['type'],
+		memberIds: number[],
+		name?: string,
+		description?: string,
+	) {
 		await fetch('/chat/channels', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({name, description, type, memberIds: [userId]})
+			body: JSON.stringify({ type, memberIds, name, description }),
 		})
 	}
 
-	// chat_service websocket url
-	const channelEventsSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
+	function addChannel(channel: Channel) {
+		setChannels((prev) =>
+			prev.some((c) => c.id === channel.id)
+				? prev
+				: [...prev, channel]
+		)
+	}
 
-	// refresh the channel list in real time
-	useReconnectingSocket(channelEventsSocketUrl, (message) => {
-		if (message.type === 'CHANNEL_CREATED') {
-			const createdChannel = message.payload
-			setChannels((prev) =>
-				prev.some((c) => c.id === createdChannel.id)
-					? prev
-					: [...prev, createdChannel]
-			)
-		}
-		if (message.type === 'CHANNEL_DELETED') {
-			setChannels((prev) => prev.filter((c) => c.id !== message.payload.id))
-		}
-	})
+	function removeChannel(id: number) {
+		setChannels((prev) => prev.filter((c) => c.id !== id))
+	}
 
 	return {
 		channels,
 		createChannel,
+		addChannel,
+		removeChannel,
 	}
 }
 
+// hook message function
 function useMessage(channelId: number | null) {
 	const [messages, setMessages] = useState<Message[]>([])
 
 	// load messages when selected channel changes
 	useEffect(() => {
-		if (channelId === null) {
-			setMessages([])
-			return
-		}
-
 		async function loadMessages() {
 			const res = await fetch(`/chat/channels/${channelId}/messages`)
 			if (!res.ok)
@@ -108,16 +101,47 @@ function useMessage(channelId: number | null) {
 	})
 	}
 
+	function addMessage(message: Message) {
+		if (channelId === null || message.channelId !== channelId) return
+		setMessages((prev) =>
+			prev.some((m) => m.id === message.id)
+				? prev
+				: [...prev, message]
+		)
+	}
+
 	return {
-		messages, createMessage
+		messages,
+		createMessage,
+		addMessage,
 	}
 }
 
+// open the chat websocket and route event type → action
+function useChatSocket(
+	addChannel: (channel: Channel) => void,
+	removeChannel: (id: number) => void,
+	addMessage: (message: Message) => void,
+) {
+	const chatSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
+
+	useReconnectingSocket(chatSocketUrl, (message) => {
+		if (message.type === 'CHANNEL_CREATED')
+			addChannel(message.payload)
+		if (message.type === 'CHANNEL_DELETED')
+			removeChannel(message.payload.id)
+		if (message.type === 'MESSAGE_CREATED')
+			addMessage(message.payload)
+	})
+}
+
 function Chat({onLogout, pseudo, userId}: ChatProps) {
-	const { channels, createChannel } = useChannel(userId)
+	const { channels, createChannel, addChannel, removeChannel } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
-	const { messages, createMessage } = useMessage(selectedChannelId)
+	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
+
+	useChatSocket(addChannel, removeChannel, addMessage)
 
 	// manage keyword Escape
 	useEffect(() => {
@@ -145,6 +169,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 							<Sidebar
 								onLogout={onLogout}
 								pseudo={pseudo}
+								userId={userId}
 								channels={channels}
 								selectedChannelId={selectedChannelId}
 								onSelectChannel={setSelectedChannelId}

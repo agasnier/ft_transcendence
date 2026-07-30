@@ -4,10 +4,11 @@ import type { SidebarView } from '../Sidebar'
 
 interface CreateChannelViewProps {
 	setView: (view: SidebarView) => void
-	onCreateChannel: (name: string, description: string, type: 'channel') => void
+	userId: number | null
+	onCreateChannel: (type: 'channel', memberIds: number[], name?: string, description?: string) => void
 }
 
-function CreateChannelView({ setView, onCreateChannel }: CreateChannelViewProps) {
+function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelViewProps) {
 	return (
 		<>
 			<div className="flex items-center gap-2">
@@ -18,7 +19,8 @@ function CreateChannelView({ setView, onCreateChannel }: CreateChannelViewProps)
 				type="channel"
 				onCancel={() => setView({kind: 'home'})}
 				onCreate={(name, description) => {
-					onCreateChannel(name, description, 'channel');
+					if (userId === null) return
+					onCreateChannel('channel', [userId], name, description)
 					setView({kind: 'home'})
 				}}
 			/>

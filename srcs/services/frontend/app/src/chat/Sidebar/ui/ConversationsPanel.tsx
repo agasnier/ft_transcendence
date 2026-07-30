@@ -10,14 +10,14 @@ interface ConversationsPanelProps {
 
 interface Channel {
 	id: number
-	name: string
-	description: string
+	name: string | null
+	description: string | null
 	type: 'channel' | 'group' | 'discussion'
 }
 
 function ConversationsPanel({ isSearching, searchQuery, channels, selectedChannelId, onSelectChannel }: ConversationsPanelProps) {
 	const filteredChannels = channels.filter((c) =>
-		c.name.toLowerCase().includes(searchQuery.toLowerCase())
+		(c.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
 	)
 
 	if (filteredChannels.length === 0) {
@@ -33,7 +33,7 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 			{filteredChannels.map((channel) => (
 				<AvatarNameCard
 					key={channel.id}
-					name={channel.name}
+					name={channel.name ?? 'username a gerer'}
 					selected={selectedChannelId === channel.id}
 					onClick={() => onSelectChannel(channel.id)}
 				/>

@@ -18,8 +18,8 @@ interface Message {
 
 interface Channel {
 	id: number
-	name: string
-	description: string
+	name: string | null
+	description: string | null
 	type: 'channel' | 'group' | 'discussion'
 }
 

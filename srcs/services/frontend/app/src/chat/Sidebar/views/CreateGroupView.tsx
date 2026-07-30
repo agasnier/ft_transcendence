@@ -3,7 +3,6 @@ import BackButton from '../ui/BackButton'
 
 interface CreateGroupViewProps {
 	setView: (view: SidebarView) => void
-	onCreateChannel: (name: string, description: string, type: 'group') => void
 }
 
 function CreateGroupView({ setView }: CreateGroupViewProps) {
