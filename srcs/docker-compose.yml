@@ -65,7 +65,6 @@ services:
       - ./env/.env
     environment:
       MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-      MARIADB_PASSWORD_FILE: /run/secrets/db_root_password
     secrets:
       - db_root_password
       - db_vault_password
