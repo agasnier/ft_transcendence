@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import HomeView from './views/HomeView'
 import SearchView from './views/SearchView'
 import CreateRoomButton from './ui/CreateRoomButton'
@@ -33,6 +33,15 @@ export type SidebarView =
 function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SidebarProp) {
 	const [view, setView] = useState<SidebarView>({ kind: 'home' })
 	const [searchQuery, setSearchQuery] = useState('')
+
+	useEffect (() => {
+		function handleKeyDown(event: KeyboardEvent) {
+			if (event.key === 'Escape')
+				setView({kind: 'home'})
+		}
+		document.addEventListener('keydown', handleKeyDown)
+		return () => document.removeEventListener('keydown', handleKeyDown)
+	}, [view])
 
 	function renderBody() {
 		switch (view.kind) {
