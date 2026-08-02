@@ -30,7 +30,9 @@ function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscus
 			}
 			if (usersRes.ok) {
 				const data = await usersRes.json()
-				setOthers(data.map((user: { id: number; pseudo: string }) => ({ id: user.id, pseudo: user.pseudo })))
+				setOthers(data
+					.filter((user: { id: number; pseudo: string }) => user.id !== userId)
+					.map((user: { id: number; pseudo: string }) => ({ id: user.id, pseudo: user.pseudo })))
 			}
 		}
 		load()
