@@ -2,9 +2,10 @@
 set -e
 
 DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password 2>/dev/null) || true
+DB_VAULT_PASSWORD=$(cat /run/secrets/db_vault_password 2>/dev/null) || true
 
 # verify if all required variables are defined
-if [ -z "$DB_ROOT_PASSWORD" ]; then
+if [ -z "$DB_ROOT_PASSWORD" ] || [ -z "$DB_VAULT_PASSWORD" ]; then
 	echo "Error: missing required configuration for mariadb"
 	exit 1
 fi
@@ -17,7 +18,7 @@ fi
 
 	# create a Vault user with all privileges
 	mariadb -uroot -p"$DB_ROOT_PASSWORD" <<SQL
-CREATE USER IF NOT EXISTS 'vault'@'%' IDENTIFIED BY '${DB_ROOT_PASSWORD}';
+CREATE USER IF NOT EXISTS 'vault'@'%' IDENTIFIED BY '${DB_VAULT_PASSWORD}';
 GRANT CREATE USER ON *.* TO 'vault'@'%';
 GRANT ALL PRIVILEGES ON \`${MARIADB_DATABASE}\`.* TO 'vault'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;

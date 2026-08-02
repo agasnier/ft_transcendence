@@ -3,10 +3,10 @@ set -e
 
 export VAULT_ADDR=http://127.0.0.1:8200
 export VAULT_TOKEN="${VAULT_DEV_ROOT_TOKEN_ID}"
-DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password) || true 
+DB_VAULT_PASSWORD=$(cat /run/secrets/db_vault_password) || true 
 
 # verify if all required variables are defined
-if [ -z "$DB_ROOT_PASSWORD" ]; then
+if [ -z "$DB_VAULT_PASSWORD" ]; then
 	echo "Error: missing required configuration for mariadb"
 	exit 1
 fi
@@ -39,7 +39,7 @@ fi
 			connection_url="{{username}}:{{password}}@tcp(database:3306)/" \
 			allowed_roles="*" \
 			username="vault" \
-			password="${DB_ROOT_PASSWORD}" >/dev/null 2>&1; do
+			password="${DB_VAULT_PASSWORD}" >/dev/null 2>&1; do
 		sleep 1
 	done
 
