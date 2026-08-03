@@ -1,7 +1,7 @@
-import { and, eq, inArray, ne } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
-import { channels, channelMembers, messages, discussionPairs } from '../../db/schema.js'
+import { channels, channelMembers, discussionPairs } from '../../db/schema.js'
 import { env } from '../../config/env.js'
 
 type ChannelRow = {
@@ -9,22 +9,7 @@ type ChannelRow = {
   name: string | null
   type: string
   description: string | null
-  creatorId: number | null
   createdAt: Date
-}
-
-type ChannelRowWithHidden = ChannelRow & { hiddenAt: Date | null }
-
-async function hasMessages(channelIds: number[]): Promise<Set<number>> {
-  if (channelIds.length === 0)
-    return new Set()
-
-  const rows = await db
-    .select({ channelId: messages.channelId })
-    .from(messages)
-    .where(inArray(messages.channelId, channelIds))
-
-  return new Set(rows.map((row) => row.channelId))
 }
 
 export async function resolveDiscussionNames(rows: ChannelRow[], userId: number): Promise<ChannelRow[]> {
@@ -32,16 +17,17 @@ export async function resolveDiscussionNames(rows: ChannelRow[], userId: number)
   if (discussionIds.length === 0)
     return rows
 
-  const otherMembers = await db
-    .select({ channelId: channelMembers.channelId, userId: channelMembers.userId })
-    .from(channelMembers)
-    .where(and(
-      inArray(channelMembers.channelId, discussionIds),
-      ne(channelMembers.userId, userId),
-    ))
+  // the pair record is the permanent source of truth for "who's in this discussion",
+  // independent of whether either side currently has a channel_members row
+  const pairs = await db
+    .select({ channelId: discussionPairs.channelId, userMinId: discussionPairs.userMinId, userMaxId: discussionPairs.userMaxId })
+    .from(discussionPairs)
+    .where(inArray(discussionPairs.channelId, discussionIds))
 
-  const otherUserIdByChannel = new Map(otherMembers.map((m) => [m.channelId, m.userId]))
-  const idsToResolve = [...new Set(otherMembers.map((m) => m.userId))]
+  const otherUserIdByChannel = new Map(
+    pairs.map((p) => [p.channelId, p.userMinId === userId ? p.userMaxId : p.userMinId]),
+  )
+  const idsToResolve = [...new Set(otherUserIdByChannel.values())]
 
   let pseudoById = new Map<number, string>()
   try {
@@ -64,57 +50,47 @@ export async function resolveDiscussionNames(rows: ChannelRow[], userId: number)
 }
 
 export async function listUserChannels(userId: number) {
-  const rows: ChannelRowWithHidden[] = await db
+  // membership itself is the visibility rule: a discussion is only listed while
+  // the caller has a channel_members row for it (see leaveChannel/ensureMembership)
+  const rows = await db
     .select({
       id: channels.id,
       name: channels.name,
       type: channels.type,
       description: channels.description,
-      creatorId: channels.creatorId,
       createdAt: channels.createdAt,
-      hiddenAt: channelMembers.hiddenAt,
     })
     .from(channels)
     .innerJoin(channelMembers, eq(channelMembers.channelId, channels.id))
     .where(eq(channelMembers.userId, userId))
 
-  const discussionIds = rows.filter((c) => c.type === 'discussion').map((c) => c.id)
-  const revealedChannelIds = await hasMessages(discussionIds)
-
-  const visibleRows = rows.filter((c) => {
-    if (c.type !== 'discussion')
-      return true
-    if (c.hiddenAt !== null)
-      return false
-    return c.creatorId === userId || revealedChannelIds.has(c.id)
-  })
-
-  return resolveDiscussionNames(visibleRows, userId)
+  return resolveDiscussionNames(rows, userId)
 }
 
-export async function hideDiscussionForUser(channelId: number, userId: number): Promise<void> {
+export async function leaveChannel(channelId: number, userId: number): Promise<void> {
   await db
-    .update(channelMembers)
-    .set({ hiddenAt: new Date() })
+    .delete(channelMembers)
     .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
 }
 
-export async function revealDiscussionForMember(channelId: number, userId: number): Promise<boolean> {
-  const [row] = await db
-    .select({ hiddenAt: channelMembers.hiddenAt })
-    .from(channelMembers)
-    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
-    .limit(1)
-
-  if (!row || row.hiddenAt === null)
+export async function ensureMembership(channelId: number, userId: number): Promise<boolean> {
+  if (await isChannelMember(channelId, userId))
     return false
 
-  await db
-    .update(channelMembers)
-    .set({ hiddenAt: null })
-    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
-
+  await db.insert(channelMembers).values({ channelId, userId })
   return true
+}
+
+export async function getOtherDiscussionParticipant(channelId: number, userId: number): Promise<number | null> {
+  const [pair] = await db
+    .select({ userMinId: discussionPairs.userMinId, userMaxId: discussionPairs.userMaxId })
+    .from(discussionPairs)
+    .where(eq(discussionPairs.channelId, channelId))
+    .limit(1)
+
+  if (!pair)
+    return null
+  return pair.userMinId === userId ? pair.userMaxId : pair.userMinId
 }
 
 export async function channelInfo(channelId: number) {
@@ -124,7 +100,6 @@ export async function channelInfo(channelId: number) {
       name: channels.name,
       type: channels.type,
       description: channels.description,
-      creatorId: channels.creatorId,
       createdAt: channels.createdAt,
     })
     .from(channels)
@@ -140,10 +115,10 @@ export async function isChannelMember(channelId: number, userId: number): Promis
     .from(channelMembers)
     .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
     .limit(1)
-  
+
   if (row == undefined)
     return false
-  return true 
+  return true
 }
 
 export async function listChannelMembers(channelId: number): Promise<number[]> {
@@ -166,7 +141,7 @@ export async function addChannelMembers(channelId: number, userIds: number[], ro
 
 export async function createChannel(name: string | undefined, memberIds: number[], type: string, description: string | undefined, creatorId: number): Promise<{ channel: ChannelRow; reused: boolean }> {
   if (type !== 'discussion') {
-    const result = await db.insert(channels).values({ name, type, description, creatorId })
+    const result = await db.insert(channels).values({ name, type, description })
     const channelId = Number(result[0].insertId)
 
     // Creator becomes moderator
@@ -179,15 +154,17 @@ export async function createChannel(name: string | undefined, memberIds: number[
     return { channel: (await channelInfo(channelId))!, reused: false }
   }
 
+  // a discussion only gets a channel_members row for its creator up front;
+  // the other participant is added later, when they actually receive a message (see messages.controller.ts)
   const [userAId, userBId] = memberIds
   const userMinId = Math.min(userAId, userBId)
   const userMaxId = Math.max(userAId, userBId)
 
   try {
     const channelId = await db.transaction(async (tx) => {
-      const result = await tx.insert(channels).values({ name, type, description, creatorId })
+      const result = await tx.insert(channels).values({ name, type, description })
       const newChannelId = Number(result[0].insertId)
-      await tx.insert(channelMembers).values(memberIds.map((userId) => ({ channelId: newChannelId, userId })))
+      await tx.insert(channelMembers).values({ channelId: newChannelId, userId: creatorId })
       await tx.insert(discussionPairs).values({ channelId: newChannelId, userMinId, userMaxId })
       return newChannelId
     })
@@ -198,13 +175,15 @@ export async function createChannel(name: string | undefined, memberIds: number[
     if (code !== 'ER_DUP_ENTRY')
       throw err
 
-    // the pair already has a discussion: reuse it instead of creating a duplicate
+    // the pair already has a discussion: reuse it instead of creating a duplicate,
+    // and make sure the caller has a membership row again in case they'd left it before
     const [pair] = await db
       .select({ channelId: discussionPairs.channelId })
       .from(discussionPairs)
       .where(and(eq(discussionPairs.userMinId, userMinId), eq(discussionPairs.userMaxId, userMaxId)))
       .limit(1)
 
+    await ensureMembership(pair.channelId, creatorId)
     return { channel: (await channelInfo(pair.channelId))!, reused: true }
   }
 }

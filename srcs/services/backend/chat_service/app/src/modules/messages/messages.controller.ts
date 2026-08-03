@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
-import { channelInfo, isChannelMember, listChannelMembers, resolveDiscussionNames, revealDiscussionForMember } from '../channels/channels.service.js'
-import { countMessages, createMessage, listMessages } from './messages.service.js'
+import { channelInfo, ensureMembership, getOtherDiscussionParticipant, isChannelMember, resolveDiscussionNames } from '../channels/channels.service.js'
+import { createMessage, listMessages } from './messages.service.js'
 import { wsChannelCreatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 
 // TODO hook is a channel members
@@ -38,24 +38,15 @@ export async function createMessageController(request: FastifyRequest, reply: Fa
 
     const message = await createMessage(channelId, request.user!.id, content)
 
-    // reveal the discussion to any other member for whom it was still hidden:
-    // either because they'd deleted it before (hiddenAt cleared here) or because
-    // this is the very first message they've ever received in it.
+    // a discussion only shows up for a member once they have a channel_members row;
+    // give the other participant one now if they don't have it yet (first message ever,
+    // or they'd left/hidden it before) and reveal the channel to them
     const channel = await channelInfo(channelId)
     if (channel?.type === 'discussion') {
-      const messageCount = await countMessages(channelId)
-      const memberIds = await listChannelMembers(channelId)
-      for (const memberId of memberIds) {
-        if (memberId === request.user!.id)
-          continue
-
-        const wasHidden = await revealDiscussionForMember(channelId, memberId)
-        const isFirstMessageEver = messageCount === 1 && channel.creatorId !== memberId
-
-        if (wasHidden || isFirstMessageEver) {
-          const [resolvedChannel] = await resolveDiscussionNames([channel], memberId)
-          wsChannelCreatedTo(memberId, resolvedChannel)
-        }
+      const otherUserId = await getOtherDiscussionParticipant(channelId, request.user!.id)
+      if (otherUserId !== null && (await ensureMembership(channelId, otherUserId))) {
+        const [resolvedChannel] = await resolveDiscussionNames([channel], otherUserId)
+        wsChannelCreatedTo(otherUserId, resolvedChannel)
       }
     }
 

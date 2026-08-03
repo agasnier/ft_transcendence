@@ -63,7 +63,7 @@ function wsSendToUser(userId: number, data: object): void {
 	}
 }
 
-export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, creatorId: number | null, createdAt: Date | string }): void {
+export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, createdAt: Date | string }): void {
 	wsSendToUser(userId, { type: 'CHANNEL_CREATED', payload: channel })
 }
 

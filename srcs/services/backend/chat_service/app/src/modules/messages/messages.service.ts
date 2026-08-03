@@ -1,4 +1,4 @@
-import { asc, count, eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { messages } from '../../db/schema.js'
@@ -29,15 +29,6 @@ async function resolveSenderPseudos(rows: MessageRow[]): Promise<(MessageRow & {
   }
 
   return rows.map((row) => ({ ...row, senderPseudo: pseudoById.get(row.senderId) ?? null }))
-}
-
-export async function countMessages(channelId: number): Promise<number> {
-  const [row] = await db
-    .select({ count: count() })
-    .from(messages)
-    .where(eq(messages.channelId, channelId))
-
-  return row.count
 }
 
 export async function listMessages(channelId: number) {

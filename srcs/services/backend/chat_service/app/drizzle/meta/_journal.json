@@ -57,6 +57,13 @@
       "when": 1785758623806,
       "tag": "0007_productive_war_machine",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1785774307042,
+      "tag": "0008_powerful_albert_cleary",
+      "breakpoints": true
     }
   ]
 }
