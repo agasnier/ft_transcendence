@@ -15,12 +15,14 @@ interface SearchViewProps {
 	searchQuery: string
 	setSearchQuery: (query: string) => void
 	setView: (view: SidebarView) => void
+	userId: number | null
 	channels: Channel[]
 	selectedChannelId: number | null
 	onSelectChannel: (id: number) => void
+	onCreateChannel: (type: 'channel' | 'group' | 'discussion', memberIds: number[], name?: string, description?: string) => Promise<Channel | null>
 }
 
-function SearchView({ searchQuery, setSearchQuery, setView, channels, selectedChannelId, onSelectChannel }: SearchViewProps) {
+function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SearchViewProps) {
     const [searchScope, setSearchScope] = useState<'conversations' | 'friends'>('conversations')
 
     useEffect(() => {
@@ -79,7 +81,13 @@ function SearchView({ searchQuery, setSearchQuery, setView, channels, selectedCh
                 </button>
             </div>
             {searchQuery.trim() !== '' && searchScope === 'friends' &&
-                <FriendsPanel searchQuery={searchQuery} isSearching={true} />
+                <FriendsPanel
+                    searchQuery={searchQuery}
+                    isSearching={true}
+                    userId={userId}
+                    onCreateChannel={onCreateChannel}
+                    onSelectChannel={onSelectChannel}
+                />
             }
             {searchQuery.trim() !== '' && searchScope === 'conversations' &&
                 <ConversationsPanel

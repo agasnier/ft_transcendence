@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { getAllUsers, getUserById, createUser, updateUser, deleteUser, listUsers, updateUserProfile, getUserProfile, updateAvatar } from './users.service.js'
+import { getAllUsers, getUserById, getUsersByIds, createUser, updateUser, deleteUser, listUsers, updateUserProfile, getUserProfile, updateAvatar } from './users.service.js'
 import { pipeline } from 'stream/promises'
 import { createWriteStream } from 'fs'
 import path from 'path'
@@ -25,6 +25,26 @@ export async function listUsersController(request: FastifyRequest, reply: Fastif
     await reply.send(list)
   }
   catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+const MAX_BATCH_IDS = 100
+
+export async function listUsersBatchController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { ids } = request.query as { ids: string }
+    const parsedIds = [...new Set(ids.split(',').map(Number))].filter((id) => Number.isInteger(id) && id > 0)
+
+    if (parsedIds.length === 0 || parsedIds.length > MAX_BATCH_IDS) {
+      await reply.status(400).send({ message: 'Invalid ids' })
+      return
+    }
+
+    const list = await getUsersByIds(parsedIds)
+    await reply.send(list)
+  } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })
   }

@@ -6,12 +6,14 @@ interface ChatWindowProps {
 	userId: number | null
 	messages: Message[]
 	onSendMessage: (content: string) => void
+	onDeleteChannel: (id: number) => void
 }
 
 interface Message {
 	id: number
 	channelId: number
 	senderId: number
+	senderPseudo: string | null
 	content: string
 	createdAt: string
 }
@@ -23,14 +25,37 @@ interface Channel {
 	type: 'channel' | 'group' | 'discussion'
 }
 
-function ChatWindow({ channel, userId, messages, onSendMessage }: ChatWindowProps) {
+function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel }: ChatWindowProps) {
 	const { isConnected } = useWebSocket()
 	const [inputText, setInputText] = useState('')
+	const [confirmDelete, setConfirmDelete] = useState(false)
 	const messagesEndRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}, [messages])
+
+	useEffect(() => {
+		if (!confirmDelete)
+			return
+
+		function handleClickOutside(event: MouseEvent) {
+			if (!(event.target as HTMLElement).closest('[data-delete-popover]'))
+				setConfirmDelete(false)
+		}
+
+		function handleKeyboard(event: KeyboardEvent) {
+			if (event.key === 'Escape')
+				setConfirmDelete(false)
+		}
+
+		document.addEventListener('mousedown', handleClickOutside)
+		document.addEventListener('keydown', handleKeyboard)
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+			document.removeEventListener('keydown', handleKeyboard)
+		}
+	}, [confirmDelete])
 
 	function handleSend(e: React.FormEvent) {
 		e.preventDefault()
@@ -45,10 +70,28 @@ function ChatWindow({ channel, userId, messages, onSendMessage }: ChatWindowProp
 			{/* Chat Header */}
 			<div className="p-4 border-b bg-white/50 flex items-center justify-between">
 				<h1 className="font-bold text-gray-800 text-lg">{channel.name}</h1>
-				<div className="flex items-center gap-2 text-xs font-semibold">
-					<span className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-					<span className={isConnected ? 'text-green-600' : 'text-red-500'}>
-						{isConnected ? 'Connecté' : 'Hors ligne (Reconnexion...)'}
+				<div className="flex items-center gap-3">
+					<span data-delete-popover className="relative">
+						<button
+							type="button"
+							onClick={() => setConfirmDelete((prev) => !prev)}
+							title="Supprimer"
+							className="text-2xl font-bold text-gray-600 rounded-full w-7 h-7 flex items-center justify-center hover:bg-gray-300">
+							⋮
+						</button>
+						{confirmDelete && (
+							<div className="absolute z-20 top-full right-0 mt-2 w-48 bg-white border rounded-2xl drop-shadow-[0_1px_8px_rgba(0,0,0,0.15)] p-1">
+								<button
+									type="button"
+									onClick={() => {
+										onDeleteChannel(channel.id)
+										setConfirmDelete(false)
+									}}
+									className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl">
+									Supprimer la conversation
+								</button>
+							</div>
+						)}
 					</span>
 				</div>
 			</div>
@@ -70,7 +113,7 @@ function ChatWindow({ channel, userId, messages, onSendMessage }: ChatWindowProp
 									: 'items-start bg-white border-blue-100'}
 								`}>
 									<div className="flex justify-between w-full text-xs font-semibold text-blue-700 mb-1 gap-4">
-										<span>{`Utilisateur #${msg.senderId}`}</span>
+										<span>{msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}</span>
 										<span className="text-gray-400 font-normal">
 											{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 										</span>

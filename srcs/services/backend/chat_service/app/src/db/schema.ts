@@ -5,6 +5,7 @@ export const channels = mysqlTable('channels', {
   name: varchar('name', { length: 255 }).unique(),
   type: varchar('type', { length: 32 }).notNull(),
   description: varchar('description', { length: 255 }),
+  creatorId: int('creator_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
@@ -16,8 +17,20 @@ export const channelMembers = mysqlTable('channel_members', {
   userId: int('user_id').notNull(),
   role: mysqlEnum('role', ['moderator', 'member']).notNull().default('member'),
   joinedAt: timestamp('joined_at').defaultNow().notNull(),
+  hiddenAt: timestamp('hidden_at'),
 }, (table) => ({
   uniqueMember: unique().on(table.channelId, table.userId),
+}))
+
+export const discussionPairs = mysqlTable('discussion_pairs', {
+  id: int('id').autoincrement().primaryKey(),
+  channelId: int('channel_id')
+    .notNull()
+    .references(() => channels.id, { onDelete: 'cascade' }),
+  userMinId: int('user_min_id').notNull(),
+  userMaxId: int('user_max_id').notNull(),
+}, (table) => ({
+  uniquePair: unique().on(table.userMinId, table.userMaxId),
 }))
 
 export const messages = mysqlTable('messages', {

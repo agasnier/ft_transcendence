@@ -6,6 +6,28 @@ const userProperties = {
   role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
 }
 
+export const listUsersBatchSchema = {
+  querystring: {
+    type: 'object',
+    required: ['ids'],
+    properties: {
+      ids: { type: 'string' },
+    },
+  },
+  response: {
+    200: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          pseudo: { type: 'string' },
+        },
+      },
+    },
+  },
+}
+
 export const listUsersSchema = {
   response: {
     200: {

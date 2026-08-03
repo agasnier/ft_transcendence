@@ -4,6 +4,7 @@ const messageResponse = {
     id: { type: 'integer' },
     channelId: { type: 'integer' },
     senderId: { type: 'integer' },
+    senderPseudo: { type: ['string', 'null'] },
     content: { type: 'string' },
     createdAt: { type: 'string' },
   },

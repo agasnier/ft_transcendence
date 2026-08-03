@@ -14,14 +14,16 @@ interface Channel {
 interface HomeViewProps {
 	onLogout: () => void
 	pseudo: string | null
+	userId: number | null
 	channels: Channel[]
 	selectedChannelId: number | null
 	onSelectChannel: (id: number) => void
+	onCreateChannel: (type: 'channel' | 'group' | 'discussion', memberIds: number[], name?: string, description?: string) => Promise<Channel | null>
 	searchQuery: string
 	setView: (view: SidebarView) => void
 }
 
-function HomeView({ onLogout, pseudo, channels, selectedChannelId, onSelectChannel, searchQuery, setView }: HomeViewProps) {
+function HomeView({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, searchQuery, setView }: HomeViewProps) {
 	const [activeTab, setActiveTab] = useState<'friends' | 'conversations'>('conversations')
 
 	return (
@@ -51,10 +53,13 @@ function HomeView({ onLogout, pseudo, channels, selectedChannelId, onSelectChann
                     Amis
                 </button>
             </div>
-            {activeTab === 'friends' && 
+            {activeTab === 'friends' &&
                 <FriendsPanel
                     searchQuery={searchQuery}
                     isSearching={false}
+                    userId={userId}
+                    onCreateChannel={onCreateChannel}
+                    onSelectChannel={onSelectChannel}
                 />
             }
             {activeTab === 'conversations' && 

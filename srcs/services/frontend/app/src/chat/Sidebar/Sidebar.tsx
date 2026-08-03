@@ -13,7 +13,7 @@ interface SidebarProp {
 	channels: Channel[]
 	selectedChannelId: number | null
 	onSelectChannel: (id: number) => void
-	onCreateChannel: (type: 'channel' | 'group' | 'discussion', memberIds: number[], name?: string, description?: string) => void
+	onCreateChannel: (type: 'channel' | 'group' | 'discussion', memberIds: number[], name?: string, description?: string) => Promise<Channel | null>
 }
 
 interface Channel {
@@ -50,9 +50,11 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 					<HomeView
 						onLogout={onLogout}
 						pseudo={pseudo}
+						userId={userId}
 						channels={channels}
 						selectedChannelId={selectedChannelId}
 						onSelectChannel={onSelectChannel}
+						onCreateChannel={onCreateChannel}
 						searchQuery={searchQuery}
 						setView={setView}
 					/>
@@ -63,9 +65,11 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 						searchQuery={searchQuery}
 						setSearchQuery={setSearchQuery}
 						setView={setView}
+						userId={userId}
 						channels={channels}
 						selectedChannelId={selectedChannelId}
 						onSelectChannel={onSelectChannel}
+						onCreateChannel={onCreateChannel}
 					/>
 				)
 			case 'createChannel':

@@ -1,4 +1,4 @@
-import { eq, or } from 'drizzle-orm'
+import { eq, inArray, or } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
@@ -18,6 +18,16 @@ export async function getUserById(id: number) {
     .where(eq(users.id, id))
     .limit(1)
   return rows[0]
+}
+
+export async function getUsersByIds(ids: number[]) {
+  if (ids.length === 0)
+    return []
+
+  return db
+    .select({ id: users.id, pseudo: users.pseudo })
+    .from(users)
+    .where(inArray(users.id, ids))
 }
 
 export async function verifyCredentials(login: string, password: string) {

@@ -1,10 +1,47 @@
-import { asc, eq } from 'drizzle-orm'
+import { asc, count, eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { messages } from '../../db/schema.js'
+import { env } from '../../config/env.js'
+
+type MessageRow = {
+  id: number
+  channelId: number
+  senderId: number
+  content: string
+  createdAt: Date
+}
+
+async function resolveSenderPseudos(rows: MessageRow[]): Promise<(MessageRow & { senderPseudo: string | null })[]> {
+  const senderIds = [...new Set(rows.map((row) => row.senderId))]
+  if (senderIds.length === 0)
+    return []
+
+  let pseudoById = new Map<number, string>()
+  try {
+    const res = await fetch(`${env.usersServiceUrl}/users/batch?ids=${senderIds.join(',')}`)
+    if (res.ok) {
+      const usersList = (await res.json()) as { id: number; pseudo: string }[]
+      pseudoById = new Map(usersList.map((u) => [u.id, u.pseudo]))
+    }
+  } catch {
+    // users_service unreachable: leave pseudo null, frontend falls back to a placeholder
+  }
+
+  return rows.map((row) => ({ ...row, senderPseudo: pseudoById.get(row.senderId) ?? null }))
+}
+
+export async function countMessages(channelId: number): Promise<number> {
+  const [row] = await db
+    .select({ count: count() })
+    .from(messages)
+    .where(eq(messages.channelId, channelId))
+
+  return row.count
+}
 
 export async function listMessages(channelId: number) {
-  return db
+  const rows = await db
     .select({
       id: messages.id,
       channelId: messages.channelId,
@@ -15,6 +52,8 @@ export async function listMessages(channelId: number) {
     .from(messages)
     .where(eq(messages.channelId, channelId))
     .orderBy(asc(messages.createdAt))
+
+  return resolveSenderPseudos(rows)
 }
 
 export async function createMessage(channelId: number, senderId: number, content: string) {
@@ -33,5 +72,6 @@ export async function createMessage(channelId: number, senderId: number, content
     .where(eq(messages.id, messageId))
     .limit(1)
 
-  return row
+  const [resolved] = await resolveSenderPseudos([row])
+  return resolved
 }

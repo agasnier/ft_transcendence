@@ -25,6 +25,7 @@ interface Message {
 	id: number
 	channelId: number
 	senderId: number
+	senderPseudo: string | null
 	content: string
 	createdAt: string
 }
@@ -49,12 +50,19 @@ function useChannel() {
 		memberIds: number[],
 		name?: string,
 		description?: string,
-	) {
-		await fetch('/chat/channels', {
+	): Promise<Channel | null> {
+		const res = await fetch('/chat/channels', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({ type, memberIds, name, description }),
 		})
+		if (!res.ok) return null
+		return res.json()
+	}
+
+	async function deleteChannel(id: number): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${id}`, { method: 'DELETE' })
+		return res.ok
 	}
 
 	function addChannel(channel: Channel) {
@@ -72,6 +80,7 @@ function useChannel() {
 	return {
 		channels,
 		createChannel,
+		deleteChannel,
 		addChannel,
 		removeChannel,
 	}
@@ -136,12 +145,18 @@ function useChatSocket(
 }
 
 function Chat({onLogout, pseudo, userId}: ChatProps) {
-	const { channels, createChannel, addChannel, removeChannel } = useChannel()
+	const { channels, createChannel, deleteChannel, addChannel, removeChannel } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
 	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
 
 	useChatSocket(addChannel, removeChannel, addMessage)
+
+	async function handleDeleteChannel(id: number) {
+		if (!(await deleteChannel(id))) return
+		removeChannel(id)
+		setSelectedChannelId(null)
+	}
 
 	// manage keyword Escape
 	useEffect(() => {
@@ -175,7 +190,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 								onSelectChannel={setSelectedChannelId}
 								onCreateChannel={createChannel}
 							/>
-							{selectedChannel && <ChatWindow channel={selectedChannel} userId={userId} messages={messages} onSendMessage={createMessage}/>}
+							{selectedChannel && <ChatWindow channel={selectedChannel} userId={userId} messages={messages} onSendMessage={createMessage} onDeleteChannel={handleDeleteChannel}/>}
 						</div>
 					</div>}
 				/>

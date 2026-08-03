@@ -4,6 +4,9 @@ import { usePolling } from '../hooks/usePolling'
 interface FriendsPanelProps {
 	searchQuery: string
 	isSearching: boolean
+	userId: number | null
+	onCreateChannel: (type: 'discussion', memberIds: number[], name?: string, description?: string) => Promise<{ id: number } | null>
+	onSelectChannel: (id: number) => void
 }
 
 interface Friend {
@@ -24,7 +27,7 @@ interface Feedback {
 	text: string
 }
 
-function FriendsPanel({ searchQuery, isSearching }: FriendsPanelProps) {
+function FriendsPanel({ searchQuery, isSearching, userId, onCreateChannel, onSelectChannel }: FriendsPanelProps) {
 	const [friends, setFriends] = useState<Friend[]>([])
 	const [pending, setPending] = useState<PendingRequest[]>([])
 	const [pseudoInput, setPseudoInput] = useState('')
@@ -40,8 +43,17 @@ function FriendsPanel({ searchQuery, isSearching }: FriendsPanelProps) {
 				setConfirmRemoveId(null)
 		}
 
+		function handleKeyboard(event: KeyboardEvent) {
+			if (event.key === 'Escape')
+				setConfirmRemoveId(null)
+		}
+
 		document.addEventListener('mousedown', handleClickOutside)
-		return () => document.removeEventListener('mousedown', handleClickOutside)
+		document.addEventListener('keydown', handleKeyboard)
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+			document.removeEventListener('keydown', handleKeyboard)
+		}
 	}, [confirmRemoveId])
 
 	usePolling(async () => {
@@ -71,6 +83,13 @@ function FriendsPanel({ searchQuery, isSearching }: FriendsPanelProps) {
 		const res = await fetch(`/friends/${id}`, { method: 'DELETE' })
 		if (res.ok)
 			setFriends((prev) => prev.filter((f) => f.id !== id))
+	}
+
+	async function handleMessagePrivate(friendId: number) {
+		if (userId === null) return
+		const channel = await onCreateChannel('discussion', [userId, friendId])
+		if (channel)
+			onSelectChannel(channel.id)
 	}
 
 	async function handleAddByPseudo() {
@@ -189,6 +208,7 @@ function FriendsPanel({ searchQuery, isSearching }: FriendsPanelProps) {
 								<span data-remove-popover className="relative flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
 									<button
 										type="button"
+										onClick={() => handleMessagePrivate(friend.id)}
 										title="Message privé"
 										className="text-lg bg-gray-200 text-gray-600 rounded-full w-7 h-7 flex items-center justify-center hover:bg-gray-300">
 										➣

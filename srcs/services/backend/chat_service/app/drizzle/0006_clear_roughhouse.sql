@@ -1,0 +1,1 @@
+ALTER TABLE `channel_members` ADD `hidden_at` timestamp;
