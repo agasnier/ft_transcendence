@@ -55,3 +55,20 @@ export const listChannelMembersSchema = {
     },
   },
 }
+
+export const listAllChannelsSchema = {
+  response: {
+    200: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          name: { type: ['string', 'null'] },
+          createdAt: { type: 'string', format: 'date-time' },
+          isMember: { type: 'boolean' },
+        },
+      },
+    },
+  },
+}

@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { validateAccessToken } from '../vault/jwt.js'
-import { createChannel, deleteChannel, isChannelMember, listChannelMembers, listUserChannels } from './channels.service.js'
+import { createChannel, deleteChannel, isChannelMember, listChannelMembers, listUserChannels, listAllChannels } from './channels.service.js'
 import { wsChannelCreated, wsChannelDeleted } from '../websocket/websocket.ws.js'
 
 // hooks
@@ -28,7 +28,7 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
 export async function createChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { name, memberIds } = request.body as { name?: string; memberIds: number[] }
-    const channel = await createChannel(name, memberIds)
+    const channel = await createChannel(name, request.user!.id)
 
     // websocket
     wsChannelCreated(channel)
@@ -78,6 +78,16 @@ export async function listChannelMembersController(request: FastifyRequest, repl
 
     const memberIds = await listChannelMembers(channelId)
     await reply.send(memberIds)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function listAllChannelsController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const allChannels = await listAllChannels(request.user!.id)
+    await reply.send(allChannels)
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

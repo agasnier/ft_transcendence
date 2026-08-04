@@ -2,6 +2,7 @@ import { and, eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { channels, channelMembers } from '../../db/schema.js'
+import { channel } from 'node:diagnostics_channel'
 
 export async function listUserChannels(userId: number) {
   return db
@@ -50,24 +51,57 @@ export async function listChannelMembers(channelId: number): Promise<number[]> {
   return rows.map((row) => row.userId)
 }
 
-export async function addChannelMembers(channelId: number, userIds: number[]): Promise<void> {
+export async function addChannelMembers(channelId: number, userIds: number[], role: 'moderator' | 'member'): Promise<void> {
   if (userIds.length === 0)
     return
 
   await db.insert(channelMembers).values(
-    userIds.map((userId) => ({ channelId, userId })),
+    userIds.map((userId) => ({ channelId, userId, role })),
   )
 }
 
-export async function createChannel(name: string | undefined, memberIds: number[]) {
+export async function createChannel(name: string | undefined, creatorId: number, memberIds: number[] = []) {
   const result = await db.insert(channels).values({ name })
   const channelId = Number(result[0].insertId)
 
-  await addChannelMembers(channelId, memberIds)
+  // Creator become moderator
+  await addChannelMembers(channelId, [creatorId], 'moderator')
+
+  // Others become members
+  const otherMembers = memberIds.filter((id) => id !== creatorId)
+  await addChannelMembers(channelId, otherMembers,  'member')
 
   return channelInfo(channelId)
 }
 
 export async function deleteChannel(channelId: number): Promise<void> {
   await db.delete(channels).where(eq(channels.id, channelId))
+}
+
+export async function removeChannelMember(channelId: number, userId: number): Promise<void> {
+  await db.delete(channelMembers).where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+}
+
+export async function updateChannel(channelId: number, name: string) {
+  await db.update(channels).set({ name }).where(eq(channels.id, channelId))
+  return channelInfo(channelId)
+}
+
+export async function listAllChannels(userId: number) {
+  const allChannels = await db
+    .select({
+      id: channels.id,
+      name: channels.name,
+      createdAt: channels.createdAt,
+    })
+    .from(channels)
+
+    const myChannelIds = new Set(
+      (await db.select({ channelId: channelMembers.channelId })
+        .from(channelMembers)
+        .where(eq(channelMembers.userId, userId))
+      ).map((r) => r.channelId)
+    )
+
+    return allChannels.map((c) => ({ ...c, isMember: myChannelIds.has(c.id) }))
 }
