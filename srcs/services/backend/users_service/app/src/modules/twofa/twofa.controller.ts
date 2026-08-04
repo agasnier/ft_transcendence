@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { validateAccessToken } from '../vault/jwt.js'
-import { getTwoFAByUserId } from './twofa.service.js'
+import { getTwoFAByUserId, setTwoFAEnabled, setupTwoFA } from './twofa.service.js'
 
 // hooks
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -21,19 +21,38 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
 
 // controllers
 export async function enableController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const updated = await setTwoFAEnabled(request.user!.id, true)
+    if (!updated) {
+      await reply.status(400).send({ message: '2FA setup required first' })
+      return
+    }
+
+    await reply.status(200).send({ message: '2FA enabled' })
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
 }
 
 export async function setupController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const result = await setupTwoFA(request.user!.id, request.user!.pseudo)
+    if (!result) {
+      await reply.status(409).send({ message: '2FA already enabled' })
+      return
+    }
+
+    await reply.status(200).send(result)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
 }
 
 export async function statusController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    if (!request.user) {
-      await reply.status(401).send({ message: 'Not authenticated' })
-      return
-    }
-
-    const row = await getTwoFAByUserId(request.user.id)
+    const row = await getTwoFAByUserId(request.user!.id)
     await reply.status(200).send({ enabled: row?.enabled ?? false })
   } catch (err) {
     request.log.error(err)
@@ -45,4 +64,16 @@ export async function verifyController(request: FastifyRequest, reply: FastifyRe
 }
 
 export async function disableController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const updated = await setTwoFAEnabled(request.user!.id, false)
+    if (!updated) {
+      await reply.status(400).send({ message: '2FA setup required first' })
+      return
+    }
+
+    await reply.status(200).send({ message: '2FA disabled' })
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
 }
