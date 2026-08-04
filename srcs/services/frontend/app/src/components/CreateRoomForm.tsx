@@ -7,7 +7,7 @@ interface CreateRoomFormProps {
 	onCreate: (name: string, description: string) => void
 }
 
-function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
+function CreateRoomForm({ onCancel, onCreate }: CreateRoomFormProps) {
 	const [name, setName] = useState('')
 	const [description, setDescription] = useState('')
 
