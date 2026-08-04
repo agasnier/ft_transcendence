@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, timestamp } from 'drizzle-orm/mysql-core'
+import { mysqlTable, int, varchar, timestamp, mysqlEnum, unique } from 'drizzle-orm/mysql-core'
 
 export const channels = mysqlTable('channels', {
   id: int('id').autoincrement().primaryKey(),
@@ -12,8 +12,11 @@ export const channelMembers = mysqlTable('channel_members', {
     .notNull()
     .references(() => channels.id, { onDelete: 'cascade' }),
   userId: int('user_id').notNull(),
+  role: mysqlEnum('role', ['moderator', 'member']).notNull().default('member'),
   joinedAt: timestamp('joined_at').defaultNow().notNull(),
-})
+}, (table) => ({
+  uniqueMember: unique().on(table.channelId, table.userId),
+}))
 
 export const messages = mysqlTable('messages', {
   id: int('id').autoincrement().primaryKey(),
