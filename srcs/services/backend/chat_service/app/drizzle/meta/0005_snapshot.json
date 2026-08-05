@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "70681aaa-34ed-4e36-b094-e6cbbff096db",
-  "prevId": "04ddc43f-0cc9-4f54-9b97-3bd107b31379",
+  "id": "a746edde-f53c-41ac-87a3-d0a2c1f9ea03",
+  "prevId": "8ec709f9-eada-4cdf-9c4e-489e67018836",
   "tables": {
     "channel_members": {
       "name": "channel_members",
@@ -27,6 +27,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "enum('moderator','member')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'member'"
         },
         "joined_at": {
           "name": "joined_at",
@@ -61,7 +69,15 @@
           ]
         }
       },
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "channel_members_channel_id_user_id_unique": {
+          "name": "channel_members_channel_id_user_id_unique",
+          "columns": [
+            "channel_id",
+            "user_id"
+          ]
+        }
+      },
       "checkConstraint": {}
     },
     "channels": {
@@ -95,13 +111,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "creator_id": {
-          "name": "creator_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -126,6 +135,73 @@
           "name": "channels_name_unique",
           "columns": [
             "name"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "discussion_pairs": {
+      "name": "discussion_pairs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "channel_id": {
+          "name": "channel_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_min_id": {
+          "name": "user_min_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_max_id": {
+          "name": "user_max_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "discussion_pairs_channel_id_channels_id_fk": {
+          "name": "discussion_pairs_channel_id_channels_id_fk",
+          "tableFrom": "discussion_pairs",
+          "tableTo": "channels",
+          "columnsFrom": [
+            "channel_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "discussion_pairs_id": {
+          "name": "discussion_pairs_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "discussion_pairs_user_min_id_user_max_id_unique": {
+          "name": "discussion_pairs_user_min_id_user_max_id_unique",
+          "columns": [
+            "user_min_id",
+            "user_max_id"
           ]
         }
       },

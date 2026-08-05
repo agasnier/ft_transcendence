@@ -1,1 +1,0 @@
-ALTER TABLE `channels` ADD `creator_id` int;
