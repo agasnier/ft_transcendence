@@ -1,1 +1,0 @@
-ALTER TABLE `channels` ADD `description` varchar(255);
