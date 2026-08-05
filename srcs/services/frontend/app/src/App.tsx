@@ -4,14 +4,12 @@ import LoginForm from './components/LoginForm'
 import PrivacyForm from './components/PrivacyForm'
 import TermsForm from './components/TermsForm'
 import Chat from './chat/Chat'
-import { WebSocketProvider } from './context/WebSocketContext'
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false)
 	const [isCheckingSession, setIsCheckingSession] = useState(true)
 	const [userId, setUserId] = useState<number | null>(null)
 	const [pseudo, setPseudo] = useState<string | null>(null)
-	const [token, setToken] = useState<string | null>(null)
 	const [view, setView] = useState<'login' | 'signup' | 'privacy' | 'terms'>('login')
 
 	async function checkSession() {
@@ -20,9 +18,6 @@ function App() {
 			const user = await res.json()
 			setUserId(user.id)
 			setPseudo(user.pseudo)
-			if (user.token) {
-				setToken(user.token)
-			}
 			setIsLoggedIn(true)
 		}
 		setIsCheckingSession(false)
@@ -36,7 +31,6 @@ function App() {
 		await fetch('/auth/logout', { method: 'POST' })
 		setIsLoggedIn(false)
 		setUserId(null)
-		setToken(null)
 	}
 
 	if (isCheckingSession)
@@ -63,11 +57,7 @@ function App() {
 			return <TermsForm onBack={() => setView('login')} />
 	}
 	else {
-		return (
-			<WebSocketProvider token={token}>
-				<Chat onLogout={handleLogout} pseudo={pseudo} userId={userId}/>
-			</WebSocketProvider>
-		)
+		return <Chat onLogout={handleLogout} pseudo={pseudo} userId={userId}/>
 	}
 }
 

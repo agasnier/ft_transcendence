@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { useWebSocket } from '../context/WebSocketContext'
 
 interface ChatWindowProps {
 	channel: Channel
@@ -26,7 +25,6 @@ interface Channel {
 }
 
 function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel }: ChatWindowProps) {
-	const { isConnected } = useWebSocket()
 	const [inputText, setInputText] = useState('')
 	const [confirmDelete, setConfirmDelete] = useState(false)
 	const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -100,7 +98,7 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel 
 			<div className="flex-1 p-4 overflow-y-auto space-y-3">
 				{messages.length === 0 ? (
 					<div className="h-full flex items-center justify-center text-gray-400 text-sm italic">
-						{isConnected ? 'Aucun message pour l\'instant. Commencez la discussion !' : 'Connexion au serveur de chat...'}
+						Aucun message pour l'instant. Commencez la discussion !
 					</div>
 				) : (
 					messages.map((msg) => {
