@@ -84,6 +84,8 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 				return (
 					<CreateGroupView
 						setView={setView}
+						userId={userId}
+						onCreateChannel={onCreateChannel}
 					/>
 				)
 			case 'createDiscussion':

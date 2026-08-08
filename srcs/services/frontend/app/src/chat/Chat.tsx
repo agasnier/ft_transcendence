@@ -57,7 +57,9 @@ function useChannel() {
 			body: JSON.stringify({ type, memberIds, name, description }),
 		})
 		if (!res.ok) return null
-		return res.json()
+		const channel = await res.json()
+		addChannel(channel)
+		return channel
 	}
 
 	async function deleteChannel(id: number): Promise<boolean> {

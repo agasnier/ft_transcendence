@@ -7,7 +7,7 @@ interface CreateRoomFormProps {
 	onCreate: (name: string, description: string) => void
 }
 
-function CreateRoomForm({ onCancel, onCreate }: CreateRoomFormProps) {
+function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
 	const [name, setName] = useState('')
 	const [description, setDescription] = useState('')
 
@@ -27,13 +27,15 @@ function CreateRoomForm({ onCancel, onCreate }: CreateRoomFormProps) {
 				required
 				autoFocus
 			/>
-			<TextField
-				id="room-description"
-				label="Description"
-				type="text"
-				value={description}
-				onChange={(e) => setDescription(e.target.value)}
-			/>
+			{type !== 'group' && (
+				<TextField
+					id="room-description"
+					label="Description"
+					type="text"
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
+				/>
+			)}
 			<button
 				type="submit"
 				className="bg-blue-500 text-white rounded-md py-1 hover:bg-blue-600">
