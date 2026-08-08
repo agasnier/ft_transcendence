@@ -92,6 +92,10 @@ function useMessage(channelId: number | null) {
 
 	// load messages when selected channel changes
 	useEffect(() => {
+		if (channelId === null) {
+			setMessages([])
+			return
+		}
 		async function loadMessages() {
 			const res = await fetch(`/chat/channels/${channelId}/messages`)
 			if (!res.ok)
@@ -190,7 +194,16 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 								onSelectChannel={setSelectedChannelId}
 								onCreateChannel={createChannel}
 							/>
-							{selectedChannel && <ChatWindow channel={selectedChannel} userId={userId} messages={messages} onSendMessage={createMessage} onDeleteChannel={handleDeleteChannel}/>}
+							{selectedChannel && 
+								<ChatWindow
+									key={selectedChannel.id}
+									channel={selectedChannel}
+									userId={userId}
+									messages={messages}
+									onSendMessage={createMessage}
+									onDeleteChannel={handleDeleteChannel}
+								/>
+							}
 						</div>
 					</div>}
 				/>

@@ -18,9 +18,12 @@ export function useReconnectingSocket(url: string, onMessage: (data: any) => voi
 		}
 
 		function handleVisibilityChange() {
-			if (document.visibilityState !== 'visible') return
-			if (socket && socket.readyState === WebSocket.OPEN) return
-			if (reconnectTimeout) clearTimeout(reconnectTimeout)
+			if (document.visibilityState !== 'visible')
+				return
+			if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING))
+				return
+			if (reconnectTimeout)
+				clearTimeout(reconnectTimeout)
 			connect()
 		}
 
