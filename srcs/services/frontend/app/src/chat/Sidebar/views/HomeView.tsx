@@ -27,7 +27,7 @@ function HomeView({ onLogout, pseudo, userId, channels, selectedChannelId, onSel
 	const [activeTab, setActiveTab] = useState<'friends' | 'conversations'>('conversations')
 
 	return (
-		<>
+		<div className="flex flex-col gap-2">
 			<div className="flex items-center gap-2">
 				<UserMenu onLogout={onLogout} pseudo={pseudo} />
 				<div className="relative flex-1 min-w-0">
@@ -71,7 +71,7 @@ function HomeView({ onLogout, pseudo, userId, channels, selectedChannelId, onSel
                     onSelectChannel={onSelectChannel}
                 />
             }
-		</>
+		</div>
 	)
 }
 

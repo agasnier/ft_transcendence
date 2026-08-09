@@ -68,7 +68,6 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 				<BackButton onClick={() => setView({ kind: 'home' })} />
 				<h2 className="text-xl font-bold">Ajouter des membres</h2>
 			</div>
-			<h3 className="font-semibold text-gray-700 mt-2">Amis</h3>
 			{friends.map((friend) => (
 				<AvatarNameCard
 					key={`friend-${friend.id}`}
@@ -82,7 +81,7 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 			<button
 				type="button"
 				onClick={() => setStep('form')}
-				title="Créer un salon"
+				title="Créer un groupe"
 				className="mt-auto self-end bg-blue-500 text-white font-bold w-13 h-13 rounded-full hover:bg-blue-600 flex items-center justify-center text-4xl">
 				➡︎
 			</button>

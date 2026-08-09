@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import HomeView from './views/HomeView'
 import SearchView from './views/SearchView'
 import CreateRoomButton from './ui/CreateRoomButton'
@@ -30,18 +31,33 @@ export type SidebarView =
 	| { kind: 'createGroup' }
 	| { kind: 'createDiscussion' }
 
+const variants = {
+	enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+	center: { x: 0, opacity: 1 },
+	exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
+}
+
 function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SidebarProp) {
 	const [view, setView] = useState<SidebarView>({ kind: 'home' })
 	const [searchQuery, setSearchQuery] = useState('')
+	const [direction, setDirection] = useState(1)
+	const prevKindRef = useRef<SidebarView['kind']>('home')
 
 	useEffect (() => {
 		function handleKeyDown(event: KeyboardEvent) {
 			if (event.key === 'Escape')
-				setView({kind: 'home'})
+				navigate({kind: 'home'})
 		}
 		document.addEventListener('keydown', handleKeyDown)
 		return () => document.removeEventListener('keydown', handleKeyDown)
 	}, [view])
+
+	function navigate(next: SidebarView) {
+		if (next.kind === view.kind) return
+		prevKindRef.current = view.kind
+		setDirection(next.kind === 'home' ? -1 : 1)
+		setView(next)
+	}
 
 	function renderBody() {
 		switch (view.kind) {
@@ -56,7 +72,7 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 						onSelectChannel={onSelectChannel}
 						onCreateChannel={onCreateChannel}
 						searchQuery={searchQuery}
-						setView={setView}
+						setView={navigate}
 					/>
 				)
 			case 'search':
@@ -64,7 +80,7 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 					<SearchView
 						searchQuery={searchQuery}
 						setSearchQuery={setSearchQuery}
-						setView={setView}
+						setView={navigate}
 						userId={userId}
 						channels={channels}
 						selectedChannelId={selectedChannelId}
@@ -75,7 +91,7 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 			case 'createChannel':
 				return (
 					<CreateChannelView
-						setView={setView}
+						setView={navigate}
 						userId={userId}
 						onCreateChannel={onCreateChannel}
 					/>
@@ -83,7 +99,7 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 			case 'createGroup':
 				return (
 					<CreateGroupView
-						setView={setView}
+						setView={navigate}
 						userId={userId}
 						onCreateChannel={onCreateChannel}
 					/>
@@ -91,7 +107,7 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 			case 'createDiscussion':
 				return (
 					<CreateDiscussionView
-						setView={setView}
+						setView={navigate}
 						userId={userId}
 						onCreateChannel={onCreateChannel}
 					/>
@@ -101,11 +117,30 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 
 	return (
 		<aside className="w-90 shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 bg-white">
-			<div className="flex-1 overflow-y-auto flex flex-col gap-2">
-				{renderBody()}
+			<div className="flex-1 relative overflow-hidden">
+				{(view.kind === 'search' || prevKindRef.current === 'search') ? (
+					<div className="absolute inset-0 overflow-y-auto flex flex-col gap-2">
+						{renderBody()}
+					</div>
+				) : (
+						<AnimatePresence custom={direction}>
+							<motion.div
+								key={view.kind}
+								custom={direction}
+								variants={variants}
+								initial="enter"
+								animate="center"
+								exit="exit"
+								transition={{ duration: 0.2 }}
+								className="absolute inset-0 overflow-y-auto flex flex-col gap-2"
+							>
+								{renderBody()}
+							</motion.div>
+						</AnimatePresence>
+				)}
 			</div>
 			{view.kind === 'home' && (
-				<CreateRoomButton setView={setView} />
+				<CreateRoomButton setView={navigate} />
 			)}
 		</aside>
 	)

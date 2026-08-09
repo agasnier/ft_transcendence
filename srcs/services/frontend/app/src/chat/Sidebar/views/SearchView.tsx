@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import FriendsPanel from '../../FriendsPanel'
 import ConversationsPanel from '../ui/ConversationsPanel'
 import BackButton from '../ui/BackButton'
@@ -25,20 +25,8 @@ interface SearchViewProps {
 function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SearchViewProps) {
     const [searchScope, setSearchScope] = useState<'conversations' | 'friends'>('conversations')
 
-    useEffect(() => {
-        function handleKeyDown(event: KeyboardEvent) {
-            if (event.key === 'Escape') {
-                setSearchQuery('')
-                setView({ kind: 'home' })
-                ;(document.activeElement as HTMLElement)?.blur()
-            }
-        }
-        document.addEventListener('keydown', handleKeyDown)
-        return () => document.removeEventListener('keydown', handleKeyDown)
-    }, [])
-
     return (
-        <>
+        <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
                 <BackButton
                     onClick={() => {
@@ -98,7 +86,7 @@ function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, se
                     onSelectChannel={onSelectChannel}
                 />
             }
-        </>
+        </div>
     )
 }
 
