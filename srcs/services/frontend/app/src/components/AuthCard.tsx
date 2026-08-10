@@ -21,7 +21,7 @@ function AuthCard({ title, onSubmit, children, privacyPolicy, termsOfService }: 
 			<div className="flex flex-1 flex-col items-center justify-center gap-3 w-full max-w-sm py-8">
 				<form
 					onSubmit={onSubmit}
-					className="flex flex-col gap-4 bg-white p-8 rounded-lg drop-shadow w-full">
+					className="flex flex-col gap-4 bg-white/90 p-8 rounded-lg drop-shadow w-full">
 					<h2 className="text-2xl font-bold text-center text-gray-800">{title}</h2>
 					{children}
 				</form>
