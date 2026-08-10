@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import UserMenu from '../../UserMenu'
 import ConversationsPanel from '../ui/ConversationsPanel'
 import FriendsPanel from '../../FriendsPanel'
@@ -21,10 +20,11 @@ interface HomeViewProps {
 	onCreateChannel: (type: 'channel' | 'group' | 'discussion', memberIds: number[], name?: string, description?: string) => Promise<Channel | null>
 	searchQuery: string
 	setView: (view: SidebarView) => void
+    activeTab: 'friends' | 'conversations'
+    setActiveTab: (tab: 'friends' | 'conversations') => void
 }
 
-function HomeView({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, searchQuery, setView }: HomeViewProps) {
-	const [activeTab, setActiveTab] = useState<'friends' | 'conversations'>('conversations')
+function HomeView({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, searchQuery, setView, activeTab, setActiveTab }: HomeViewProps) {
 
 	return (
 		<div className="flex flex-col gap-2">

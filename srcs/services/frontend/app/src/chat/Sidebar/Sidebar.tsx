@@ -39,6 +39,7 @@ const variants = {
 
 function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SidebarProp) {
 	const [view, setView] = useState<SidebarView>({ kind: 'home' })
+	const [activeTab, setActiveTab] = useState<'friends' | 'conversations'>('conversations')
 	const [searchQuery, setSearchQuery] = useState('')
 	const [direction, setDirection] = useState(1)
 	const prevKindRef = useRef<SidebarView['kind']>('home')
@@ -73,6 +74,8 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 						onCreateChannel={onCreateChannel}
 						searchQuery={searchQuery}
 						setView={navigate}
+						activeTab={activeTab}
+						setActiveTab={setActiveTab}
 					/>
 				)
 			case 'search':
@@ -86,6 +89,8 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 						selectedChannelId={selectedChannelId}
 						onSelectChannel={onSelectChannel}
 						onCreateChannel={onCreateChannel}
+						activeTab={activeTab}
+						setActiveTab={setActiveTab}
 					/>
 				)
 			case 'createChannel':

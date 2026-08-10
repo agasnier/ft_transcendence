@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import FriendsPanel from '../../FriendsPanel'
 import ConversationsPanel from '../ui/ConversationsPanel'
 import BackButton from '../ui/BackButton'
@@ -20,10 +19,11 @@ interface SearchViewProps {
 	selectedChannelId: number | null
 	onSelectChannel: (id: number) => void
 	onCreateChannel: (type: 'channel' | 'group' | 'discussion', memberIds: number[], name?: string, description?: string) => Promise<Channel | null>
+    activeTab: 'friends' | 'conversations'
+    setActiveTab: (tab: 'friends' | 'conversations') => void
 }
 
-function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel }: SearchViewProps) {
-    const [searchScope, setSearchScope] = useState<'conversations' | 'friends'>('conversations')
+function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, activeTab, setActiveTab }: SearchViewProps) {
 
     return (
         <div className="flex flex-col gap-2">
@@ -54,21 +54,21 @@ function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, se
                     )}
                 </div>
             </div>
-            <div className="flex bg-white rounded-full p-1 gap-1">
+            <div className="flex bg-gray-100 rounded-full p-1 gap-1">
                 <button
                     type="button"
-                    onClick={() => setSearchScope('conversations')}
-                    className={`flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500 ${searchScope === 'conversations' ? 'bg-blue-100 text-blue-500' : ''}`}>
-                    Conv
+                    onClick={() => setActiveTab('conversations')}
+                    className={`flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500 ${activeTab === 'conversations' ? 'bg-blue-100 text-blue-500' : ''}`}>
+                    Conversations
                 </button>
                 <button
                     type="button"
-                    onClick={() => setSearchScope('friends')}
-                    className={`flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500 ${searchScope === 'friends' ? 'bg-blue-100 text-blue-500' : ''}`}>
-                    User
+                    onClick={() => setActiveTab('friends')}
+                    className={`flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500 ${activeTab === 'friends' ? 'bg-blue-100 text-blue-500' : ''}`}>
+                    Amis
                 </button>
             </div>
-            {searchQuery.trim() !== '' && searchScope === 'friends' &&
+            {searchQuery.trim() !== '' && activeTab === 'friends' &&
                 <FriendsPanel
                     searchQuery={searchQuery}
                     isSearching={true}
@@ -77,7 +77,7 @@ function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, se
                     onSelectChannel={onSelectChannel}
                 />
             }
-            {searchQuery.trim() !== '' && searchScope === 'conversations' &&
+            {searchQuery.trim() !== '' && activeTab === 'conversations' &&
                 <ConversationsPanel
                     isSearching={true}
                     searchQuery={searchQuery}
