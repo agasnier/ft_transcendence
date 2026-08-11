@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { SidebarView } from '../Sidebar'
 import BackButton from '../ui/BackButton'
 import AvatarNameCard from '../ui/AvatarNameCard'
-import CreateRoomForm from '../../CreateRoomForm'
+import CreateRoomForm from '../ui/CreateRoomForm'
+import { useFriends } from '../../../hooks/useFriends'
 
 interface CreateGroupViewProps {
 	setView: (view: SidebarView) => void
@@ -10,29 +11,10 @@ interface CreateGroupViewProps {
 	onCreateChannel: (type: 'group', memberIds: number[], name?: string, description?: string) => void
 }
 
-interface UserRow {
-	id: number
-	pseudo: string
-}
-
 function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewProps) {
-	const [friends, setFriends] = useState<UserRow[]>([])
+	const friends = useFriends()
 	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
 	const [step, setStep] = useState< 'pick' | 'form' >('pick')
-
-	useEffect(() => {
-		async function load() {
-			const [friendsRes] = await Promise.all([
-				fetch('/friends'),
-				fetch('/users'),
-			])
-			if (friendsRes.ok) {
-				const data = await friendsRes.json()
-				setFriends(data.map((friend: { id: number; pseudo: string }) => ({ id: friend.id, pseudo: friend.pseudo })))
-			}
-		}
-		load()
-	}, [])
 
 	function toggleMember(id: number) {
 		setSelectedIds(prev => {
@@ -82,7 +64,7 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 				type="button"
 				onClick={() => setStep('form')}
 				title="Créer un groupe"
-				className="mt-auto self-end bg-blue-500 text-white font-bold w-13 h-13 rounded-full hover:bg-blue-600 flex items-center justify-center text-4xl">
+				className="fab-button">
 				➡︎
 			</button>
 			</div>

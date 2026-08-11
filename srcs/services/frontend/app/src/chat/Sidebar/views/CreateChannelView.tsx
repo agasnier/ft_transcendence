@@ -1,4 +1,4 @@
-import CreateRoomForm from '../../CreateRoomForm'
+import CreateRoomForm from '../ui/CreateRoomForm'
 import BackButton from '../ui/BackButton'
 import type { SidebarView } from '../Sidebar'
 

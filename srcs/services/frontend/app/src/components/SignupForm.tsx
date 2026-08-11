@@ -98,11 +98,11 @@ function SignupForm({ onSwitchToLogin, onSignupSuccess, onShowPrivacy, onShowTer
 				required
 			/>
 
-			{error && (<p className="text-red-600 text-sm text-center">{error}</p>)}
+			{error && (<p className="form-error">{error}</p>)}
 
 			<button
 				type="submit"
-				className="bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 hover:scale-105 transition">
+				className="btn-primary">
 				S'inscrire
 			</button>
 
