@@ -7,7 +7,7 @@ import { useFriends } from '../../../hooks/useFriends'
 interface CreateDiscussionViewProps {
 	setView: (view: SidebarView) => void
 	userId: number | null
-	onCreateChannel: (type: 'discussion', memberIds: number[], name?: string, description?: string) => void
+	onCreateChannel: (type: 'discussion', memberIds: number[], name?: string, description?: string) => Promise<{ id: number } | null>
 }
 
 interface UserRow {
@@ -18,6 +18,7 @@ interface UserRow {
 function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscussionViewProps) {
 	const friends = useFriends()
 	const [others, setOthers] = useState<UserRow[]>([])
+	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
 		async function loadOther() {
@@ -33,10 +34,11 @@ function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscus
 		loadOther()
 	}, [userId])
 
-	function handleSelect(user: UserRow) {
+	async function handleSelect(user: UserRow) {
 		if (userId === null) return
-		onCreateChannel('discussion', [userId, user.id])
-		setView({ kind: 'home' })
+		const channel = await onCreateChannel('discussion', [userId, user.id])
+		if (channel) setView({ kind: 'home' })
+		else setError('Impossible de démarrer la discussion')
 	}
 
 	return (
@@ -63,6 +65,7 @@ function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscus
 					onClick={() => handleSelect(user)}
 				/>
 			))}
+			{error && <p className="form-error">{error}</p>}
 		</>
 	)
 }

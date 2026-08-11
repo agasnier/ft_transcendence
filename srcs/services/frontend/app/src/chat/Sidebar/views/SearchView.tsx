@@ -34,21 +34,22 @@ function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, se
                         setView({ kind: 'home' })
                     }}
                 />
-                <div className="relative flex-1 min-w-0">
+                <div className="relative flex-1 px-1 min-w-0">
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="🔍︎ Rechercher"
                         autoFocus
-                        className="search-input focus:outline-none focus:ring-1 focus:ring-blue-400 focus:bg-white"
+                        maxLength={255}
+                        className="search-input focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white"
                     />
                     {searchQuery !== '' && (
                         <button
                             type="button"
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-2xl w-9 h-9 flex items-center justify-center rounded-full hover:bg-blue-100">
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 text-2xl w-9 h-9 flex items-center justify-center rounded-full hover:bg-blue-100">
                             ✕
                         </button>
                     )}

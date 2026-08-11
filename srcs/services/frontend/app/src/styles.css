@@ -30,7 +30,7 @@
 		@apply mt-auto self-end bg-blue-500 text-white font-bold w-13 h-13 rounded-full hover:bg-blue-600 flex items-center justify-center text-4xl;
 	}
 	.search-input {
-		@apply w-full text-lg rounded-full pl-3 pr-9 py-2 border border-transparent hover:border hover:border-gray-500 bg-gray-100;
+		@apply w-full text-lg rounded-full pl-3 pr-9 py-2 border border-transparent hover:border hover:border-gray-300 bg-gray-100;
 	}
 	.form-error {
 		@apply text-red-600 text-sm text-center;

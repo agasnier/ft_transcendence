@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import CreateRoomForm from '../ui/CreateRoomForm'
 import BackButton from '../ui/BackButton'
 import type { SidebarView } from '../Sidebar'
@@ -5,10 +6,12 @@ import type { SidebarView } from '../Sidebar'
 interface CreateChannelViewProps {
 	setView: (view: SidebarView) => void
 	userId: number | null
-	onCreateChannel: (type: 'channel', memberIds: number[], name?: string, description?: string) => void
+	onCreateChannel: (type: 'channel', memberIds: number[], name?: string, description?: string) => Promise<{ id: number } | null>
 }
 
 function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelViewProps) {
+	const [error, setError] = useState<string | null>(null)
+
 	return (
 		<>
 			<div className="flex items-center gap-2">
@@ -18,12 +21,14 @@ function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelVi
 			<CreateRoomForm
 				type="channel"
 				onCancel={() => setView({kind: 'home'})}
-				onCreate={(name, description) => {
+				onCreate={async (name, description) => {
 					if (userId === null) return
-					onCreateChannel('channel', [userId], name, description)
-					setView({kind: 'home'})
+					const channel = await onCreateChannel('channel', [userId], name, description)
+					if (channel) setView({kind: 'home'})
+					else setError('Impossible de créer le canal')
 				}}
 			/>
+			{error && <p className="form-error">{error}</p>}
 		</>
 	)
 }

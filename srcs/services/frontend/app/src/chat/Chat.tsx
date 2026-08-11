@@ -17,7 +17,7 @@ interface ChatProps {
 }
 
 function Chat({onLogout, pseudo, userId}: ChatProps) {
-	const { channels, createChannel, deleteChannel, addChannel, removeChannel } = useChannel()
+	const { channels, createChannel, deleteChannel, addChannel, removeChannel, renameChannel } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
 	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
@@ -70,6 +70,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 									messages={messages}
 									onSendMessage={createMessage}
 									onDeleteChannel={handleDeleteChannel}
+									onRenameChannel={renameChannel}
 								/>
 							}
 						</div>

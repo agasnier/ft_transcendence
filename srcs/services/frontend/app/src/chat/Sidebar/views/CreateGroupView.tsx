@@ -8,13 +8,14 @@ import { useFriends } from '../../../hooks/useFriends'
 interface CreateGroupViewProps {
 	setView: (view: SidebarView) => void
 	userId: number | null
-	onCreateChannel: (type: 'group', memberIds: number[], name?: string, description?: string) => void
+	onCreateChannel: (type: 'group', memberIds: number[], name?: string, description?: string) => Promise<{ id: number } | null>
 }
 
 function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewProps) {
 	const friends = useFriends()
 	const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
 	const [step, setStep] = useState< 'pick' | 'form' >('pick')
+	const [error, setError] = useState<string | null>(null)
 
 	function toggleMember(id: number) {
 		setSelectedIds(prev => {
@@ -35,12 +36,14 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 				<CreateRoomForm
 					type="group"
 					onCancel={() => setView({kind: 'home'})}
-					onCreate={(name, description) => {
+					onCreate={async (name, description) => {
 						if (userId === null) return
-						onCreateChannel('group', [userId, ...selectedIds], name, description)
-						setView({kind: 'home'})
+						const channel = await onCreateChannel('group', [userId, ...selectedIds], name, description)
+						if (channel) setView({kind: 'home'})
+						else setError('Impossible de créer le groupe')
 					}}
 				/>
+				{error && <p className="form-error">{error}</p>}
 			</>
 		)
 	}

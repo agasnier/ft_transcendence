@@ -30,11 +30,12 @@ function HomeView({ onLogout, pseudo, userId, channels, selectedChannelId, onSel
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center gap-2">
 				<UserMenu onLogout={onLogout} pseudo={pseudo} />
-				<div className="relative flex-1 min-w-0">
+				<div className="relative flex-1 min-w-0 px-1">
 					<input
 						type="text"
 						placeholder="🔍︎ Rechercher"
 						onFocus={() => setView({ kind: 'search' })}
+                        maxLength={255}
 						className="search-input"
 					/>
                 </div>
