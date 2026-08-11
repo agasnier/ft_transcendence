@@ -76,3 +76,46 @@ export const listAllChannelsSchema = {
     },
   },
 }
+
+export const channelIdParamSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+    },
+  },
+}
+
+export const updateChannelSchema = {
+  params: channelIdParamSchema.params,
+  body: {
+    type: 'object',
+    required: ['name'],
+    additionalProperties: false,
+    properties: {
+      name: { type: 'string', minLength: 1, maxLength: 255 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        name: { type: ['string', 'null'] },
+        createdAt: { type: 'string', format: 'date-time' },
+      },
+    },
+  },
+}
+
+export const removeMemberParamSchema = {
+  params: {
+    type: 'object',
+    required: ['id', 'userId'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+      userId: { type: 'integer', minimum: 1 },
+    },
+  },
+}

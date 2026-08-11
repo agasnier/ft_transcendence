@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { validateAccessToken } from '../vault/jwt.js'
-import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames } from './channels.service.js'
+import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo } from '../websocket/websocket.ws.js'
 
 // hooks
@@ -107,6 +107,29 @@ export async function listAllChannelsController(request: FastifyRequest, reply: 
   try {
     const allChannels = await listAllChannels(request.user!.id)
     await reply.send(allChannels)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function updateChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id } = request.params as { id: string }
+    const { name } = request.body as { name: string }
+    const channel = await updateChannel(Number(id), name)
+    await reply.send(channel)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function removeChannelMemberController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id, userId } = request.params as { id: string; userId: string }
+    await removeChannelMember(Number(id), Number(userId))
+    await reply.send({ message: 'Member removed' })
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })
