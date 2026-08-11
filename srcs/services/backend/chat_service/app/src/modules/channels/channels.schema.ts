@@ -135,3 +135,22 @@ export const addMemberSchema = {
     },
   },
 }
+
+export const updateMemberRoleSchema = {
+  params: {
+    type: 'object',
+    required: ['id', 'userId'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+      userId: { type: 'integer', minimum: 1 },
+    },
+  },
+  body: {
+    type: 'object',
+    required: ['role'],
+    additionalProperties: false,
+    properties: {
+      role: { type: 'string', enum: ['moderator', 'member'] },
+    },
+  },
+}

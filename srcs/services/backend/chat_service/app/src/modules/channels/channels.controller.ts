@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { validateAccessToken } from '../vault/jwt.js'
-import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers } from './channels.service.js'
+import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo } from '../websocket/websocket.ws.js'
 
 // hooks
@@ -142,6 +142,18 @@ export async function addChannelMembersController(request: FastifyRequest, reply
     const { memberIds } = request.body as { memberIds: number[] }
     await addChannelMembers(Number(id), memberIds, 'member')
     await reply.status(201).send({ message: 'Members added' })
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function updateMemberRoleController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id, userId } = request.params as { id: string; userId: string }
+    const { role } = request.body as { role: 'moderator' | 'member' }
+    await updateMemberRole(Number(id), Number(userId), role)
+    await reply.send({ message: 'Member role updated' })
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

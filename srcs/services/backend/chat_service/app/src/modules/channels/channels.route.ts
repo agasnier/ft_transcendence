@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify'
 import { requireChannelModeratorOrAdmin } from './permissions.js'
 
-import { createChannelController, deleteChannelController, listChannelMembersController, listUserChannelsController, userAuthHook, listAllChannelsController, updateChannelController, removeChannelMemberController, addChannelMembersController } from './channels.controller.js'
-import { createChannelSchema, deleteChannelSchema, listChannelMembersSchema, listUserChannelsSchema, listAllChannelsSchema, updateChannelSchema, removeMemberParamSchema, addMemberSchema } from './channels.schema.js'
+import { createChannelController, deleteChannelController, listChannelMembersController, listUserChannelsController, userAuthHook, listAllChannelsController, updateChannelController, removeChannelMemberController, addChannelMembersController, updateMemberRoleController } from './channels.controller.js'
+import { createChannelSchema, deleteChannelSchema, listChannelMembersSchema, listUserChannelsSchema, listAllChannelsSchema, updateChannelSchema, removeMemberParamSchema, addMemberSchema, updateMemberRoleSchema } from './channels.schema.js'
 
 export async function channelsRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { schema: listUserChannelsSchema, preHandler: [userAuthHook] }, listUserChannelsController)
@@ -13,4 +13,5 @@ export async function channelsRoutes(app: FastifyInstance): Promise<void> {
   app.put('/:id', { schema: updateChannelSchema, preHandler: [userAuthHook, requireChannelModeratorOrAdmin()] }, updateChannelController)
   app.delete('/:id/members/:userId', { schema: removeMemberParamSchema, preHandler: [userAuthHook, requireChannelModeratorOrAdmin()] }, removeChannelMemberController)
   app.post('/:id/members', { schema: addMemberSchema, preHandler: [userAuthHook, requireChannelModeratorOrAdmin()] }, addChannelMembersController)
+  app.put('/:id/members/:userId/role', { schema: updateMemberRoleSchema, preHandler: [userAuthHook, requireChannelModeratorOrAdmin()] }, updateMemberRoleController)
 }

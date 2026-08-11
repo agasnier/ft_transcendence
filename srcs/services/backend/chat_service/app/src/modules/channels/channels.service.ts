@@ -219,3 +219,9 @@ export async function listAllChannels(userId: number) {
 
     return allChannels.map((c) => ({ ...c, isMember: myChannelIds.has(c.id) }))
 }
+
+export async function updateMemberRole(channelId: number, userId: number, role: 'moderator' | 'member') {
+  await db.update(channelMembers)
+    .set({ role })
+    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+}
