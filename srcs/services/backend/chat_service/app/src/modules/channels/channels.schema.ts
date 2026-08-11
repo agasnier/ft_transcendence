@@ -119,3 +119,19 @@ export const removeMemberParamSchema = {
     },
   },
 }
+
+export const addMemberSchema = {
+  params: channelIdParamSchema.params,
+  body: {
+    type: 'object',
+    required: ['memberIds'],
+    additionalProperties: false,
+    properties: {
+      memberIds: {
+        type: 'array',
+        items: { type: 'integer', minimum: 1 },
+        minItems: 1,
+      },
+    },
+  },
+}
