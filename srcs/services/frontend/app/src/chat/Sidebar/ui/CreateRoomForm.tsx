@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import TextField from '../components/TextField'
+import TextField from '../../../components/TextField'
 
 interface CreateRoomFormProps {
 	type: 'channel' | 'group' | 'discussion'

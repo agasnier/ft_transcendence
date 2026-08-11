@@ -7,7 +7,7 @@ function BackButton({ onClick }: BackButtonProps) {
 		<button
 			type="button"
 			onClick={onClick}
-			className="w-12 h-12 bg-white text-2xl text-gray-500 leading-none flex items-center justify-center hover:bg-gray-200 rounded-full">
+			className="icon-button w-12 h-12 text-2xl text-gray-500 leading-none">
 			⟲
 		</button>
 	)

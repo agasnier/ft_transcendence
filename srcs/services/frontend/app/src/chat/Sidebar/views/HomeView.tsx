@@ -1,6 +1,6 @@
-import UserMenu from '../../UserMenu'
+import UserMenu from '../ui/UserMenu'
 import ConversationsPanel from '../ui/ConversationsPanel'
-import FriendsPanel from '../../FriendsPanel'
+import FriendsPanel from '../ui/FriendsPanel'
 import type { SidebarView } from '../Sidebar'
 
 interface Channel {
@@ -35,21 +35,21 @@ function HomeView({ onLogout, pseudo, userId, channels, selectedChannelId, onSel
 						type="text"
 						placeholder="🔍︎ Rechercher"
 						onFocus={() => setView({ kind: 'search' })}
-						className="w-full text-lg rounded-full pl-3 pr-9 py-2 border border-transparent hover:border hover:border-gray-500 bg-gray-100"
+						className="search-input"
 					/>
                 </div>
             </div>
-            <div className="flex bg-gray-100 rounded-full p-1 gap-1">
+            <div className="tab-switcher">
                 <button
                     type="button"
                     onClick={() => setActiveTab('conversations')}
-                    className={`flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500 ${activeTab === 'conversations' ? 'bg-blue-100 text-blue-500' : ''}`}>
+                    className={`tab-button ${activeTab === 'conversations' ? 'bg-blue-100 text-blue-500' : ''}`}>
                     Conversations
                 </button>
                 <button
                     type="button"
                     onClick={() => setActiveTab('friends')}
-                    className={`flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500 ${activeTab === 'friends' ? 'bg-blue-100 text-blue-500 hover:none' : ''}`}>
+                    className={`tab-button ${activeTab === 'friends' ? 'bg-blue-100 text-blue-500 hover:none' : ''}`}>
                     Amis
                 </button>
             </div>

@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
+import { useClickOutside } from '../../../hooks/useClickOutside'
 
 interface UserMenuProps {
 	onLogout: () => void
@@ -8,30 +9,8 @@ interface UserMenuProps {
 function UserMenu({onLogout, pseudo}: UserMenuProps) {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [statusMsg, setStatusMsg] = useState<string | null>(null)
-	const menuRef = useRef<HTMLDivElement>(null)
 
-	useEffect(() => {
-		if (!menuOpen)
-			return
-
-		function handleClickOutside(event: MouseEvent) {
-			if (menuRef.current && !menuRef.current.contains(event.target as Node))
-				setMenuOpen(false)
-		}
-		function handleKeyDown(event: KeyboardEvent) {
-			if (event.key === 'Escape') {
-				setMenuOpen(false)
-				;(document.activeElement as HTMLElement)?.blur()
-			}
-		}
-
-		document.addEventListener('mousedown', handleClickOutside)
-		document.addEventListener('keydown', handleKeyDown)
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside)
-			document.removeEventListener('keydown', handleKeyDown)
-		}
-	}, [menuOpen])
+	useClickOutside(menuOpen, '[data-user-menu-popover]', () => setMenuOpen(false))
 
 	async function handleCreateKey() {
 		try {
@@ -62,36 +41,36 @@ function UserMenu({onLogout, pseudo}: UserMenuProps) {
 	}
 
 	return (
-		<div className="relative" ref={menuRef}>
+		<div data-user-menu-popover className="relative">
 			<button
 				onClick={() => setMenuOpen((open) => !open)}
-				className="w-12 h-12 flex items-center justify-center text-4xl hover:bg-gray-100 rounded-full"
+				className="icon-button w-12 h-12  text-4xl"
 				title="Menu utilisateur">
 				≡
 			</button>
 			{menuOpen && (
 				<div className="absolute z-20 top-full left-0 mt-2 w-56 drop-shadow-[0_1px_8px_rgba(0,0,0,0.15)] border rounded-2xl bg-white overflow-hidden gap-2 p-1">
 					<button
-						className="w-full flex text-left gap-2 px-4 py-2 hover:bg-gray-100 rounded-2xl font-semibold text-gray-800">
+						className="menu-item flex gap-2 font-semibold text-gray-800">
 						<span
-							className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
+							className="avatar-circle bg-blue-500 w-6 h-6 text-sm">
 							{pseudo?.charAt(0).toUpperCase() ?? '?'}
 						</span>
 						<span className="truncate">{pseudo ?? 'Utilisateur'}</span>
 					</button>
 					<p className="border-t text-gray-200 my-1"></p>
-					<button className="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-2xl text-sm">
+					<button className="menu-item">
 						Paramètres
 					</button>
 					<p className="border-t text-gray-200 my-1"></p>
 					<button
 						onClick={handleCreateKey}
-						className="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-2xl transition-colors">
+						className="menu-item text-blue-600 hover:bg-blue-50">
 						Créer clé API
 					</button>
 					<button
 						onClick={handleDeleteKey}
-						className="w-full text-left px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 rounded-2xl transition-colors">
+						className="menu-item text-amber-600 hover:bg-amber-50">
 						Supprimer clé API
 					</button>
 
@@ -102,7 +81,7 @@ function UserMenu({onLogout, pseudo}: UserMenuProps) {
 					<p className="border-t text-gray-200 my-1"></p>
 					<button
 						onClick={onLogout}
-						className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600 rounded-2xl transition-colors">
+						className="menu-item text-red-600">
 						Déconnexion
 					</button>
 				</div>

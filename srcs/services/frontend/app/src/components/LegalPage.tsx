@@ -22,7 +22,7 @@ function LegalPage({content, onBack}: LegalPageProps) {
 		<div className="relative isolate flex flex-col min-h-screen bg-gray-100 items-center py-12 px-4">
 			<img
 				src={bg}
-				className="fixed inset-0 -z-10 w-full h-full object-cover object-right"
+				className="bg-image"
 			/>
 			<div className="bg-white/80 p-8 rounded-lg drop-shadow max-w-2xl w-full overflow-y-auto max-h-[80vh]">
 				<h1 className="text-2xl font-bold text-black">{content.title}</h1>

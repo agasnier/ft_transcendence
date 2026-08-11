@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { SidebarView } from '../Sidebar'
 import BackButton from '../ui/BackButton'
 import AvatarNameCard from '../ui/AvatarNameCard'
+import { useFriends } from '../../../hooks/useFriends'
 
 interface CreateDiscussionViewProps {
 	setView: (view: SidebarView) => void
@@ -15,28 +16,22 @@ interface UserRow {
 }
 
 function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscussionViewProps) {
-	const [friends, setFriends] = useState<UserRow[]>([])
+	const friends = useFriends()
 	const [others, setOthers] = useState<UserRow[]>([])
 
 	useEffect(() => {
-		async function load() {
-			const [friendsRes, usersRes] = await Promise.all([
-				fetch('/friends'),
-				fetch('/users'),
-			])
-			if (friendsRes.ok) {
-				const data = await friendsRes.json()
-				setFriends(data.map((friend: { id: number; pseudo: string }) => ({ id: friend.id, pseudo: friend.pseudo })))
-			}
-			if (usersRes.ok) {
-				const data = await usersRes.json()
+		async function loadOther() {
+			const res = await fetch('/users')
+			if (res.ok) {
+				const data = await res.json()
 				setOthers(data
 					.filter((user: { id: number; pseudo: string }) => user.id !== userId)
-					.map((user: { id: number; pseudo: string }) => ({ id: user.id, pseudo: user.pseudo })))
+					.map((user: { id: number; pseudo: string }) => ({ id: user.id, pseudo: user.pseudo }))
+				)
 			}
 		}
-		load()
-	}, [])
+		loadOther()
+	}, [userId])
 
 	function handleSelect(user: UserRow) {
 		if (userId === null) return

@@ -1,0 +1,66 @@
+import { useState, useEffect } from 'react'
+
+interface Channel {
+	id: number
+	name: string | null
+	description: string | null
+	type: 'channel' | 'group' | 'discussion'
+	memberIds?: number[]
+}
+
+export function useChannel() {
+	const [channels, setChannels] = useState<Channel[]>([])
+
+	// load the channel list on startup
+	useEffect(() => {
+		async function loadChannels() {
+			const res = await fetch('/chat/channels')
+			if (!res.ok)
+				return
+			setChannels(await res.json())
+		}
+		loadChannels()
+	}, [])
+
+	async function createChannel(
+		type: Channel['type'],
+		memberIds: number[],
+		name?: string,
+		description?: string,
+	): Promise<Channel | null> {
+		const res = await fetch('/chat/channels', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ type, memberIds, name, description }),
+		})
+		if (!res.ok) return null
+		const channel = await res.json()
+		addChannel(channel)
+		return channel
+	}
+
+	async function deleteChannel(id: number): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${id}`, { method: 'DELETE' })
+		return res.ok
+	}
+
+	function addChannel(channel: Channel) {
+		setChannels((prev) =>
+			prev.some((c) => c.id === channel.id)
+				? prev
+				: [...prev, channel]
+		)
+	}
+
+	function removeChannel(id: number) {
+		setChannels((prev) => prev.filter((c) => c.id !== id))
+	}
+
+	return {
+		channels,
+		createChannel,
+		deleteChannel,
+		addChannel,
+		removeChannel,
+	}
+}

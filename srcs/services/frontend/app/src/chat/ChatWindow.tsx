@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useClickOutside } from '../hooks/useClickOutside'
 
 interface ChatWindowProps {
 	channel: Channel
@@ -33,27 +34,7 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel 
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}, [messages])
 
-	useEffect(() => {
-		if (!confirmDelete)
-			return
-
-		function handleClickOutside(event: MouseEvent) {
-			if (!(event.target as HTMLElement).closest('[data-delete-popover]'))
-				setConfirmDelete(false)
-		}
-
-		function handleKeyboard(event: KeyboardEvent) {
-			if (event.key === 'Escape')
-				setConfirmDelete(false)
-		}
-
-		document.addEventListener('mousedown', handleClickOutside)
-		document.addEventListener('keydown', handleKeyboard)
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside)
-			document.removeEventListener('keydown', handleKeyboard)
-		}
-	}, [confirmDelete])
+	useClickOutside(confirmDelete, '[data-delete-popover]', () => setConfirmDelete(false))
 
 	function handleSend(e: React.FormEvent) {
 		e.preventDefault()
@@ -74,7 +55,7 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel 
 							type="button"
 							onClick={() => setConfirmDelete((prev) => !prev)}
 							title="Supprimer"
-							className="text-2xl font-bold text-gray-600 rounded-full w-7 h-7 flex items-center justify-center hover:bg-gray-300">
+							className="icon-button text-2xl font-bold text-gray-600 w-7 h-7">
 							⋮
 						</button>
 						{confirmDelete && (
@@ -137,7 +118,7 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel 
 				<button
 					type="submit"
 					disabled={!inputText.trim()}
-					className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-xl text-sm transition-colors hover:scale-105 disabled:bg-blue-300 disabled:scale-100 disabled:cursor-not-allowed">
+					className="btn-primary px-5 rounded-xl text-sm disabled:bg-blue-300 disabled:scale-100 disabled:cursor-not-allowed">
 					Envoyer
 				</button>
 			</form>
