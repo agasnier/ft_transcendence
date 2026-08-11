@@ -100,6 +100,7 @@ export async function channelInfo(channelId: number) {
       name: channels.name,
       type: channels.type,
       description: channels.description,
+      writeMode: channels.writeMode,
       createdAt: channels.createdAt,
     })
     .from(channels)
@@ -224,4 +225,19 @@ export async function updateMemberRole(channelId: number, userId: number, role: 
   await db.update(channelMembers)
     .set({ role })
     .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+}
+
+export async function updateWriteMode(channelId: number, writeMode: 'everyone' | 'moderators_only') {
+  await db.update(channels).set({ writeMode }).where(eq(channels.id, channelId))
+  return channelInfo(channelId)
+}
+
+export async function getMemberRole(channelId: number, userId: number): Promise<'moderator' | 'member' | null> {
+  const [row] = await db
+    .select({ role: channelMembers.role })
+    .from(channelMembers)
+    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+    .limit(1)
+
+  return row?.role ?? null
 }

@@ -154,3 +154,15 @@ export const updateMemberRoleSchema = {
     },
   },
 }
+
+export const updateWriteModeSchema = {
+  params: channelIdParamSchema.params,
+  body: {
+    type: 'object',
+    required: ['writeMode'],
+    additionalProperties: false,
+    properties: {
+      writeMode: { type: 'string', enum: ['everyone', 'moderators_only'] },
+    },
+  },
+}

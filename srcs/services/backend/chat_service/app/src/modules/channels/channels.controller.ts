@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { validateAccessToken } from '../vault/jwt.js'
-import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole } from './channels.service.js'
+import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo } from '../websocket/websocket.ws.js'
 
 // hooks
@@ -154,6 +154,18 @@ export async function updateMemberRoleController(request: FastifyRequest, reply:
     const { role } = request.body as { role: 'moderator' | 'member' }
     await updateMemberRole(Number(id), Number(userId), role)
     await reply.send({ message: 'Member role updated' })
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function updateWriteModeController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id } = request.params as { id: string }
+    const { writeMode } = request.body as { writeMode: 'everyone' | 'moderators_only' }
+    const channel = await updateWriteMode(Number(id), writeMode)
+    await reply.send(channel)
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

@@ -5,6 +5,7 @@ export const channels = mysqlTable('channels', {
   name: varchar('name', { length: 255 }).unique(),
   type: varchar('type', { length: 32 }).notNull(),
   description: varchar('description', { length: 255 }),
+  writeMode: mysqlEnum('write_mode', ['everyone', 'moderators_only']).notNull().default('everyone'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
