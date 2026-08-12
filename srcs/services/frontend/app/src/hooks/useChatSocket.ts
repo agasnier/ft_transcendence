@@ -20,6 +20,7 @@ interface Message {
 export function useChatSocket(
 	addChannel: (channel: Channel) => void,
 	removeChannel: (id: number) => void,
+	updateChannel: (channel: Channel) => void,
 	addMessage: (message: Message) => void,
 ) {
 	const chatSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
@@ -29,6 +30,8 @@ export function useChatSocket(
 			addChannel(message.payload)
 		if (message.type === 'CHANNEL_DELETED')
 			removeChannel(message.payload.id)
+		if (message.type === 'CHANNEL_UPDATED')
+			updateChannel(message.payload)
 		if (message.type === 'MESSAGE_CREATED')
 			addMessage(message.payload)
 	})

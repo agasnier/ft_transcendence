@@ -56,6 +56,11 @@ export function useChannel() {
 		setChannels((prev) => prev.filter((c) => c.id !== id))
 	}
 
+	function updateChannel(channel: Channel) {
+		setChannels((prev) => 
+			prev.map((c) => (c.id === channel.id ? { ...c, ...channel } : c)))
+	}
+
 	async function renameChannel(id: number, name: string): Promise<boolean> {
 		const res = await fetch(`/chat/channels/${id}`, {
 			method: 'PUT',
@@ -73,6 +78,7 @@ export function useChannel() {
 		deleteChannel,
 		addChannel,
 		removeChannel,
-		renameChannel
+		renameChannel,
+		updateChannel
 	}
 }

@@ -75,6 +75,10 @@ export function wsChannelDeletedTo(userId: number, id: number): void {
 	wsSendToUser(userId, { type: 'CHANNEL_DELETED', payload: { id } })
 }
 
+export function wsChannelUpdatedTo(userId: number, channel: {id: number, name: string | null, type: string, description: string | null}): void {
+	wsSendToUser(userId, { type: 'CHANNEL_UPDATED', payload: channel })
+}
+
 export function wsMessageCreated(message: {
 	id: number
 	channelId: number

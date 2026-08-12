@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { validateAccessToken } from '../vault/jwt.js'
 import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode } from './channels.service.js'
-import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo } from '../websocket/websocket.ws.js'
+import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo } from '../websocket/websocket.ws.js'
 
 // hooks
 
@@ -117,7 +117,13 @@ export async function updateChannelController(request: FastifyRequest, reply: Fa
   try {
     const { id } = request.params as { id: string }
     const { name } = request.body as { name: string }
-    const channel = await updateChannel(Number(id), name)
+    const channelId = Number(id)
+    const channel = await updateChannel(channelId, name)
+
+    const members = await listChannelMembers(channelId)
+    for (const userId of members)
+      wsChannelUpdatedTo(userId, channel)
+
     await reply.send(channel)
   } catch (err) {
     request.log.error(err)
