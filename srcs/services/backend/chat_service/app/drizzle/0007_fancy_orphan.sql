@@ -1,0 +1,1 @@
+ALTER TABLE `messages` ADD `type` enum('user','system') DEFAULT 'user' NOT NULL;

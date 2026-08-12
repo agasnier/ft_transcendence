@@ -1,8 +1,11 @@
-import { mysqlTable, int, varchar, timestamp } from 'drizzle-orm/mysql-core'
+import { mysqlTable, int, varchar, timestamp, mysqlEnum, unique } from 'drizzle-orm/mysql-core'
 
 export const channels = mysqlTable('channels', {
   id: int('id').autoincrement().primaryKey(),
   name: varchar('name', { length: 255 }).unique(),
+  type: varchar('type', { length: 32 }).notNull(),
+  description: varchar('description', { length: 255 }),
+  writeMode: mysqlEnum('write_mode', ['everyone', 'moderators_only']).notNull().default('everyone'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
@@ -12,8 +15,22 @@ export const channelMembers = mysqlTable('channel_members', {
     .notNull()
     .references(() => channels.id, { onDelete: 'cascade' }),
   userId: int('user_id').notNull(),
+  role: mysqlEnum('role', ['moderator', 'member']).notNull().default('member'),
   joinedAt: timestamp('joined_at').defaultNow().notNull(),
-})
+}, (table) => ({
+  uniqueMember: unique().on(table.channelId, table.userId),
+}))
+
+export const discussionPairs = mysqlTable('discussion_pairs', {
+  id: int('id').autoincrement().primaryKey(),
+  channelId: int('channel_id')
+    .notNull()
+    .references(() => channels.id, { onDelete: 'cascade' }),
+  userMinId: int('user_min_id').notNull(),
+  userMaxId: int('user_max_id').notNull(),
+}, (table) => ({
+  uniquePair: unique().on(table.userMinId, table.userMaxId),
+}))
 
 export const messages = mysqlTable('messages', {
   id: int('id').autoincrement().primaryKey(),
@@ -23,6 +40,7 @@ export const messages = mysqlTable('messages', {
   senderId: int('sender_id').notNull(),
   content: varchar('content', { length: 2000 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  type: mysqlEnum('type', ['user', 'system']).default('user').notNull(),
 })
 
 export type Channel = typeof channels.$inferSelect

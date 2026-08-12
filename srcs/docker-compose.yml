@@ -83,23 +83,37 @@ services:
     image: prom/mysqld-exporter:v0.16.0
     container_name: mysqld-exporter
     restart: unless-stopped
-    user: root
-    secrets:
-      - db_root_password
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        echo "[client]" > /tmp/.my.cnf
-        echo "user=root" >> /tmp/.my.cnf
-        echo "password=$$(cat /run/secrets/db_root_password)" >> /tmp/.my.cnf
-        echo "host=database" >> /tmp/.my.cnf
-        exec /bin/mysqld_exporter --config.my-cnf=/tmp/.my.cnf
+    command:
+      - --config.my-cnf=/vault/secrets/.my.cnf
     depends_on:
       database:
         condition: service_healthy
+      mysqld_exporter_agent:
+        condition: service_healthy
+    volumes:
+      - mysqld_exporter_creds:/vault/secrets:ro
     networks:
       - ft
+
+# MYSQLD EXPORTER VAULT AGENT
+  mysqld_exporter_agent:
+    image: ft_mysqld_exporter_agent
+    build: ./services/vault/agents/mysqld_exporter
+    depends_on:
+      vault:
+        condition: service_healthy
+    volumes:
+      - approle:/vault/approle:ro
+      - mysqld_exporter_creds:/vault/secrets
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /vault/secrets/.my.cnf"]
+      interval: 1s
+      timeout: 3s
+      retries: 60
+      start_period: 10s
+    networks:
+      - ft
+    restart: unless-stopped
 
 # FRONTEND
   frontend:
@@ -304,6 +318,12 @@ volumes:
       device: tmpfs
 
   chat_service_creds:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+
+  mysqld_exporter_creds:
     driver: local
     driver_opts:
       type: tmpfs

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import TextField from './TextField'
+import TextField from '../../../components/TextField'
 
 interface CreateRoomFormProps {
 	type: 'channel' | 'group' | 'discussion'
@@ -25,15 +25,16 @@ function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
 				value={name}
 				onChange={(e) => setName(e.target.value)}
 				required
-				autoFocus
 			/>
-			<TextField
-				id="room-description"
-				label="Description"
-				type="text"
-				value={description}
-				onChange={(e) => setDescription(e.target.value)}
-			/>
+			{type !== 'group' && (
+				<TextField
+					id="room-description"
+					label="Description"
+					type="text"
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
+				/>
+			)}
 			<button
 				type="submit"
 				className="bg-blue-500 text-white rounded-md py-1 hover:bg-blue-600">
