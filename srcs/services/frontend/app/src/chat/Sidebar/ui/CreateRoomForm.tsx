@@ -29,7 +29,7 @@ function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
 			{type !== 'group' && (
 				<TextField
 					id="room-description"
-					label="Description"
+					label="Description (facultative)"
 					type="text"
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}

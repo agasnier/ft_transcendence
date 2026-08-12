@@ -29,7 +29,7 @@ interface Channel {
 
 function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel, onRenameChannel }: ChatWindowProps) {
 	const [inputText, setInputText] = useState('')
-	const [confirmDelete, setConfirmDelete] = useState(false)
+	const [optionMenu, setOptionMenu] = useState(false)
 	const messagesEndRef = useRef<HTMLDivElement>(null)
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState(channel.name ?? '')
@@ -38,7 +38,7 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel,
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 	}, [messages])
 
-	useClickOutside(confirmDelete, '[data-delete-popover]', () => setConfirmDelete(false))
+	useClickOutside(optionMenu, '[data-menu-popover]', () => setOptionMenu(false))
 
 	function handleSend(e: React.FormEvent) {
 		e.preventDefault()
@@ -95,23 +95,30 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel,
 					</div>
 				</div>
 				<div className="flex items-center gap-3 shrink-0">
-					<span data-delete-popover className="relative">
+					<span data-menu-popover className="relative">
 						<button
 							type="button"
-							onClick={() => setConfirmDelete((prev) => !prev)}
-							title="Supprimer"
+							onClick={() => setOptionMenu((prev) => !prev)}
+							title="Menu"
 							className="icon-button text-2xl text-right font-bold text-gray-600 w-10 h-10">
 							⋮
 						</button>
-
-						{confirmDelete && (
+						{optionMenu && (
 							<div className="absolute z-20 top-full right-0 mt-2 w-58 bg-white border rounded-2xl drop-shadow-[0_1px_8px_rgba(0,0,0,0.15)] p-1">
+								{channel.type !== 'discussion' && <button
+									type="button"
+									onClick={() => {
+										setOptionMenu(false)
+									}}
+									className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-xl">
+									{channel.type === 'group' ? '👥​ Membres' : '👥​ Abonnés'}
+								</button>}
 								{channel.type !== 'discussion' && <button
 									type="button"
 									onClick={() => {
 										setNameInput(channel.name ?? '')
 										setIsEditingName(true)
-										setConfirmDelete(false)
+										setOptionMenu(false)
 									}}
 									className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-xl">
 									🖊️​ Renommer le channel
@@ -120,7 +127,7 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel,
 									type="button"
 									onClick={() => {
 										onDeleteChannel(channel.id)
-										setConfirmDelete(false)
+										setOptionMenu(false)
 									}}
 									className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl">
 									🗑️​ Supprimer la conversation
@@ -195,7 +202,7 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel,
 					value={inputText}
 					onChange={(e) => setInputText(e.target.value)}
 					placeholder="Écris un message..."
-					className="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					className="flex-1 min-w-0 resize-none max-h-40 overflow-y-auto border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 				/>
 				<button
 					type="submit"
