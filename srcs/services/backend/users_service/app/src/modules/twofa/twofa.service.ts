@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { generateSecret, generateURI } from 'otplib'
+import { generateSecret, generateURI, verify } from 'otplib'
 
 import { db } from '../../db/index.js'
 import { twoFA } from '../../db/schema.js'
@@ -51,4 +51,14 @@ export async function setupTwoFA(userId: number, label: string): Promise<{ secre
   }
 
   return { secret, otpauthUrl }
+}
+
+export async function verifyTwoFA(userId: number, token: string): Promise<boolean> {
+  const row = await getTwoFAByUserId(userId)
+  if (!row)
+    return false
+
+  // TODO decrypt secret with vault
+  const result = await verify({ secret: row.secret, token })
+  return result.valid === true
 }
