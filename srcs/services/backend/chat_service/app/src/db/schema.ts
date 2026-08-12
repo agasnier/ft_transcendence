@@ -40,6 +40,7 @@ export const messages = mysqlTable('messages', {
   senderId: int('sender_id').notNull(),
   content: varchar('content', { length: 2000 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  type: mysqlEnum('type', ['user', 'system']).default('user').notNull(),
 })
 
 export type Channel = typeof channels.$inferSelect

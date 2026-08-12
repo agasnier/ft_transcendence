@@ -10,6 +10,7 @@ type MessageRow = {
   senderId: number
   content: string
   createdAt: Date
+  type: 'user' | 'system'
 }
 
 async function resolveSenderPseudos(rows: MessageRow[]): Promise<(MessageRow & { senderPseudo: string | null })[]> {
@@ -39,6 +40,7 @@ export async function listMessages(channelId: number) {
       senderId: messages.senderId,
       content: messages.content,
       createdAt: messages.createdAt,
+      type: messages.type
     })
     .from(messages)
     .where(eq(messages.channelId, channelId))
@@ -47,8 +49,8 @@ export async function listMessages(channelId: number) {
   return resolveSenderPseudos(rows)
 }
 
-export async function createMessage(channelId: number, senderId: number, content: string) {
-  const result = await db.insert(messages).values({ channelId, senderId, content })
+export async function createMessage(channelId: number, senderId: number, content: string, type: 'user' | 'system' = 'user') {
+  const result = await db.insert(messages).values({ channelId, senderId, content, type })
   const messageId = Number(result[0].insertId)
 
   const [row] = await db
@@ -58,6 +60,7 @@ export async function createMessage(channelId: number, senderId: number, content
       senderId: messages.senderId,
       content: messages.content,
       createdAt: messages.createdAt,
+      type: messages.type
     })
     .from(messages)
     .where(eq(messages.id, messageId))

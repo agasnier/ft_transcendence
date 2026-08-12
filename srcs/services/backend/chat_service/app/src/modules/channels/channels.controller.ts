@@ -1,8 +1,8 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-
 import { validateAccessToken } from '../vault/jwt.js'
 import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode } from './channels.service.js'
-import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo } from '../websocket/websocket.ws.js'
+import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
+import { createMessage } from '../messages/messages.service.js'
 
 // hooks
 
@@ -38,6 +38,16 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
     } else {
       for (const memberId of memberIds)
         wsChannelCreatedTo(memberId, channel)
+    }
+
+    if (type === 'group') {
+      const message = await createMessage(channel.id, request.user!.id, ' a créé le groupe', 'system')
+      wsMessageCreated(message)
+    }
+
+    if (type === 'channel') {
+      const message = await createMessage(channel.id, request.user!.id, 'Le canal a été créé', 'system')
+      wsMessageCreated(message)
     }
 
     await reply.status(201).send(channel)
@@ -124,6 +134,8 @@ export async function updateChannelController(request: FastifyRequest, reply: Fa
     for (const userId of members)
       wsChannelUpdatedTo(userId, channel)
 
+    const message = await createMessage(channelId, request.user!.id, ` a renommé le groupe en "${name}"`, 'system')
+    wsMessageCreated(message)
     await reply.send(channel)
   } catch (err) {
     request.log.error(err)

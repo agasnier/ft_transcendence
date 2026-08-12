@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import { useClickOutside } from '../hooks/useClickOutside'
 
 interface ChatWindowProps {
@@ -17,6 +17,7 @@ interface Message {
 	senderPseudo: string | null
 	content: string
 	createdAt: string
+	type: 'user' | 'system'
 }
 
 interface Channel {
@@ -137,24 +138,50 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onDeleteChannel,
 						Aucun message pour l'instant. Commencez la discussion !
 					</div>
 				) : (
-					messages.map((msg) => {
+					messages.map((msg, index) => {
+						const msgDay = new Date(msg.createdAt).toDateString()
+						const prevDay = index > 0 ? new Date(messages[index - 1].createdAt).toDateString() : null
+						const showDateDivider = msgDay !== prevDay
 						const isOwn = msg.senderId === userId
-						return (
+						const content = msg.type === 'system' ? (
+							<div className="flex flex-col items-center justify-center gap-2">
+								<span className="text-xs text-white bg-blue-400 rounded-2xl p-1">
+									{channel.type === 'group' && (
+										<span className="font-bold">
+											{msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}
+										</span>
+									)}
+									{msg.content}
+								</span>
+							</div>
+						) : (
 							<div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
 								<div className={`flex flex-col min-w-0 p-3 rounded-2xl max-w-md shadow-sm
 									${isOwn
-									? 'items-end bg-blue-200'
+									? 'items-end bg-blue-200/50'
 									: 'items-start bg-white border-blue-100'}
 								`}>
-									<div className="flex justify-between w-full text-xs font-semibold text-blue-700 mb-1 gap-4">
+									<div className="flex justify-between w-full text-sm font-semibold text-blue-700 mb-1 gap-4">
 										<span>{msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}</span>
-										<span className="text-gray-400 font-normal">
+										<span className="text-blue-500 font-normal">
 											{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 										</span>
 									</div>
-									<p className="text-gray-800 text-sm font-light wrap-break-word min-w-0 w-full">{msg.content}</p>
+									<p className="text-gray-800 wrap-break-word min-w-0 w-full">{msg.content}</p>
 								</div>
 							</div>
+						)
+						return (
+							<Fragment key={msg.id}>
+								{showDateDivider && (
+									<div className="flex justify-center">
+										<span className="text-xs text-gray-400">
+											{new Date(msg.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+										</span>
+									</div>
+								)}
+								{content}
+							</Fragment>
 						)
 					})
 				)}

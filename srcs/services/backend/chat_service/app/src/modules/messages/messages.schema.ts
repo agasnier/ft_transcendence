@@ -7,6 +7,7 @@ const messageResponse = {
     senderPseudo: { type: ['string', 'null'] },
     content: { type: 'string' },
     createdAt: { type: 'string' },
+    type: { type: 'string', enum: ['user', 'system']}
   },
 }
 
