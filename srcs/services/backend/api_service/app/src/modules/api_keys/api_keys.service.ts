@@ -36,7 +36,7 @@ export async function createApiKeys(owner_id: number) {
     .insert(apiKeys)
     .values({ owner_id, api_key_hash: apiKeyHash, api_key: apiKeyCreated, expires_at: expiresAt })
 
-  return { id: result.insertId, owner_id, apiKeyCreated }
+  return { id: result.insertId, owner_id, apiKeyCreated, expires_at: expiresAt.toISOString() }
 }
 
 export async function updateApiKeys(owner_id: number) {
@@ -53,7 +53,7 @@ export async function updateApiKeys(owner_id: number) {
   if (result.affectedRows === 0)
     return null
 
-  return { owner_id, apiKeyCreated }
+  return { owner_id, apiKeyCreated, expires_at: expiresAt.toISOString() }
 }
 
 export async function deleteApiKeys(owner_id: number) {
