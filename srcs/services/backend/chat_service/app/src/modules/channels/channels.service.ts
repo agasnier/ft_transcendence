@@ -241,3 +241,12 @@ export async function getMemberRole(channelId: number, userId: number): Promise<
 
   return row?.role ?? null
 }
+
+export async function countChannelMembers(channelId: number): Promise<number> {
+  const rows = await db
+    .select({ id: channelMembers.id })
+    .from(channelMembers)
+    .where(eq(channelMembers.channelId, channelId))
+
+  return rows.length
+}
