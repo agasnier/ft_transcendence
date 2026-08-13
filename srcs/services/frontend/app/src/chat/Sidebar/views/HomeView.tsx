@@ -1,4 +1,3 @@
-import UserMenu from '../ui/UserMenu'
 import ConversationsPanel from '../ui/ConversationsPanel'
 import FriendsPanel from '../ui/FriendsPanel'
 import type { SidebarView } from '../Sidebar'
@@ -11,8 +10,6 @@ interface Channel {
 }
 
 interface HomeViewProps {
-	onLogout: () => void
-	pseudo: string | null
 	userId: number | null
 	channels: Channel[]
 	selectedChannelId: number | null
@@ -24,12 +21,17 @@ interface HomeViewProps {
     setActiveTab: (tab: 'friends' | 'conversations') => void
 }
 
-function HomeView({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, searchQuery, setView, activeTab, setActiveTab }: HomeViewProps) {
+function HomeView({ userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, searchQuery, setView, activeTab, setActiveTab }: HomeViewProps) {
 
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center gap-2">
-				<UserMenu onLogout={onLogout} pseudo={pseudo} />
+				<button
+					onClick={() => setView({ kind: 'userMenu' })}
+					className="icon-button w-12 h-12  text-4xl"
+					title="Menu utilisateur">
+					≡
+				</button>
 				<div className="relative flex-1 min-w-0 px-1">
 					<input
 						type="text"
