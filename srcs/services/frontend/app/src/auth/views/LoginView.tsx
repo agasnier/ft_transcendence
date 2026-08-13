@@ -1,15 +1,14 @@
 import { useState } from 'react'
-import TextField from './TextField'
-import AuthCard from './AuthCard'
+import TextField from '../../components/TextField'
+import AuthCard from '../ui/AuthCard'
+import type { AuthView } from '../Auth'
 
-interface LoginFormProps {
-	onSwitchToSignup: () => void
-	onShowPrivacy: () => void
-	onShowTerms: () => void
+interface LoginViewProps {
+	setView: (view: AuthView) => void
 	onLoginSuccess: () => Promise<void>
 }
 
-function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSuccess }: LoginFormProps) {
+function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
 	const [login, setLogin] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState<string | null>(null)
@@ -25,8 +24,13 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSucces
 			body: JSON.stringify({ login, password }),
 		})
 
-		if (res.ok)
-			await onLoginSuccess()
+		if (res.ok) {
+			const body = await res.json()
+			if (body.requires2FA)
+				setView({ kind: 'twoFactor' })
+			else
+				await onLoginSuccess()
+		}
 		else {
 			const body = await res.json()
 			setPassword('')
@@ -37,7 +41,7 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSucces
 	const privacyPolicy = (
 		<button
 			type="button"
-			onClick={onShowPrivacy}
+			onClick={() => setView({ kind: 'privacy', from: 'login' })}
 			className="text-black hover:underline text-xs">
 			Politique de confidentialité
 		</button>
@@ -46,7 +50,7 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSucces
 	const termsOfService = (
 		<button
 			type="button"
-			onClick={onShowTerms}
+			onClick={() => setView({ kind: 'terms', from: 'login' })}
 			className="text-black hover:underline text-xs">
 			Conditions d'utilisation
 		</button>
@@ -83,7 +87,7 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSucces
 
 			<button
 				type="button"
-				onClick={onSwitchToSignup}
+				onClick={() => setView({ kind: 'signup' })}
 				className="text-blue-600 hover:underline hover:scale-105 text-sm">
 				pas de compte ? S'inscrire
 			</button>
@@ -91,4 +95,4 @@ function LoginForm({ onSwitchToSignup, onShowPrivacy, onShowTerms, onLoginSucces
 	)
 }
 
-export default LoginForm
+export default LoginView

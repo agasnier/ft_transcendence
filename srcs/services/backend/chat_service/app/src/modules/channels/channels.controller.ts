@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { validateAccessToken } from '../vault/jwt.js'
-import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode } from './channels.service.js'
+import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 import { createMessage } from '../messages/messages.service.js'
 
@@ -83,6 +83,14 @@ export async function deleteChannelController(request: FastifyRequest, reply: Fa
       // leave it for this member only: the channel still exists for the other members
       await leaveChannel(channelId, request.user!.id)
       wsChannelDeletedTo(request.user!.id, channelId)
+
+       // if no one is left in the channel, delete it entirely
+      const remaining = await countChannelMembers(channelId)
+      if (remaining === 0) {
+        await deleteChannel(channelId)
+        wsChannelDeleted(channelId)
+      }
+      
     } else {
       await deleteChannel(channelId)
       wsChannelDeleted(channelId)
@@ -131,7 +139,7 @@ export async function updateChannelController(request: FastifyRequest, reply: Fa
     const channel = await updateChannel(channelId, name)
 
     const members = await listChannelMembers(channelId)
-    for (const userId of members)
+    for (const {userId} of members)
       wsChannelUpdatedTo(userId, channel)
 
     const message = await createMessage(channelId, request.user!.id, ` a renommé le groupe en "${name}"`, 'system')

@@ -6,6 +6,7 @@ import CreateRoomButton from './ui/CreateRoomButton'
 import CreateChannelView from './views/CreateChannelView'
 import CreateGroupView from './views/CreateGroupView'
 import CreateDiscussionView from './views/CreateDiscussionView'
+import UserMenuView from './views/UserMenuView'
 
 interface SidebarProp {
 	onLogout: () => void
@@ -30,6 +31,7 @@ export type SidebarView =
 	| { kind: 'createChannel' }
 	| { kind: 'createGroup' }
 	| { kind: 'createDiscussion' }
+	| { kind: 'userMenu' }
 
 const variants = {
 	enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
@@ -65,8 +67,6 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 			case 'home':
 				return (
 					<HomeView
-						onLogout={onLogout}
-						pseudo={pseudo}
 						userId={userId}
 						channels={channels}
 						selectedChannelId={selectedChannelId}
@@ -115,6 +115,14 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 						setView={navigate}
 						userId={userId}
 						onCreateChannel={onCreateChannel}
+					/>
+				)
+			case 'userMenu':
+				return (
+					<UserMenuView
+						setView={navigate}
+						onLogout={onLogout}
+						pseudo={pseudo}
 					/>
 				)
 		}

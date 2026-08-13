@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, timestamp, mysqlEnum, unique } from 'drizzle-orm/mysql-core'
+import { mysqlTable, int, varchar, timestamp, mysqlEnum, unique, bigint } from 'drizzle-orm/mysql-core'
 
 export const channels = mysqlTable('channels', {
   id: int('id').autoincrement().primaryKey(),
@@ -43,6 +43,21 @@ export const messages = mysqlTable('messages', {
   type: mysqlEnum('type', ['user', 'system']).default('user').notNull(),
 })
 
+export const files = mysqlTable('files', {
+  id: int('id').autoincrement().primaryKey(),
+  channelId: int('channel_id')
+    .notNull()
+    .references(() => channels.id, { onDelete: 'cascade' }),
+  uploaderId: int('uploader_id').notNull(),
+  originalName: varchar('original_name', { length: 255 }).notNull(),
+  storedName: varchar('stored_name', { length: 255 }).notNull().unique(),
+  mimeType: varchar('mime_type', { length: 100 }).notNull(),
+  size: bigint('size', { mode: 'number' }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export type FileRow = typeof files.$inferSelect
+export type NewFileRow = typeof files.$inferInsert
 export type Channel = typeof channels.$inferSelect
 export type NewChannel = typeof channels.$inferInsert
 export type ChannelMember = typeof channelMembers.$inferSelect

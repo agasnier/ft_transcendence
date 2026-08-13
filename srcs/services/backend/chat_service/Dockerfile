@@ -19,8 +19,11 @@ RUN		npm install --omit=dev
 
 COPY	--from=builder /app/dist ./dist
 
-# Migrations SQL nécessaires au runtime (appliquées au démarrage)
+# Migration SQL needed at runtime 
 COPY	app/drizzle ./drizzle
+
+# upload files save folder
+RUN     mkdir -p /app/uploads && chown -R node:node /app/uploads
 
 EXPOSE	3000
 

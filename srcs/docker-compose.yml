@@ -205,6 +205,7 @@ services:
         condition: service_healthy
     volumes:
       - chat_service_creds:/vault/secrets:ro
+      - chat_uploads:/app/uploads
     networks:
       - ft
     restart: unless-stopped
@@ -342,6 +343,13 @@ volumes:
       type: none
       o: bind
       device: ./data/grafana
+
+  chat_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/chat_uploads
 
 
 secrets:

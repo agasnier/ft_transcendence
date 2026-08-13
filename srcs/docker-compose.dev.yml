@@ -80,3 +80,10 @@ volumes:
       o: bind
       device: ./data/grafana-dev
 
+  chat_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/chat_uploads-dev
+

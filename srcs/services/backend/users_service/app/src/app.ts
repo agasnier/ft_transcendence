@@ -6,6 +6,7 @@ import cookie from '@fastify/cookie'
 import { usersRoutes } from './modules/users/users.route.js'
 import { friendsRoutes } from './modules/friends/friends.route.js'
 import { authRoutes } from './modules/auth/auth.route.js'
+import { twofaRoutes } from './modules/twofa/twofa.route.js'
 import { presenceRoutes } from './modules/presence/presence.route.js'
 import { metricsRoutes } from './modules/metrics/metrics.route.js'
 
@@ -30,6 +31,7 @@ export function buildApp(): FastifyInstance {
   app.register(usersRoutes, { prefix: '/users' })
   app.register(friendsRoutes, { prefix: "/friends" })
   app.register(authRoutes, { prefix: '/auth' })
+  app.register(twofaRoutes, { prefix: '/auth/2fa' })
   app.register(presenceRoutes, { prefix: '/presence' })
 
   return app
