@@ -122,13 +122,13 @@ export async function isChannelMember(channelId: number, userId: number): Promis
   return true
 }
 
-export async function listChannelMembers(channelId: number): Promise<number[]> {
+export async function listChannelMembers(channelId: number) {
   const rows = await db
-    .select({ userId: channelMembers.userId })
+    .select({ userId: channelMembers.userId, role: channelMembers.role })
     .from(channelMembers)
     .where(eq(channelMembers.channelId, channelId))
 
-  return rows.map((row) => row.userId)
+  return rows
 }
 
 export async function addChannelMembers(channelId: number, userIds: number[], role: 'moderator' | 'member'): Promise<void> {

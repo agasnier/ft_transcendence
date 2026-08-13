@@ -44,22 +44,6 @@ export const deleteChannelSchema = {
   },
 }
 
-export const listChannelMembersSchema = {
-  params: {
-    type: 'object',
-    required: ['id'],
-    properties: {
-      id: { type: 'integer', minimum: 1 },
-    },
-  },
-  response: {
-    200: {
-      type: 'array',
-      items: { type: 'integer' },
-    },
-  },
-}
-
 export const listAllChannelsSchema = {
   response: {
     200: {
@@ -83,6 +67,22 @@ export const channelIdParamSchema = {
     required: ['id'],
     properties: {
       id: { type: 'integer', minimum: 1 },
+    },
+  },
+}
+
+export const listChannelMembersSchema = {
+  params: channelIdParamSchema.params,
+  response: {
+    200: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          userId: { type: 'integer' },
+          role: { type: 'string', enum: ['moderator', 'member'] },
+        },
+      },
     },
   },
 }
