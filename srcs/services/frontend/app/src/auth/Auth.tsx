@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import LoginView from './views/LoginView'
 import SignupView from './views/SignupView'
+import TwoFactorView from './views/TwoFactorView'
 import LegalView from './views/LegalView'
 import { privacyContent, termsContent } from './content/LegalContent'
 
 export type AuthView =
 	| { kind: 'login' }
 	| { kind: 'signup' }
-	| { kind: 'privacy'; from: 'login' | 'signup' }
-	| { kind: 'terms'; from: 'login' | 'signup' }
+	| { kind: 'twoFactor' }
+	| { kind: 'privacy'; from: 'login' | 'signup' | 'twoFactor' }
+	| { kind: 'terms'; from: 'login' | 'signup' | 'twoFactor' }
 
 interface AuthProps {
 	onAuthSuccess: () => Promise<void>
@@ -31,6 +33,13 @@ function Auth({ onAuthSuccess }: AuthProps) {
 					<SignupView
 						setView={setView}
 						onSignupSuccess={onAuthSuccess}
+					/>
+				)
+			case 'twoFactor':
+				return (
+					<TwoFactorView
+						setView={setView}
+						onVerifySuccess={onAuthSuccess}
 					/>
 				)
 			case 'privacy':

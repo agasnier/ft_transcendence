@@ -3,37 +3,30 @@ import TextField from '../../components/TextField'
 import AuthCard from '../ui/AuthCard'
 import type { AuthView } from '../Auth'
 
-interface LoginViewProps {
+interface TwoFactorViewProps {
 	setView: (view: AuthView) => void
-	onLoginSuccess: () => Promise<void>
+	onVerifySuccess: () => Promise<void>
 }
 
-function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
-	const [login, setLogin] = useState('')
-	const [password, setPassword] = useState('')
+function TwoFactorView({ setView, onVerifySuccess }: TwoFactorViewProps) {
+	const [code, setCode] = useState('')
 	const [error, setError] = useState<string | null>(null)
-
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		setError(null);
 
-		const res = await fetch('/auth/login', {
+		const res = await fetch('/auth/2fa/verify', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ login, password }),
+			body: JSON.stringify({ code }),
 		})
 
-		if (res.ok) {
-			const body = await res.json()
-			if (body.requires2FA)
-				setView({ kind: 'twoFactor' })
-			else
-				await onLoginSuccess()
-		}
+		if (res.ok)
+			await onVerifySuccess()
 		else {
 			const body = await res.json()
-			setPassword('')
+			setCode('')
 			setError(body.message)
 		}
 	}
@@ -41,7 +34,7 @@ function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
 	const privacyPolicy = (
 		<button
 			type="button"
-			onClick={() => setView({ kind: 'privacy', from: 'login' })}
+			onClick={() => setView({ kind: 'privacy', from: 'twoFactor' })}
 			className="text-black hover:underline text-xs">
 			Politique de confidentialité
 		</button>
@@ -50,49 +43,40 @@ function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
 	const termsOfService = (
 		<button
 			type="button"
-			onClick={() => setView({ kind: 'terms', from: 'login' })}
+			onClick={() => setView({ kind: 'terms', from: 'twoFactor' })}
 			className="text-black hover:underline text-xs">
 			Conditions d'utilisation
 		</button>
 	)
 
 	return (
-	<AuthCard title="Connexion" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
+	<AuthCard title="Vérification 2FA" onSubmit={handleSubmit} privacyPolicy={privacyPolicy} termsOfService={termsOfService}>
 
 			<TextField
-				id="login-login"
-				label="E-mail ou pseudo"
+				id="twofa-code"
+				label="Code à 6 chiffres"
 				type="text"
-				value={login}
-				onChange={(e) => setLogin(e.target.value)}
+				value={code}
+				onChange={(e) => setCode(e.target.value)}
 				required
 				autoFocus
-			/>
-
-			<TextField
-				id="login-password"
-				label="Mot de passe"
-				type="password"
-				value={password}
-				onChange={(e) => setPassword(e.target.value)}
-				required
 			/>
 			{error && (<p className="form-error">{error}</p>)}
 
 			<button
 				type="submit"
 				className="btn-primary">
-				Se connecter
+				Valider
 			</button>
 
 			<button
 				type="button"
-				onClick={() => setView({ kind: 'signup' })}
+				onClick={() => setView({ kind: 'login' })}
 				className="text-blue-600 hover:underline hover:scale-105 text-sm">
-				pas de compte ? S'inscrire
+				retour à la connexion
 			</button>
 	</AuthCard>
 	)
 }
 
-export default LoginView
+export default TwoFactorView
