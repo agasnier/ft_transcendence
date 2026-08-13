@@ -1,4 +1,4 @@
-import bg from '../assets/site.webp'
+import bg from '../../assets/site.webp'
 
 interface AuthCardProps {
 	title: string
