@@ -1,15 +1,14 @@
 import { useState } from 'react'
-import TextField from './TextField'
-import AuthCard from './AuthCard'
+import TextField from '../../components/TextField'
+import AuthCard from '../ui/AuthCard'
+import type { AuthView } from '../Auth'
 
-interface SignupFormProps {
-	onSwitchToLogin: () => void
+interface SignupViewProps {
+	setView: (view: AuthView) => void
 	onSignupSuccess: () => void
-	onShowPrivacy: () => void
-	onShowTerms: () => void
 }
 
-function SignupForm({ onSwitchToLogin, onSignupSuccess, onShowPrivacy, onShowTerms }: SignupFormProps) {
+function SignupView({ setView, onSignupSuccess }: SignupViewProps) {
 	const [mail, setMail] = useState('')
 	const [pseudo, setPseudo] = useState('')
 	const [password, setPassword] = useState('')
@@ -43,7 +42,7 @@ function SignupForm({ onSwitchToLogin, onSignupSuccess, onShowPrivacy, onShowTer
 	const privacyPolicy = (
 		<button
 			type="button"
-			onClick={onShowPrivacy}
+			onClick={() => setView({ kind: 'privacy', from: 'signup' })}
 			className="text-black hover:underline text-xs">
 			Politique de confidentialité
 		</button>
@@ -52,7 +51,7 @@ function SignupForm({ onSwitchToLogin, onSignupSuccess, onShowPrivacy, onShowTer
 	const termsOfService = (
 		<button
 			type="button"
-			onClick={onShowTerms}
+			onClick={() => setView({ kind: 'terms', from: 'signup' })}
 			className="text-black hover:underline text-xs">
 			Conditions d'utilisation
 		</button>
@@ -108,7 +107,7 @@ function SignupForm({ onSwitchToLogin, onSignupSuccess, onShowPrivacy, onShowTer
 
 			<button
 				type="button"
-				onClick={onSwitchToLogin}
+				onClick={() => setView({ kind: 'login' })}
 				className="text-blue-600 hover:underline hover:scale-105 text-sm">
 				déjà un compte ? Se connecter
 			</button>
@@ -117,4 +116,4 @@ function SignupForm({ onSwitchToLogin, onSignupSuccess, onShowPrivacy, onShowTer
 	)
 }
 
-export default SignupForm
+export default SignupView

@@ -19,6 +19,16 @@ export async function createCookie(reply: FastifyReply, user: { id: number; pseu
   return accessToken
 }
 
+export async function createPending2FACookie(reply: FastifyReply, user: { id: number; pseudo: string; role: string }): Promise<string> {
+  const accessToken = await createAccessToken({ id: user.id, pseudo: user.pseudo, role: user.role, twofa: 'pending' })
+
+  reply
+    .setCookie('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' })
+    .clearCookie('refresh_token', { path: '/auth' })
+
+  return accessToken
+}
+
 export async function createRefreshToken(owner_id: number): Promise<string> {
   const token = randomBytes(32).toString('hex')
 

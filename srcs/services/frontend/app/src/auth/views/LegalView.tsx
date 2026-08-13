@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
-import bg from '../assets/site.webp'
+import bg from '../../assets/site.webp'
 import type { LegalContent } from '../content/LegalContent'
 
-interface LegalPageProps {
+interface LegalViewProps {
 	content: LegalContent
 	onBack: () => void
 }
 
-function LegalPage({content, onBack}: LegalPageProps) {
+function LegalView({content, onBack}: LegalViewProps) {
 
 	useEffect (() => {
 		function handleKeyDown(event: KeyboardEvent) {
@@ -44,4 +44,4 @@ function LegalPage({content, onBack}: LegalPageProps) {
 	)
 }
 
-export default LegalPage
+export default LegalView
