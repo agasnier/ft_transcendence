@@ -139,7 +139,7 @@ export async function updateChannelController(request: FastifyRequest, reply: Fa
     const channel = await updateChannel(channelId, name)
 
     const members = await listChannelMembers(channelId)
-    for (const userId of members)
+    for (const {userId} of members)
       wsChannelUpdatedTo(userId, channel)
 
     const message = await createMessage(channelId, request.user!.id, ` a renommé le groupe en "${name}"`, 'system')

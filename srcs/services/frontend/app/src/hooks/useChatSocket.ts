@@ -15,6 +15,7 @@ interface Message {
 	senderPseudo: string | null
 	content: string
 	createdAt: string
+	type: 'user' | 'system'
 }
 
 export function useChatSocket(
