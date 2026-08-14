@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useClickOutside } from '../../hooks/useClickOutside'
+import { usePolling } from '../../hooks/usePolling'
 
 interface Channel {
 	id: number
@@ -19,6 +20,33 @@ function ChatHeader({channel, onDeleteChannel, onRenameChannel}: ChatHeaderProps
 	const [optionMenu, setOptionMenu] = useState(false)
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState(channel.name ?? '')
+	const [memberCount, setMemberCount] = useState<number | null>(null)
+	const [isOnline, setIsOnline] = useState<boolean | null>(null)
+
+	useEffect(() => {
+		if (channel.type === 'discussion')
+			return
+
+		async function loadCount() {
+			const res = await fetch(`/chat/channels/${channel.id}/members`)
+			if (res.ok)
+				setMemberCount((await res.json()).length)
+		}
+		loadCount()
+	}, [channel.id, channel.type])
+
+	usePolling(async () => {
+		if (channel.type !== 'discussion')
+			return
+
+		const res = await fetch('/friends')
+		if (!res.ok)
+			return
+
+		const friends = await res.json() as { pseudo: string; isOnline: boolean }[]
+		const match = friends.find((f) => f.pseudo === channel.name)
+		setIsOnline(match?.isOnline ?? null)
+	}, 5000)
 
 	useClickOutside(optionMenu, '[data-menu-popover]', () => setOptionMenu(false))
 
@@ -53,15 +81,12 @@ function ChatHeader({channel, onDeleteChannel, onRenameChannel}: ChatHeaderProps
 					) : (
 						<h1 className="font-bold text-gray-800 text-lg truncate">{channel.name}</h1>
 					)}
-					<span className="text-black/50 truncate"> {/*TODO*/}
-						{/* si discussion => en ligne ou hors ligne,
-						si group => nombre de membres,
-						si canal => nombre d'abonnés */}
-						{channel.type === 'discussion' && (
-							<span>En ligne ou hors ligne</span>
+					<span className="text-black/50 truncate">
+						{channel.type === 'discussion' && isOnline !== null && (
+							<span className={`${isOnline ? 'text-green-500' : 'text-red-600'}`}>{isOnline ? 'En ligne' : 'Hors ligne'}</span>
 						)}
-						{channel.type !== 'discussion' && (
-							<span>nombre d'abonnés ou membres{(channel.name) !== null ? '' : 'ok'}</span>
+						{channel.type !== 'discussion' && memberCount !== null && (
+							<span>{memberCount} {channel.type === 'group' ? 'membre' : 'abonné'}{memberCount > 1 ? 's' : ''}</span>
 						)}
 					</span>
 				</div>
