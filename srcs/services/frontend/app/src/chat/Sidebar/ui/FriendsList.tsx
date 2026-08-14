@@ -40,14 +40,14 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
 									type="button"
 									onClick={() => onMessagePrivate(friend.id)}
 									title="Message privé"
-									className="icon-button text-lg bg-gray-200 text-gray-600 w-7 h-7">
+									className="icon-button text-black text-lg hover:bg-gray-300 w-7 h-7">
 									➣
 								</button>
 								<button
 									type="button"
 									onClick={() => setConfirmRemoveId((confirmRemoveId === friend.id ? null : friend.id))}
 									title="Plus"
-									className="icon-button text-lg bg-gray-200 w-7 h-7">
+									className="icon-button text-black text-lg hover:bg-gray-300 w-7 h-7">
 									⋮
 								</button>
 								{confirmRemoveId === friend.id && (

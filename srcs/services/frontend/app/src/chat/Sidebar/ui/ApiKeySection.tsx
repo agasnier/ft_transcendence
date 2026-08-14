@@ -120,7 +120,7 @@ function ApiKeySection() {
 						<button
 							type="button"
 							onClick={handleRenewKey}
-							className="icon-button w-12 h-12 text-2xl text-gray-500 leading-none"
+							className="icon-button w-12 h-10 text-2xl text-gray-500 leading-none"
 							title="Renouveler">
 							⟲
 						</button>

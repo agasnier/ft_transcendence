@@ -18,10 +18,10 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
 			</div>
 			<div className="flex flex-col items-center gap-2 font-semibold text-gray-800 py-2">
 				<span
-					className="avatar-circle bg-blue-500 w-16 h-16 text-2xl">
+					className="avatar-circle bg-blue-500 w-30 h-30 text-6xl">
 					{pseudo?.charAt(0).toUpperCase() ?? '?'}
 				</span>
-				<span className="truncate">{pseudo ?? 'Utilisateur'}</span>
+				<span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
 			</div>
 			<p className="border-t text-gray-200 my-1"></p>
 			<ApiKeySection />
