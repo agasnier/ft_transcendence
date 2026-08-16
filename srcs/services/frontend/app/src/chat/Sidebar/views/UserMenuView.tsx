@@ -30,7 +30,7 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
 			<p className="border-t text-gray-200 my-1"></p>
 			<button
 				onClick={onLogout}
-				className="menu-item text-red-600">
+				className="menu-item text-red-600 hover:bg-red-100">
 				Déconnexion
 			</button>
 		</>

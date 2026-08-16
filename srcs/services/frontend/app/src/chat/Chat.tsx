@@ -9,6 +9,7 @@ import { useChannel } from '../hooks/useChannel'
 import { useMessage } from '../hooks/useMessage'
 import { useChatSocket } from '../hooks/useChatSocket'
 import { usePresenceSocket } from '../hooks/usePresenceSocket'
+import InfoPanel from './ChatWindow/InfoPanel'
 
 interface ChatProps {
 	onLogout: () => void
@@ -21,6 +22,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
 	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
+	const [showInfoPanel, setShowInfoPanel] = useState(false)
 
 	useChatSocket(addChannel, removeChannel, updateChannel, addMessage)
 	usePresenceSocket()
@@ -34,14 +36,17 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 	useEffect(() => {
 		function handleKeyDown(event: KeyboardEvent) {
 			if (event.key === 'Escape') {
+				if (showInfoPanel) {
+					setShowInfoPanel(false)
+					return
+				}
 				setSelectedChannelId(null)
 				;(document.activeElement as HTMLElement)?.blur()
 			}
 		}
-
 		document.addEventListener('keydown', handleKeyDown)
 		return () => document.removeEventListener('keydown', handleKeyDown)
-	}, [])
+	}, [showInfoPanel])
 
 	return (
 		<BrowserRouter>
@@ -62,17 +67,26 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 								onSelectChannel={setSelectedChannelId}
 								onCreateChannel={createChannel}
 							/>
-							{selectedChannel && 
-								<ChatWindow
-									key={selectedChannel.id}
-									channel={selectedChannel}
-									userId={userId}
-									messages={messages}
-									onSendMessage={createMessage}
-									onDeleteChannel={handleDeleteChannel}
-									onRenameChannel={renameChannel}
-								/>
-							}
+							{selectedChannel && (
+								<div className={`flex-1 relative overflow-hidden ${showInfoPanel ? 'pr-90' : ''}`}>
+									<ChatWindow
+										key={selectedChannel.id}
+										channel={selectedChannel}
+										userId={userId}
+										messages={messages}
+										onSendMessage={createMessage}
+										onOpenInfoPanel={() => setShowInfoPanel(true)}
+									/>
+									{showInfoPanel && (
+										<InfoPanel
+											channel={selectedChannel}
+											onBack={() => setShowInfoPanel(false)}
+											onDeleteChannel={handleDeleteChannel}
+											onRenameChannel={renameChannel}
+										/>
+									)}
+								</div>
+							)}
 						</div>
 					</div>}
 				/>

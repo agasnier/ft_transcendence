@@ -16,7 +16,7 @@ function MessageInput({onSendMessage}: MessageInputProps) {
 	}
 
 	return (
-		<form onSubmit={handleSend} className="p-4 border-t bg-white/60 flex gap-2">
+		<form onSubmit={handleSend} className="p-4 border-t bg-white flex gap-2">
 			<input
 				type="text"
 				value={inputText}

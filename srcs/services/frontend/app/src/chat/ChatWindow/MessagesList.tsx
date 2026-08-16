@@ -50,7 +50,7 @@ function MessagesList({messages, userId, channelType}: MessagesListProps) {
 						<div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
 							<div className={`flex flex-col min-w-0 p-3 rounded-2xl max-w-md shadow-sm
 								${isOwn
-								? 'items-end bg-blue-200/50'
+								? 'items-end bg-blue-200'
 								: 'items-start bg-white border-blue-100'}
 							`}>
 								<div className="flex justify-between w-full text-sm font-semibold text-blue-700 mb-1 gap-4">
