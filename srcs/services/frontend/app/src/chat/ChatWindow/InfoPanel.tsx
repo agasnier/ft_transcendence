@@ -247,7 +247,6 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					</div>
 				)}
 
-				{/* Section Description */}
 				{channel.type !== 'discussion' && (
 					<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-3 shadow-sm border border-gray-100">
 						<div className="flex items-center justify-between">
@@ -288,7 +287,6 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					</div>
 				)}
 
-				{/* Liste des membres & Ajout de membres */}
 				{channel.type !== 'discussion' && (
 					<div className="flex flex-1 flex-col self-stretch gap-1 mt-2 bg-white rounded-2xl p-2 min-h-0 overflow-y-auto shadow-sm border border-gray-100">
 						<div className="flex items-center justify-between px-1 pb-1 border-b border-gray-100">
@@ -387,7 +385,6 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					onDeleteChannel(channel.id)
 				)}
 				className="mt-auto w-full text-left px-3 py-2 text-sm text-danger bg-white hover:bg-danger-bg rounded-xl">
-				🗑️​ Supprimer la conversation
 			</button>
 		</aside>
 	)
