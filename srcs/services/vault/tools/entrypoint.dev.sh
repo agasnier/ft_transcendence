@@ -59,25 +59,6 @@ fi
 		chmod 640 /vault/approle/"$service"/role_id /vault/approle/"$service"/secret_id
 	done
 
-	# Create the metrics policy
-	vault policy write prometheus-metrics - <<EOF
-path "sys/metrics" {
-  capabilities = ["read"]
-}
-EOF
-
-	# Create the AppRole without database access
-	vault write auth/approle/role/prometheus-role \
-		token_policies="prometheus-metrics" \
-		token_ttl=1h \
-		token_max_ttl=4h
-
-	# Generate credentials in the directory expected by the agent
-	mkdir -p /vault/approle/prometheus
-	vault read -field=role_id auth/approle/role/prometheus-role/role-id > /vault/approle/prometheus/role_id
-	vault write -f -field=secret_id auth/approle/role/prometheus-role/secret-id > /vault/approle/prometheus/secret_id
-	chmod 640 /vault/approle/prometheus/role_id /vault/approle/prometheus/secret_id
-
 	# creating sentinel file for docker healthcheck
 	touch /vault/approle/.ready
 } &
