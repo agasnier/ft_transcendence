@@ -1,8 +1,9 @@
+import { useOnlineUsers } from '../../../hooks/presence'
+
 interface Friend {
 	id: number
 	pseudo: string
 	avatarUrl: string | null
-	isOnline: boolean | null
 }
 
 interface FriendsListProps {
@@ -15,6 +16,8 @@ interface FriendsListProps {
 }
 
 function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId, onRemove, onMessagePrivate }: FriendsListProps) {
+	const onlineUserIds = useOnlineUsers()
+
 	return (
 		<div className={`${isSearching ? 'bg-white' : 'bg-gray-100'} rounded-3xl p-4`}>
 			<h2 className="font-semibold text-gray-700 mb-2">Amis</h2>
@@ -30,7 +33,7 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
 										{friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
 									</span>
 									<span
-										className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-gray-100 ${friend.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}
+										className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-gray-100 ${onlineUserIds.has(friend.id) ? 'bg-green-500' : 'bg-gray-400'}`}
 									/>
 								</span>
 								<span className="text-sm text-gray-700">{friend.pseudo}</span>

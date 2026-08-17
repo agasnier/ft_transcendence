@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useReconnectingSocket } from '../hooks/useReconnectingSocket'
 
 interface Channel {
@@ -24,6 +25,7 @@ export function useChatSocket(
 	updateChannel: (channel: Channel) => void,
 	addMessage: (message: Message) => void,
 ) {
+	const [onlineUserIds, setOnlineUserIds] = useState<Set<number>>(() => new Set())
 	const chatSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
 
 	useReconnectingSocket(chatSocketUrl, (message) => {
@@ -35,5 +37,27 @@ export function useChatSocket(
 			updateChannel(message.payload)
 		if (message.type === 'MESSAGE_CREATED')
 			addMessage(message.payload)
+		if (message.type === 'PRESENCE_SNAPSHOT')
+			setOnlineUserIds(new Set(message.payload.userIds))
+		if (message.type === 'USER_ONLINE') {
+			setOnlineUserIds((prev) => {
+				if (prev.has(message.payload.userId))
+					return prev
+				const next = new Set(prev)
+				next.add(message.payload.userId)
+				return next
+			})
+		}
+		if (message.type === 'USER_OFFLINE') {
+			setOnlineUserIds((prev) => {
+				if (!prev.has(message.payload.userId))
+					return prev
+				const next = new Set(prev)
+				next.delete(message.payload.userId)
+				return next
+			})
+		}
 	})
+
+	return onlineUserIds
 }

@@ -8,7 +8,7 @@ import bg from '../assets/site.webp'
 import { useChannel } from '../hooks/useChannel'
 import { useMessage } from '../hooks/useMessage'
 import { useChatSocket } from '../hooks/useChatSocket'
-import { usePresenceSocket } from '../hooks/usePresenceSocket'
+import { OnlineUsersProvider } from '../hooks/presence'
 import InfoPanel from './ChatWindow/InfoPanel'
 
 interface ChatProps {
@@ -24,8 +24,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
 	const [showInfoPanel, setShowInfoPanel] = useState(false)
 
-	useChatSocket(addChannel, removeChannel, updateChannel, addMessage)
-	usePresenceSocket()
+	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage)
 
 	async function handleDeleteChannel(id: number) {
 		if (!(await deleteChannel(id))) return
@@ -49,6 +48,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 	}, [showInfoPanel])
 
 	return (
+		<OnlineUsersProvider value={onlineUserIds}>
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={
@@ -92,6 +92,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 				/>
 			</Routes>
 		</BrowserRouter>
+		</OnlineUsersProvider>
 	)
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { usePolling } from '../../hooks/usePolling'
+import { useOnlineUsers } from '../../hooks/presence'
 
 interface Channel {
 	id: number
@@ -14,9 +14,10 @@ interface ChatHeaderProps {
 	onOpenInfoPanel: () => void
 }
 
-function ChatHeader({channel, onOpenInfoPanel}: ChatHeaderProps) {
+function ChatHeader({channel, UserId, onOpenInfoPanel}: ChatHeaderProps) {
 	const [memberCount, setMemberCount] = useState<number | null>(null)
-	const [isOnline, setIsOnline] = useState<boolean | null>(null)
+	const [otherUserId, setOtherUserId] = useState<number | null>(null)
+	const onlineUserIds = useOnlineUsers()
 
 	useEffect(() => {
 		if (channel.type === 'discussion')
@@ -30,18 +31,38 @@ function ChatHeader({channel, onOpenInfoPanel}: ChatHeaderProps) {
 		loadCount()
 	}, [channel.id, channel.type])
 
-	usePolling(async () => {
-		if (channel.type !== 'discussion')
+	useEffect(() => {
+		if (channel.type !== 'discussion') {
+			setOtherUserId(null)
 			return
+		}
 
-		const res = await fetch('/friends')
-		if (!res.ok)
-			return
+		let cancelled = false
+		async function resolveOther() {
+			const membersRes = await fetch(`/chat/channels/${channel.id}/members`)
+			if (membersRes.ok) {
+				const members = await membersRes.json() as { userId: number }[]
+				const other = members.find((m) => m.userId !== UserId)
+				if (other) {
+					if (!cancelled)
+						setOtherUserId(other.userId)
+					return
+				}
+			}
 
-		const friends = await res.json() as { pseudo: string; isOnline: boolean }[]
-		const match = friends.find((f) => f.pseudo === channel.name)
-		setIsOnline(match?.isOnline ?? null)
-	}, 5000)
+			const friendsRes = await fetch('/friends')
+			if (!friendsRes.ok)
+				return
+			const friends = await friendsRes.json() as { id: number; pseudo: string }[]
+			const match = friends.find((f) => f.pseudo === channel.name)
+			if (!cancelled)
+				setOtherUserId(match?.id ?? null)
+		}
+		resolveOther()
+		return () => { cancelled = true }
+	}, [channel.id, channel.type, channel.name, UserId])
+
+	const isOnline = otherUserId !== null ? onlineUserIds.has(otherUserId) : null
 
 	return (
 		<div

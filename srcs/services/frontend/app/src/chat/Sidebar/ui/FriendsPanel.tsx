@@ -17,7 +17,6 @@ interface Friend {
 	id: number
 	pseudo: string
 	avatarUrl: string | null
-	isOnline: boolean | null
 }
 
 interface PendingRequest {
