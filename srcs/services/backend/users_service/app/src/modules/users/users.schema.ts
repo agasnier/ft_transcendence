@@ -145,13 +145,6 @@ export const updateProfileSchema = {
 }
 
 export const getUserProfileSchema = {
-  params: {
-    type: 'object',
-    required: ['id'],
-    properties: {
-      id: { type: 'integer', minimum: 1 },
-    },
-  },
   response: {
     200: {
       type: 'object',
@@ -161,7 +154,7 @@ export const getUserProfileSchema = {
         avatarUrl: { type: 'string' },
         bio: { type: ['string', 'null'] },
         isOnline: { type: 'boolean' },
-        role: { type: 'string', enum: ['admin', 'moderator', 'user', ''] },
+        role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
       },
     },
   },
