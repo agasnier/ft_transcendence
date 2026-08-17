@@ -62,11 +62,11 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
         <>
             <div className="flex items-center gap-2">
                 <BackButton onClick={() => setView({ kind: 'home' })} />
-                <h2 className="text-xl font-bold">Paramètres</h2>
+                <h2 className="view-title">Paramètres</h2>
             </div>
             <div className="flex flex-col items-center gap-2 font-semibold text-gray-800 py-2">
                 <span
-                    className="avatar-circle bg-blue-500 w-30 h-30 text-6xl">
+                    className="avatar-circle bg-user w-30 h-30 text-6xl">
                     {pseudo?.charAt(0).toUpperCase() ?? '?'}
                 </span>
                 <span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
@@ -85,7 +85,7 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
                                 <button
                                     onClick={saveBio}
                                     disabled={isSaving}
-                                    className="text-sm px-3 py-1 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50">
+                                    className="text-sm px-3 py-1 rounded-lg bg-user text-white hover:bg-blue-600 disabled:opacity-50">
                                     {isSaving ? 'Sauvegarde...' : 'Enregistrer'}
                                 </button>
                                 <button
@@ -117,7 +117,7 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
             <p className="border-t text-gray-200 my-1"></p>
             <button
                 onClick={onLogout}
-                className="menu-item text-red-600 hover:bg-red-100">
+                className="menu-item text-danger hover:bg-danger-bg">
                 Déconnexion
             </button>
         </>

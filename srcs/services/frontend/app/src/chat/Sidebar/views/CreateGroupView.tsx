@@ -73,7 +73,7 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 			<div className="flex flex-col gap-2 h-full min-h-0">
 				<div className="flex items-center gap-2">
 					<BackButton onClick={() => setView({ kind: 'home' })} />
-					<h2 className="text-xl font-bold">Nouveau groupe</h2>
+					<h2 className="view-title">Nouveau groupe</h2>
 				</div>
 				<div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
 					<CreateRoomForm
@@ -95,7 +95,7 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 		<div className="flex flex-col gap-2 h-full min-h-0">
 			<div className="flex items-center gap-2">
 				<BackButton onClick={() => setView({ kind: 'home' })} />
-				<h2 className="text-xl font-bold">Ajouter des membres</h2>
+				<h2 className="view-title">Ajouter des membres</h2>
 			</div>
 			<div className="flex gap-2">
 				<input
@@ -118,11 +118,11 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 				<button
 					type="button"
 					onClick={handleAddByPseudo}
-					className="text-xs bg-blue-500 text-white rounded-full px-3 hover:bg-blue-600">
+					className="text-xs bg-user text-white rounded-full px-3 hover:bg-blue-600">
 					Ajouter
 				</button>
 			</div>
-			{searchError && <p className="text-sm text-red-600">{searchError}</p>}
+			{searchError && <p className="text-sm text-danger">{searchError}</p>}
 			{selectedUsers.length > 0 && (
 				<div className="flex flex-wrap gap-2">
 					{selectedUsers.map((u) => (
@@ -131,8 +131,8 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 							type="button"
 							onClick={() => removeUser(u.id)}
 							title="Retirer"
-							className="flex items-center gap-2 text-sm px-3 py-1 bg-gray-100 rounded-full hover:bg-red-100">
-							<span className="text-red-500 font-bold">x</span>
+							className="flex items-center gap-2 text-sm px-3 py-1 bg-gray-100 rounded-full hover:bg-danger-bg">
+							<span className="text-danger font-bold">x</span>
 							<span>{u.pseudo}</span>
 						</button>
 					))}

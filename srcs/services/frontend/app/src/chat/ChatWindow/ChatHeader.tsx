@@ -69,7 +69,7 @@ function ChatHeader({channel, UserId, onOpenInfoPanel}: ChatHeaderProps) {
 			onClick={onOpenInfoPanel}
 			className="flex p-1 border-b bg-white items-center gap-4 min-w-0 cursor-pointer">
 			<span
-				className="avatar-circle bg-orange-400 font-thin w-10 h-10">
+				className={`avatar-circle font-thin w-10 h-10 ${channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}`}>
 				{channel.name?.charAt(0).toUpperCase()}
 			</span>
 			<div className="flex flex-col min-w-0">
