@@ -168,3 +168,26 @@ export const uploadAvatarSchema = {
     },
   },
 }
+
+export const getPublicUserProfileSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        displayName: { type: ['string', 'null'] },
+        avatarUrl: { type: 'string' },
+        bio: { type: ['string', 'null'] },
+        isOnline: { type: 'boolean' },
+        role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
+      },
+    },
+  },
+}

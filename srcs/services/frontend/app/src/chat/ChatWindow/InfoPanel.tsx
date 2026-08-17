@@ -14,6 +14,16 @@ interface Channel {
 	name: string | null
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
+	otherUserId?: number
+}
+
+interface PublicProfile {
+	id: number
+	displayName: string | null
+	avatarUrl: string
+	bio: string | null
+	isOnline: boolean
+	role: 'admin' | 'moderator' | 'user'
 }
 
 interface InfoPanelProps {
@@ -32,6 +42,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [isEditingDesc, setIsEditingDesc] = useState(false)
 	const [descInput, setDescInput] = useState(channel.description ?? '')
 	const [members, setMembers] = useState<Member[] | null>(null)
+	const [otherProfile, setOtherProfile] = useState<PublicProfile | null>(null)
 	const [isAddingMembers, setIsAddingMembers] = useState(false)
 	const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set())
 	const [pseudoInput, setPseudoInput] = useState('')
@@ -80,6 +91,18 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		setDescInput(channel.description ?? '')
 		setNameInput(channel.name ?? '')
 	}, [channel.id, channel.description, channel.name])
+
+	useEffect(() => {
+		if (channel.type !== 'discussion' || channel.otherUserId === undefined)
+			return
+
+		async function loadOtherProfile() {
+			const res = await fetch(`/users/${channel.otherUserId}/profile`)
+			if (res.ok)
+				setOtherProfile(await res.json())
+		}
+		loadOtherProfile()
+	}, [channel.type, channel.otherUserId])
 
 	async function handleRename(e: React.FormEvent) {
 		e.preventDefault()
@@ -204,12 +227,25 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 						</>
 					)}
 				</div>
+				{channel.type === 'discussion' && otherProfile?.isOnline !== undefined && (
+					<span className={`text-sm ${otherProfile.isOnline ? 'text-green-500' : 'text-red-500'}`}>
+						{otherProfile.isOnline ? 'En ligne' : 'Hors ligne'}
+					</span>
+				)}
 
 				<span className="text-black/50 text-xs">
 					{channel.type !== 'discussion' && members !== null && (
 						<span>{members.length} {channel.type === 'group' ? 'membre' : 'abonné'}{members.length > 1 ? 's' : ''}</span>
 					)}
 				</span>
+				{channel.type === 'discussion' && otherProfile && (
+					<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-2">
+						<h2 className="font-bold">ⓘ bio</h2>
+						<p className="whitespace-pre-line wrap-break-word">
+							{otherProfile.bio || <span className="text-gray-300 italic">Aucune bio</span>}
+						</p>
+					</div>
+				)}
 
 				{/* Section Description */}
 				{channel.type !== 'discussion' && (

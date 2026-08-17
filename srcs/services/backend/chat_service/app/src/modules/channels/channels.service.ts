@@ -10,6 +10,7 @@ type ChannelRow = {
   type: string
   description: string | null
   createdAt: Date
+  otherUserId?: number
 }
 
 export async function resolveDiscussionNames(rows: ChannelRow[], userId: number): Promise<ChannelRow[]> {
@@ -41,11 +42,15 @@ export async function resolveDiscussionNames(rows: ChannelRow[], userId: number)
   }
 
   return rows.map((c) => {
-    if (c.type !== 'discussion' || c.name !== null)
+    if (c.type !== 'discussion')
       return c
     const otherUserId = otherUserIdByChannel.get(c.id)
     const pseudo = otherUserId !== undefined ? pseudoById.get(otherUserId) : undefined
-    return pseudo !== undefined ? { ...c, name: pseudo } : c
+    return {
+      ...c,
+      otherUserId,
+      name: c.name === null && pseudo !== undefined ? pseudo : c.name,
+    }
   })
 }
 
