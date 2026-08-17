@@ -2,54 +2,69 @@ import type { WebSocket } from 'ws'
 
 type HeartbeatSocket = WebSocket & { isAlive?: boolean }
 
-const sockets = new Set<WebSocket>()
-const socketsByUser = new Map<number, Set<WebSocket>>()
+const socketsByUser = new Map<number, Set<HeartbeatSocket>>()
 
-// keep well under nginx's default 60s proxy_read_timeout so idle connections
-// never get silently dropped by the proxy before we notice and reconnect
+// nginx close connection by default at 60s, refresh connection every 20s with heartbeat
 const HEARTBEAT_INTERVAL_MS = 20000
 
-function getSocket(connection: any): WebSocket {
-	return connection.socket ?? connection.raw ?? connection
-}
+setInterval(() => {
+	for (const userSockets of socketsByUser.values()) {
+		for (const socket of userSockets) {
+			if (socket.isAlive === false) {
+				socket.terminate()
+				continue
+			}
+			socket.isAlive = false
+			socket.ping()
+		}
+	}
+}, HEARTBEAT_INTERVAL_MS)
 
-export function wsAddChannelSocket(connection: any, userId: number): void {
-	const socket = getSocket(connection) as HeartbeatSocket
+// functions
+export function wsAddChannelSocket(socket: HeartbeatSocket, userId: number): void {
 	socket.isAlive = true
 	socket.on('pong', () => { socket.isAlive = true })
 
-	sockets.add(socket)
+	const wasOffline = !socketsByUser.has(userId)
+	let userSockets = socketsByUser.get(userId)
+	if (!userSockets) {
+		userSockets = new Set()
+		socketsByUser.set(userId, userSockets)
+	}
+	userSockets.add(socket)
 
-	if (!socketsByUser.has(userId))
-		socketsByUser.set(userId, new Set())
-	socketsByUser.get(userId)!.add(socket)
+	wsPresenceSnapshot(socket)
+	if (wasOffline)
+		wsUserOnline(userId)
 
+	let cleaned = false
 	const cleanup = () => {
-		sockets.delete(socket)
-		socketsByUser.get(userId)?.delete(socket)
+		if (cleaned)
+			return
+		cleaned = true
+		userSockets.delete(socket)
+		if (userSockets.size === 0) {
+			socketsByUser.delete(userId)
+			wsUserOffline(userId)
+		}
 	}
 
 	socket.on('close', cleanup)
 	socket.on('error', cleanup)
 }
 
-setInterval(() => {
-	for (const socket of sockets as Set<HeartbeatSocket>) {
-		if (socket.isAlive === false) {
-			socket.terminate()
-			continue
-		}
-		socket.isAlive = false
-		socket.ping()
-	}
-}, HEARTBEAT_INTERVAL_MS)
+function wsSendToSocket(socket: WebSocket, data: object): void {
+	if (socket.readyState === 1)
+		socket.send(JSON.stringify(data))
+}
 
 // TODO send only to user concerned
 function wsSendAll(data: object): void {
 	const raw = JSON.stringify(data)
-	for (const socket of sockets) {
-		if (socket.readyState === 1) {
-			socket.send(raw)
+	for (const userSockets of socketsByUser.values()) {
+		for (const socket of userSockets) {
+			if (socket.readyState === 1)
+				socket.send(raw)
 		}
 	}
 }
@@ -57,10 +72,25 @@ function wsSendAll(data: object): void {
 function wsSendToUser(userId: number, data: object): void {
 	const raw = JSON.stringify(data)
 	for (const socket of socketsByUser.get(userId) ?? []) {
-		if (socket.readyState === 1) {
+		if (socket.readyState === 1)
 			socket.send(raw)
-		}
 	}
+}
+
+// messages
+export function wsPresenceSnapshot(socket: WebSocket): void {
+	const userIds: number[] = []
+	for (const id of socketsByUser.keys())
+		userIds.push(id)
+	wsSendToSocket(socket, { type: 'PRESENCE_SNAPSHOT', payload: { userIds } })
+}
+
+export function wsUserOnline(userId: number): void {
+	wsSendAll({ type: 'USER_ONLINE', payload: { userId } })
+}
+
+export function wsUserOffline(userId: number): void {
+	wsSendAll({ type: 'USER_OFFLINE', payload: { userId } })
 }
 
 export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, createdAt: Date | string }): void {
