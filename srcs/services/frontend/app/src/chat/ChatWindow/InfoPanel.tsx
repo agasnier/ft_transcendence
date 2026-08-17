@@ -48,6 +48,8 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [pseudoInput, setPseudoInput] = useState('')
 	const [searchError, setSearchError] = useState<string | null>(null)
 	const [extraUsers, setExtraUsers] = useState<{ id: number; pseudo: string }[]>([])
+	const [selectedMember, setSelectedMember] = useState<Member | null>(null)
+	const [selectedMemberProfile, setSelectedMemberProfile] = useState<PublicProfile | null>(null)
 
 	const isModerator = members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false
 	const friends = useFriends()
@@ -85,6 +87,8 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		setExtraUsers([])
 		setPseudoInput('')
 		setSearchError(null)
+		setSelectedMember(null)
+		setSelectedMemberProfile(null)
 	}, [channel.id, channel.type])
 
 	useEffect(() => {
@@ -103,6 +107,14 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		}
 		loadOtherProfile()
 	}, [channel.type, channel.otherUserId])
+
+	async function handleSelectMember(member: Member) {
+		setSelectedMember(member)
+		setSelectedMemberProfile(null)
+		const res = await fetch(`/users/${member.userId}/profile`)
+		if (res.ok)
+			setSelectedMemberProfile(await res.json())
+	}
 
 	async function handleRename(e: React.FormEvent) {
 		e.preventDefault()
@@ -179,6 +191,40 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		...availableFriends,
 		...extraUsers.filter((u) => !availableFriends.some((f) => f.id === u.id) && !existingMemberIds.has(u.id))
 	]
+
+	// Sub-panel: profile of a clicked member
+	if (selectedMember) {
+		return (
+			<aside className="absolute top-0 right-0 h-full w-90 shadow-2xl rounded-3xl flex flex-col gap-2 p-4 bg-gray-100 z-10">
+				<span className="flex items-center gap-2">
+					<BackButton onClick={() => setSelectedMember(null)} />
+					<h2 className="view-title">Profil</h2>
+				</span>
+				<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
+					<span className="avatar-circle bg-user w-30 h-30 text-6xl">
+						{selectedMember.pseudo.charAt(0).toUpperCase()}
+					</span>
+					<h1 className="font-bold text-gray-800 text-lg truncate">{selectedMember.pseudo}</h1>
+					{selectedMemberProfile?.isOnline !== undefined && (
+						<span className={`text-sm ${selectedMemberProfile.isOnline ? 'text-green-500' : 'text-red-500'}`}>
+							{selectedMemberProfile.isOnline ? 'En ligne' : 'Hors ligne'}
+						</span>
+					)}
+					{selectedMember.role === 'moderator' && (
+						<span className="text-xs text-gray-500">Modérateur</span>
+					)}
+					{selectedMemberProfile && (
+						<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-2">
+							<h2 className="font-bold">ⓘ bio</h2>
+							<p className="whitespace-pre-line wrap-break-word">
+								{selectedMemberProfile.bio || <span className="text-gray-300 italic">Aucune bio</span>}
+							</p>
+						</div>
+					)}
+				</div>
+			</aside>
+		)
+	}
 
 	return (
 		<aside className="absolute top-0 right-0 h-full w-90 shadow-2xl rounded-3xl flex flex-col gap-2 p-4 bg-gray-100 z-10">
@@ -371,6 +417,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 										name={m.pseudo}
 										variant="user"
 										subtitle={m.role === 'moderator' ? 'Modérateur' : undefined}
+										onClick={() => handleSelectMember(m)}
 									/>
 								))}
 							</div>
