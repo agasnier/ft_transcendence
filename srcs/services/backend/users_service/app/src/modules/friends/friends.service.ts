@@ -84,7 +84,6 @@ export async function listFriends(userId: number, search?: string) {
 				pseudo: users.pseudo,
 				displayName: users.displayName,
 				avatarUrl: users.avatarUrl,
-				isOnline: users.isOnline,
 			})
 			.from(users)
 			.where(conditions)

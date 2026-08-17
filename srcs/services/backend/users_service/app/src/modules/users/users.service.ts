@@ -107,7 +107,7 @@ export async function updateUserProfile(id: number, data: { displayName?: string
 export async function getUserProfile(id: number) {
   return db.query.users.findFirst({
     where: eq(users.id, id),
-    columns: { id: true, displayName: true, avatarUrl: true, bio: true, isOnline: true, role: true },
+    columns: { id: true, displayName: true, avatarUrl: true, bio: true, role: true },
   })
 }
 

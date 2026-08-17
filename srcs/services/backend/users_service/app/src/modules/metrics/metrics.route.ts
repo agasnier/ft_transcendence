@@ -76,11 +76,11 @@ export async function metricsRoutes(app: FastifyInstance): Promise<void> {
 
   app.get('/metrics', async (_request, reply) => {
     try {
-      const activeRes = await db
-        .select({ value: count() })
-        .from(users)
-        .where(eq(users.isOnline, true))
-      usersActiveConnections.set(activeRes[0]?.value ?? 0)
+      // const activeRes = await db
+      //   .select({ value: count() })
+      //   .from(users)
+      //   .where(eq(users.isOnline, true))
+      // usersActiveConnections.set(activeRes[0]?.value ?? 0)
 
       const registeredRes = await db.select({ value: count() }).from(users)
       usersRegisteredTotal.set(registeredRes[0]?.value ?? 0)

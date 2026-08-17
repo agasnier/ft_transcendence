@@ -10,7 +10,6 @@ export const users = mysqlTable('users', {
   displayName: varchar('display_name', { length: 50 }),
   avatarUrl: varchar('avatar_url', { length: 255 }).default('/avatars/default.png'),
   bio: text('bio'),
-  isOnline: boolean('is_online').default(false),
 })
 
 // SQL table that stores users's friends content

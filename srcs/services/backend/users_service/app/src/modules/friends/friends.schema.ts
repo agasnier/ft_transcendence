@@ -47,7 +47,6 @@ export const listFriendsSchema = {
           pseudo: { type: 'string' },
           displayName: { type: ['string', 'null'] },
           avatarUrl: { type: 'string' },
-          isOnline: { type: 'boolean' },
         },
       },
     },

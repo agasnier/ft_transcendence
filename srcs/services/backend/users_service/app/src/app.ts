@@ -1,13 +1,11 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 import fastifyMultipart from '@fastify/multipart'
-import fastifyWebsocket from '@fastify/websocket'
 import cookie from '@fastify/cookie'
 
 import { usersRoutes } from './modules/users/users.route.js'
 import { friendsRoutes } from './modules/friends/friends.route.js'
 import { authRoutes } from './modules/auth/auth.route.js'
 import { twofaRoutes } from './modules/twofa/twofa.route.js'
-import { presenceRoutes } from './modules/presence/presence.route.js'
 import { metricsRoutes } from './modules/metrics/metrics.route.js'
 
 
@@ -22,8 +20,6 @@ export function buildApp(): FastifyInstance {
   app.register(fastifyMultipart, {
     limits: { fileSize: 5 * 1024 * 1024 }, //5MB max
   })
-  app.register(fastifyWebsocket)
-
   // metrics route for prometheus
   app.register(metricsRoutes)
 
@@ -32,7 +28,6 @@ export function buildApp(): FastifyInstance {
   app.register(friendsRoutes, { prefix: "/friends" })
   app.register(authRoutes, { prefix: '/auth' })
   app.register(twofaRoutes, { prefix: '/auth/2fa' })
-  app.register(presenceRoutes, { prefix: '/presence' })
 
   return app
 }
