@@ -1,9 +1,17 @@
 @import "tailwindcss";
 
 /* TODO add tailwind theme here */
+@theme {
+	--color-conversation: var(--color-orange-400);
+	--color-user: var(--color-blue-500);
+	--color-danger: var(--color-red-600);
+	--color-danger-bg: var(--color-red-100);
+	--color-primary: var(--color-blue-500);
+}
+
 @layer components {
 	.btn-primary {
-		@apply bg-blue-500 text-white py-2 rounded-md hover:bg-blue-700 hover:scale-105 transition;
+		@apply bg-primary text-white py-2 rounded-md hover:bg-blue-700 hover:scale-105 transition;
 	}
 	.menu-item {
 		@apply w-full text-left px-4 py-2 text-sm rounded-2xl transition-colors hover:bg-gray-100;
@@ -27,12 +35,15 @@
 		@apply flex rounded-full items-center justify-center hover:bg-gray-200;
 	}
 	.fab-button {
-		@apply mt-auto self-end bg-blue-500 text-white font-bold w-13 h-13 rounded-full hover:bg-blue-600 flex items-center justify-center text-4xl;
+		@apply mt-auto self-end bg-primary text-white font-bold w-13 h-13 rounded-full hover:bg-blue-600 flex items-center justify-center text-4xl;
 	}
 	.search-input {
 		@apply w-full text-lg rounded-full pl-3 pr-9 py-2 border border-transparent hover:border hover:border-gray-300 bg-gray-100;
 	}
 	.form-error {
-		@apply text-red-600 text-sm text-center;
+		@apply text-danger text-sm text-center;
+	}
+	.view-title {
+		@apply text-xl font-bold;
 	}
 }

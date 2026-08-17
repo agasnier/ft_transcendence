@@ -12,7 +12,7 @@ function AvatarNameCard({ name, subtitle, selected = false, variant, onClick }: 
 			onClick={onClick}
 			className={`flex text-left font-bold px-3 py-2 rounded-2xl ${selected ? 'bg-blue-400' : 'hover:bg-gray-100'} `}>
 			<span
-				className={`avatar-circle text-2xl border font-thin w-15 h-15 ${variant === 'user' ? 'bg-blue-500' : 'bg-orange-400'}`}>
+				className={`avatar-circle text-2xl border font-thin w-15 h-15 ${variant === 'user' ? 'bg-user' : 'bg-conversation'}`}>
 				{name.charAt(0).toUpperCase()}
 			</span>
 			<span className="flex flex-col text-lg min-w-0 px-3">

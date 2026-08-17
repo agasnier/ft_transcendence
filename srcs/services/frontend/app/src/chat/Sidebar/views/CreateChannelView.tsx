@@ -16,7 +16,7 @@ function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelVi
 		<div className="flex flex-col gap-2 h-full min-h-0">
 			<div className="flex items-center gap-2">
 				<BackButton onClick={() => setView({ kind: 'home' })} />
-				<h2 className="text-xl font-bold">Nouveau canal</h2>
+				<h2 className="view-title">Nouveau canal</h2>
 			</div>
 			<div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
 				<CreateRoomForm

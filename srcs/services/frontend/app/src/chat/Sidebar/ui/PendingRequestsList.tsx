@@ -22,7 +22,7 @@ function PendingRequestsList({ pending, onAccept, onDecline }: PendingRequestsLi
 						<li key={request.id} className="flex items-center justify-between rounded-2xl">
 							<span className="text-sm text-gray-700">{request.displayName ?? request.pseudo}</span>
 							<span className="flex gap-1">
-								<button type="button" onClick={() => onAccept(request.id)} className="text-xs bg-blue-500 text-white rounded-full px-2 py-1 hover:bg-blue-600">Accepter</button>
+								<button type="button" onClick={() => onAccept(request.id)} className="text-xs bg-user text-white rounded-full px-2 py-1 hover:bg-blue-600">Accepter</button>
 								<button type="button" onClick={() => onDecline(request.id)} className="text-xs bg-gray-300 text-gray-700 rounded-full px-2 py-1 hover:bg-gray-400">Refuser</button>
 							</span>
 						</li>

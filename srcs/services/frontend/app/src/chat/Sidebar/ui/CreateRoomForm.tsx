@@ -37,7 +37,7 @@ function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
 			)}
 			<button
 				type="submit"
-				className="bg-blue-500 text-white rounded-md py-1 hover:bg-blue-600">
+				className="bg-user text-white rounded-md py-1 hover:bg-blue-600">
 				Créer
 			</button>
 			<button

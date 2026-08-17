@@ -66,7 +66,7 @@ function HomeView({ userId, channels, selectedChannelId, onSelectChannel, onCrea
                         onSelectChannel={onSelectChannel}
                     />
                 }
-                {activeTab === 'conversations' && 
+                {activeTab === 'conversations' &&
                     <ConversationsPanel
                         isSearching={false}
                         searchQuery={searchQuery}

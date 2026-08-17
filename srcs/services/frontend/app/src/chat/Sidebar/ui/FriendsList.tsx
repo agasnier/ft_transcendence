@@ -29,7 +29,7 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
 						<li key={friend.id} className="group flex items-center justify-between gap-2 px-2 py-1 rounded-2xl hover:bg-gray-200">
 							<span className="flex items-center gap-2">
 								<span className="relative">
-									<span className="avatar-circle bg-blue-500 w-8 h-8 text-sm font-semibold">
+									<span className="avatar-circle bg-user w-8 h-8 text-sm font-semibold">
 										{friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
 									</span>
 									<span
@@ -62,7 +62,7 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
 												onRemove(friend.id)
 												setConfirmRemoveId(null)
 											}}
-											className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-xl">
+											className="w-full text-left px-3 py-2 text-sm text-danger hover:bg-danger-bg rounded-xl">
 											Retirer l'ami
 										</button>
 									</div>

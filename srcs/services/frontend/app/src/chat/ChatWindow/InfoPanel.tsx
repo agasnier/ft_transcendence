@@ -71,7 +71,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel }
 		<aside className="absolute top-0 right-0 h-full w-90 shadow-2xl rounded-3xl flex flex-col gap-2 p-4 bg-gray-100 z-10">
 			<span className="flex items-center gap-2">
 				<BackButton onClick={onBack} />
-				<h2 className="text-xl font-bold">Infos
+				<h2 className="view-title">Infos
 					{channel.type === 'discussion' ? " de l'utilisateur" : ''}
 					{channel.type === 'group' ? ' du groupe' : ''}
 					{channel.type === 'channel' ? ' du canal' : ''}
@@ -91,7 +91,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel }
 			</span>
 			<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
 				<span
-					className={`avatar-circle w-30 h-30 text-6xl ${channel.type === 'discussion' ? 'bg-blue-500' : 'bg-orange-400'}`}>
+					className={`avatar-circle w-30 h-30 text-6xl ${channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}`}>
 					{channel.name?.charAt(0).toUpperCase() ?? '?'}
 				</span>
 				<div className="flex flex-col min-w-0">
@@ -139,7 +139,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel }
 				onClick={() => (
 					onDeleteChannel(channel.id)
 				)}
-				className="mt-auto w-full text-left px-3 py-2 text-sm text-red-600 bg-white hover:bg-red-100 rounded-xl">
+				className="mt-auto w-full text-left px-3 py-2 text-sm text-danger bg-white hover:bg-danger-bg rounded-xl">
 				🗑️​ Supprimer la conversation
 			</button>
 		</aside>

@@ -67,12 +67,12 @@ function AddFriendForm() {
 				<button
 					type="button"
 					onClick={handleAddByPseudo}
-					className="text-xs bg-blue-500 text-white rounded-full px-3 hover:bg-blue-600">
+					className="text-xs bg-user text-white rounded-full px-3 hover:bg-blue-600">
 					Ajouter
 				</button>
 			</div>
 			{feedback && (
-				<p className={`text-sm ${feedback.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+				<p className={`text-sm ${feedback.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
 					{feedback.text}
 				</p>
 			)}
