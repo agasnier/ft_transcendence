@@ -91,7 +91,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel }
 			</span>
 			<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
 				<span
-					className="avatar-circle bg-orange-400 w-30 h-30 text-6xl">
+					className={`avatar-circle w-30 h-30 text-6xl ${channel.type === 'discussion' ? 'bg-blue-500' : 'bg-orange-400'}`}>
 					{channel.name?.charAt(0).toUpperCase() ?? '?'}
 				</span>
 				<div className="flex flex-col min-w-0">
