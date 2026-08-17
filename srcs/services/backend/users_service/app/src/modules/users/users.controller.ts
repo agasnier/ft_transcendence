@@ -147,8 +147,12 @@ export async function updateProfileController(req: FastifyRequest, reply: Fastif
 }
 
 export async function getUserProfileController(req: FastifyRequest, reply: FastifyReply) {
-  const { id } = req.params as { id:string }
-  const user = await getUserProfile(Number(id))
+  if (!req.user) {
+    await reply.code(401).send({ message: 'Not authenticated' })
+    return
+  }
+
+  const user = await getUserProfile(req.user.id)
   if (!user) {
     await reply.code(404).send({ message: 'User not found' })
     return
