@@ -10,6 +10,7 @@ export const listUserChannelsSchema = {
           type: { type: 'string' },
           description: { type: ['string', 'null'] },
           createdAt: { type: 'string' },
+          otherUserId: { type: 'integer' },
         },
       },
     },

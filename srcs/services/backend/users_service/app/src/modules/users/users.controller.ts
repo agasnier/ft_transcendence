@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { getAllUsers, getUserById, getUsersByIds, createUser, updateUser, deleteUser, listUsers, updateUserProfile, getUserProfile, updateAvatar } from './users.service.js'
+import { getAllUsers, getUserById, getUsersByIds, createUser, updateUser, deleteUser, listUsers, updateUserProfile, getUserProfile, updateAvatar, getPublicUserProfile } from './users.service.js'
 import { pipeline } from 'stream/promises'
 import { createWriteStream } from 'fs'
 import path from 'path'
@@ -181,4 +181,19 @@ export async function uploadAvatarController(req: FastifyRequest, reply: Fastify
   const avatarUrl = '/avatars/${filename}'
   await updateAvatar(req.user.id, avatarUrl)
   return reply.send({ avatarUrl })
+}
+
+export async function getPublicUserProfileController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id } = request.params as { id: string }
+    const user = await getPublicUserProfile(Number(id))
+    if (!user) {
+      await reply.status(404).send({ message: 'User not found' })
+      return
+    }
+    await reply.send(user)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
 }

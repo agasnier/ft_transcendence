@@ -98,7 +98,7 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-1">
-                            <p className="text-sm text-gray-500 text-center bg-gray-50 rounded-xl px-3 py-2 min-h-[2.5rem] w-full font-normal">
+                            <p className="text-sm text-gray-500 text-center bg-gray-50 rounded-xl px-3 py-2 min-h-[2.5rem] w-full font-normal whitespace-pre-line break-words">
                                 {profile?.bio || <span className="text-gray-300 italic">Aucune bio</span>}
                             </p>
                             <button

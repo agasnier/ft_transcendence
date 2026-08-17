@@ -119,3 +119,10 @@ export async function deleteUser(id: number) {
   const [result] = await db.delete(users).where(eq(users.id, id))
   return result.affectedRows > 0
 }
+
+export async function getPublicUserProfile(id: number) {
+  return db.query.users.findFirst({
+    where: eq(users.id, id),
+    columns: { id: true, displayName: true, avatarUrl: true, bio: true, isOnline: true, role: true },
+  })
+}
