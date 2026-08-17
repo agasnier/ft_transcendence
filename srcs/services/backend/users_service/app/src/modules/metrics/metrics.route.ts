@@ -5,7 +5,6 @@ import { db } from '../../db/index.js'
 import { friends, jwtRefreshToken, twoFA, users } from '../../db/schema.js'
 
 client.register.clear()
-client.collectDefaultMetrics()
 
 const httpRequestDuration = new client.Histogram({
   name: 'http_request_duration_seconds',

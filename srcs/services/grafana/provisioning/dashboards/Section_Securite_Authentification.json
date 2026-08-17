@@ -4,19 +4,22 @@
   "metadata": {
     "name": "ad6lhhl",
     "namespace": "default",
-    "uid": "8753a0fd-5723-429f-b911-400692312026",
-    "resourceVersion": "1786626756439013",
-    "generation": 3,
-    "creationTimestamp": "2026-08-13T12:30:11Z",
+    "uid": "e54569ad-cb78-485c-9093-9e353ad714e3",
+    "resourceVersion": "1786987316770984",
+    "generation": 1,
+    "creationTimestamp": "2026-08-17T17:21:56Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "2712760182702080"
+      "grafana.app/deprecatedInternalID": "4235733659549696"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:afv224qo9ga2oe",
-      "grafana.app/folder": "",
-      "grafana.app/saved-from-ui": "Grafana v13.1.1 (e784b7782a)",
-      "grafana.app/updatedBy": "user:afv224qo9ga2oe",
-      "grafana.app/updatedTimestamp": "2026-08-13T13:12:36Z"
+      "grafana.app/createdBy": "access-policy:service",
+      "grafana.app/managedBy": "classic-file-provisioning",
+      "grafana.app/managerAllowsEdits": "true",
+      "grafana.app/managerId": "Default",
+      "grafana.app/sourceChecksum": "c7225c0bdd332b2a7e54ddd66067aaff",
+      "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/Section_Activite_Chat.json",
+      "grafana.app/sourceTimestamp": "1786981081000",
+      "grafana.app/folder": ""
     }
   },
   "spec": {
@@ -191,6 +194,28 @@
                       }
                     },
                     "refId": "B",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "PBFA97CFB590B2093"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(api_keys_inactive_total)",
+                        "instant": false,
+                        "legendFormat": "Clés API inactives",
+                        "range": true
+                      }
+                    },
+                    "refId": "C",
                     "hidden": false
                   }
                 }
