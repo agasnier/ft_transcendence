@@ -80,6 +80,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 									{showInfoPanel && (
 										<InfoPanel
 											channel={selectedChannel}
+											userId={userId}
 											onBack={() => setShowInfoPanel(false)}
 											onDeleteChannel={handleDeleteChannel}
 											onRenameChannel={renameChannel}

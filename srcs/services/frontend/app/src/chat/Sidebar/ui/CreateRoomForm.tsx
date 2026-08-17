@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import TextField from '../../../components/TextField'
+import TextAreaField from '../../../components/TextAreaField'
 
 interface CreateRoomFormProps {
 	type: 'channel' | 'group' | 'discussion'
@@ -27,10 +28,9 @@ function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
 				required
 			/>
 			{type !== 'group' && (
-				<TextField
+				<TextAreaField
 					id="room-description"
 					label="Description (facultative)"
-					type="text"
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 				/>

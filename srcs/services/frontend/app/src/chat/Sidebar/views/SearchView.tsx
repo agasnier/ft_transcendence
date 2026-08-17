@@ -26,7 +26,7 @@ interface SearchViewProps {
 function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, activeTab, setActiveTab }: SearchViewProps) {
 
     return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 h-full min-h-0">
             <div className="flex items-center gap-2">
                 <BackButton
                     onClick={() => {
@@ -69,24 +69,26 @@ function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, se
                     Amis
                 </button>
             </div>
-            {searchQuery.trim() !== '' && activeTab === 'friends' &&
-                <FriendsPanel
-                    searchQuery={searchQuery}
-                    isSearching={true}
-                    userId={userId}
-                    onCreateChannel={onCreateChannel}
-                    onSelectChannel={onSelectChannel}
-                />
-            }
-            {searchQuery.trim() !== '' && activeTab === 'conversations' &&
-                <ConversationsPanel
-                    isSearching={true}
-                    searchQuery={searchQuery}
-                    channels={channels}
-                    selectedChannelId={selectedChannelId}
-                    onSelectChannel={onSelectChannel}
-                />
-            }
+            <div className="flex flex-1 flex-col min-h-0 overflow-y-auto gap-2">
+                {searchQuery.trim() !== '' && activeTab === 'friends' &&
+                    <FriendsPanel
+                        searchQuery={searchQuery}
+                        isSearching={true}
+                        userId={userId}
+                        onCreateChannel={onCreateChannel}
+                        onSelectChannel={onSelectChannel}
+                    />
+                }
+                {searchQuery.trim() !== '' && activeTab === 'conversations' &&
+                    <ConversationsPanel
+                        isSearching={true}
+                        searchQuery={searchQuery}
+                        channels={channels}
+                        selectedChannelId={selectedChannelId}
+                        onSelectChannel={onSelectChannel}
+                    />
+                }
+            </div>
         </div>
     )
 }

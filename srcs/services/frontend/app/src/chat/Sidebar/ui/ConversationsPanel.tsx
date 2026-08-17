@@ -34,6 +34,7 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 				<AvatarNameCard
 					key={channel.id}
 					name={channel.name ?? 'username a gerer'}
+					variant={channel.type === 'discussion' ? 'user' : 'conversation'}
 					selected={selectedChannelId === channel.id}
 					onClick={() => onSelectChannel(channel.id)}
 				/>

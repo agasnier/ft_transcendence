@@ -24,7 +24,7 @@ interface HomeViewProps {
 function HomeView({ userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, searchQuery, setView, activeTab, setActiveTab }: HomeViewProps) {
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col gap-2 h-full min-h-0">
 			<div className="flex items-center gap-2">
 				<button
 					onClick={() => setView({ kind: 'userMenu' })}
@@ -56,24 +56,26 @@ function HomeView({ userId, channels, selectedChannelId, onSelectChannel, onCrea
                     Amis
                 </button>
             </div>
-            {activeTab === 'friends' &&
-                <FriendsPanel
-                    searchQuery={searchQuery}
-                    isSearching={false}
-                    userId={userId}
-                    onCreateChannel={onCreateChannel}
-                    onSelectChannel={onSelectChannel}
-                />
-            }
-            {activeTab === 'conversations' && 
-                <ConversationsPanel
-                    isSearching={false}
-                    searchQuery={searchQuery}
-                    channels={channels}
-                    selectedChannelId={selectedChannelId}
-                    onSelectChannel={onSelectChannel}
-                />
-            }
+            <div className="flex flex-1 flex-col min-h-0 overflow-y-auto gap-2">
+                {activeTab === 'friends' &&
+                    <FriendsPanel
+                        searchQuery={searchQuery}
+                        isSearching={false}
+                        userId={userId}
+                        onCreateChannel={onCreateChannel}
+                        onSelectChannel={onSelectChannel}
+                    />
+                }
+                {activeTab === 'conversations' && 
+                    <ConversationsPanel
+                        isSearching={false}
+                        searchQuery={searchQuery}
+                        channels={channels}
+                        selectedChannelId={selectedChannelId}
+                        onSelectChannel={onSelectChannel}
+                    />
+                }
+            </div>
 		</div>
 	)
 }
