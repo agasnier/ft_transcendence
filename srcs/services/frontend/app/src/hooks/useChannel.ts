@@ -72,6 +72,26 @@ export function useChannel() {
 		return true
 	}
 
+	async function updateDescription(id: number, description: string): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${id}`, {
+			method: 'PUT',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ description }),
+		})
+		if (!res.ok) return false
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, description } : c)))
+		return true
+	}
+
+	async function addMembers(channelId: number, memberIds: number[]): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${channelId}/members`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ memberIds }),
+		})
+		return res.ok
+	}
+
 	return {
 		channels,
 		createChannel,
@@ -79,6 +99,8 @@ export function useChannel() {
 		addChannel,
 		removeChannel,
 		renameChannel,
+		updateDescription,
+		addMembers,
 		updateChannel
 	}
 }

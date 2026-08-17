@@ -134,16 +134,20 @@ export async function listAllChannelsController(request: FastifyRequest, reply: 
 export async function updateChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
-    const { name } = request.body as { name: string }
+    const { name, description } = request.body as { name?: string; description?: string }
     const channelId = Number(id)
-    const channel = await updateChannel(channelId, name)
+    const channel = await updateChannel(channelId, { name, description })
 
-    const members = await listChannelMembers(channelId)
-    for (const {userId} of members)
-      wsChannelUpdatedTo(userId, channel)
+    if (channel) {
+      const members = await listChannelMembers(channelId)
+      for (const {userId} of members)
+        wsChannelUpdatedTo(userId, channel)
 
-    const message = await createMessage(channelId, request.user!.id, ` a renommé le groupe en "${name}"`, 'system')
-    wsMessageCreated(message)
+      if (name) {
+        const message = await createMessage(channelId, request.user!.id, ` a renommé le groupe en "${name}"`, 'system')
+        wsMessageCreated(message)
+      }
+    }
     await reply.send(channel)
   } catch (err) {
     request.log.error(err)

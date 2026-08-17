@@ -91,10 +91,10 @@ export const updateChannelSchema = {
   params: channelIdParamSchema.params,
   body: {
     type: 'object',
-    required: ['name'],
     additionalProperties: false,
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 255 },
+      description: { type: 'string', maxLength: 255 },
     },
   },
   response: {
@@ -103,6 +103,8 @@ export const updateChannelSchema = {
       properties: {
         id: { type: 'integer' },
         name: { type: ['string', 'null'] },
+        description: { type: ['string', 'null'] },
+        type: { type: 'string' },
         createdAt: { type: 'string', format: 'date-time' },
       },
     },

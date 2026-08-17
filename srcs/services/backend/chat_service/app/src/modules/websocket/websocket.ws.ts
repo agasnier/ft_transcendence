@@ -119,3 +119,7 @@ export function wsMessageCreated(message: {
 }): void {
 	wsSendAll({ type: 'MESSAGE_CREATED', payload: message })
 }
+
+export function getOnlineUserCount() : number{
+	return socketsByUser.size
+}

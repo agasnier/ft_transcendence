@@ -198,8 +198,13 @@ export async function removeChannelMember(channelId: number, userId: number): Pr
   await db.delete(channelMembers).where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
 }
 
-export async function updateChannel(channelId: number, name: string) {
-  await db.update(channels).set({ name }).where(eq(channels.id, channelId))
+export async function updateChannel(channelId: number, data: { name?: string; description?: string }) {
+  const toUpdate: Partial<{ name: string; description: string }> = {}
+  if (data.name !== undefined) toUpdate.name = data.name
+  if (data.description !== undefined) toUpdate.description = data.description
+  if (Object.keys(toUpdate).length > 0) {
+    await db.update(channels).set(toUpdate).where(eq(channels.id, channelId))
+  }
   return channelInfo(channelId)
 }
 
