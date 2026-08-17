@@ -1,0 +1,1 @@
+ALTER TABLE `channels` MODIFY COLUMN `name` varchar(255);

@@ -37,7 +37,10 @@ export const loginSchema = {
   response: {
     200: {
       type: 'object',
-      properties: { message: { type: 'string' } },
+      properties: {
+        message: { type: 'string' },
+        requires2FA: { type: 'boolean' },
+      },
     },
   },
 }

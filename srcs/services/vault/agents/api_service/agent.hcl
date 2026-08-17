@@ -19,6 +19,15 @@ auto_auth {
   }
 }
 
+api_proxy {
+  use_auto_auth_token = true
+}
+
+listener "tcp" {
+  address     = "0.0.0.0:8100"
+  tls_disable = true
+}
+
 template {
   destination = "/vault/secrets/db_creds.json"
   perms       = "0644"
@@ -27,30 +36,6 @@ template {
 {
   "username": "{{ .Data.username }}",
   "password": "{{ .Data.password }}"
-}
-{{ end }}
-EOT
-}
-
-template {
-  destination = "/vault/secrets/pepper.json"
-  perms       = "0644"
-  contents = <<EOT
-{{ with secret "secret/data/api_service/pepper" }}
-{
-  "pepper": "{{ .Data.data.value }}"
-}
-{{ end }}
-EOT
-}
-
-template {
-  destination = "/vault/secrets/jwt_public.json"
-  perms       = "0644"
-  contents = <<EOT
-{{ with secret "secret/data/users_service/jwt_public" }}
-{
-  "publicKey": {{ .Data.data.value | toJSON }}
 }
 {{ end }}
 EOT

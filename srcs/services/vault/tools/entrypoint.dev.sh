@@ -3,10 +3,10 @@ set -e
 
 export VAULT_ADDR=http://127.0.0.1:8200
 export VAULT_TOKEN="${VAULT_DEV_ROOT_TOKEN_ID}"
-DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password) || true 
+DB_VAULT_PASSWORD=$(cat /run/secrets/db_vault_password) || true 
 
 # verify if all required variables are defined
-if [ -z "$DB_ROOT_PASSWORD" ]; then
+if [ -z "$DB_VAULT_PASSWORD" ]; then
 	echo "Error: missing required configuration for mariadb"
 	exit 1
 fi
@@ -20,17 +20,12 @@ fi
 		sleep 1
 	done
 
-	# pepper for api_service
-	vault kv put secret/api_service/pepper value="$(openssl rand -hex 32)"
 
-	# pepper for users_service
-	vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
-
-	# jwt key pair for users_service
-	PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
-	PUB=$(echo "$PRIV" | openssl pkey -pubout)
-	vault kv put secret/users_service/jwt_private value="$PRIV"
-	vault kv put secret/users_service/jwt_public  value="$PUB"
+	# enable transit
+	vault secrets enable transit 2>/dev/null || true
+	vault write -f transit/keys/api-keys 2>/dev/null || true
+	vault write -f transit/keys/passwords 2>/dev/null || true
+	vault write -f transit/keys/jwt type=ecdsa-p256 2>/dev/null || true
 
 	# enable secrets database for dynamic credentials
 	vault secrets enable database
@@ -44,7 +39,7 @@ fi
 			connection_url="{{username}}:{{password}}@tcp(database:3306)/" \
 			allowed_roles="*" \
 			username="vault" \
-			password="${DB_ROOT_PASSWORD}" >/dev/null 2>&1; do
+			password="${DB_VAULT_PASSWORD}" >/dev/null 2>&1; do
 		sleep 1
 	done
 

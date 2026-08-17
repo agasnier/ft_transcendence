@@ -2,10 +2,10 @@
 set -e
 
 export VAULT_ADDR=http://127.0.0.1:8200
-DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password) || true
+DB_VAULT_PASSWORD=$(cat /run/secrets/db_vault_password) || true
 
 # verify if all required variables are defined
-if [ -z "$DB_ROOT_PASSWORD" ]; then
+if [ -z "$DB_VAULT_PASSWORD" ]; then
 	echo "Error: missing required configuration for mariadb"
 	exit 1
 fi
@@ -34,27 +34,22 @@ fi
 	# root with root_token from INIT FILE
 	export VAULT_TOKEN="$(jq -r '.root_token' "$INIT_FILE")"
 
-	# enable vault kv v2 for pepper for hashing
-	if ! vault secrets list | grep -q '^secret/'; then
-    	vault secrets enable -path=secret -version=2 kv
-	fi
 
-	# pepper for api_service
-	if ! vault kv get secret/api_service/pepper >/dev/null 2>&1; then
-		vault kv put secret/api_service/pepper value="$(openssl rand -hex 32)"
+	# Enable Transit
+	if ! vault secrets list | grep -q '^transit/'; then
+		vault secrets enable transit
 	fi
-
-	# pepper for users_service
-	if ! vault kv get secret/users_service/pepper >/dev/null 2>&1; then
-		vault kv put secret/users_service/pepper value="$(openssl rand -hex 32)"
+	# hash key for api_keys service
+	if ! vault read transit/keys/api-keys >/dev/null 2>&1; then
+		vault write -f transit/keys/api-keys
 	fi
-
-	# jwt key pair for users_service
-	if ! vault kv get secret/users_service/jwt_private >/dev/null 2>&1; then
-		PRIV=$(openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1)
-		PUB=$(echo "$PRIV" | openssl pkey -pubout)
-		vault kv put secret/users_service/jwt_private value="$PRIV"
-		vault kv put secret/users_service/jwt_public  value="$PUB"
+	# hash key for users_service (password HMAC before Argon2)
+	if ! vault read transit/keys/passwords >/dev/null 2>&1; then
+		vault write -f transit/keys/passwords
+	fi
+	# JWT signing key
+	if ! vault read transit/keys/jwt >/dev/null 2>&1; then
+		vault write -f transit/keys/jwt type=ecdsa-p256
 	fi
 
 	# enable database and approle if it's not already
@@ -72,7 +67,7 @@ fi
 				connection_url="{{username}}:{{password}}@tcp(database:3306)/" \
 				allowed_roles="*" \
 				username="vault" \
-				password="${DB_ROOT_PASSWORD}" >/dev/null 2>&1; do
+				password="${DB_VAULT_PASSWORD}" >/dev/null 2>&1; do
 			sleep 1
 		done
 

@@ -1,0 +1,2 @@
+ALTER TABLE `channel_members` ADD `role` enum('moderator','member') DEFAULT 'member' NOT NULL;--> statement-breakpoint
+ALTER TABLE `channel_members` ADD CONSTRAINT `channel_members_channel_id_user_id_unique` UNIQUE(`channel_id`,`user_id`);

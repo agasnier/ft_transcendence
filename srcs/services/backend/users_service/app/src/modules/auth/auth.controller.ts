@@ -1,8 +1,8 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { createCookie, deleteRefreshToken, validateRefreshToken, validateAccessToken } from './auth.service.js'
+import { createCookie, createPending2FACookie, deleteRefreshToken, validateRefreshToken } from './auth.service.js'
 import { createUser, verifyCredentials, getUserById } from '../users/users.service.js'
-import jwt from 'jsonwebtoken'
-import { env } from '../../config/env.js'
+import { getTwoFAByUserId } from '../twofa/twofa.service.js'
+import { validateAccessToken } from '../vault/jwt.js'
 
 // hooks
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -12,14 +12,13 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
     return
   }
 
-  try {
-    const user = jwt.verify(accessToken, env.jwtPublicKey, { algorithms: ['ES256'] }) as { id: number; pseudo: string }
-    request.user = user
-  } catch {
+  const user = await validateAccessToken(accessToken)
+  if (!user || user.twofa === 'pending') {
     await reply.status(401).send({ message: 'Not authenticated' })
     return
   }
 
+  request.user = user
 }
 
 // controllers
@@ -30,7 +29,7 @@ export async function registerController(
     const user = await createUser(mail, pseudo, password)
 
     // auto-login on signup: issue tokens + cookies for the new user
-    await createCookie(reply, { id: user.id, pseudo: user.pseudo })
+    await createCookie(reply, { id: user.id, pseudo: user.pseudo, role: user.role })
 
     await reply.status(201).send(user)
   } catch (err) {
@@ -38,6 +37,7 @@ export async function registerController(
     await reply.status(500).send({ message: 'Internal error' })
   }
 }
+
 
 export async function loginController(
   request: FastifyRequest<{ Body: { login: string; password: string } }>, reply: FastifyReply): Promise<void> {
@@ -49,8 +49,14 @@ export async function loginController(
       return
     }
 
-    await createCookie(reply, user)
+    const twoFA = await getTwoFAByUserId(user.id)
+    if (twoFA?.enabled) {
+      await createPending2FACookie(reply, user)
+      await reply.status(200).send({ requires2FA: true })
+      return
+    }
 
+    await createCookie(reply, user)
     await reply.status(200).send({ message: 'Logged in' })
   } catch (err) {
     request.log.error(err)
@@ -79,9 +85,9 @@ export async function sessionController(request: FastifyRequest, reply: FastifyR
   try {
     const accessToken = request.cookies.access_token
     if (accessToken) {
-      const user = validateAccessToken(accessToken)
-      if (user) {
-        await reply.status(200).send(user)
+      const user = await validateAccessToken(accessToken)
+      if (user && user.twofa !== 'pending') {
+        await reply.status(200).send({ id: user.id, pseudo: user.pseudo, role: user.role })
         return
       }
     }
@@ -114,5 +120,3 @@ export async function sessionController(request: FastifyRequest, reply: FastifyR
     await reply.status(500).send({ message: 'Internal error' })
   }
 }
-
-

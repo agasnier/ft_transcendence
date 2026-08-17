@@ -1,14 +1,41 @@
-import { useState } from 'react'
-import SignupForm from './components/SignupForm'
-import LoginForm from './components/LoginForm'
+import { useState, useEffect } from 'react'
+import Auth from './auth/Auth'
+import Chat from './chat/Chat'
 
 function App() {
-  const [view, setView] = useState<'login' | 'signup'>('login')
+	const [isLoggedIn, setIsLoggedIn] = useState(false)
+	const [isCheckingSession, setIsCheckingSession] = useState(true)
+	const [userId, setUserId] = useState<number | null>(null)
+	const [pseudo, setPseudo] = useState<string | null>(null)
 
-  if (view == 'login')
-    return <LoginForm onSwitchToSignup={() => setView('signup')} />
-  else
-    return <SignupForm onSwitchToLogin={() => setView('login')} />
+	async function checkSession() {
+		const res = await fetch('/auth/session')
+		if (res.ok) {
+			const user = await res.json()
+			setUserId(user.id)
+			setPseudo(user.pseudo)
+			setIsLoggedIn(true)
+		}
+		setIsCheckingSession(false)
+	}
+
+	useEffect(() => {
+		checkSession()
+	}, [])
+
+	async function handleLogout() {
+		await fetch('/auth/logout', { method: 'POST' })
+		setIsLoggedIn(false)
+		setUserId(null)
+	}
+
+	if (isCheckingSession)
+		return null // TODO add skeleton
+
+	if (!isLoggedIn)
+		return <Auth onAuthSuccess={checkSession} />
+
+	return <Chat onLogout={handleLogout} pseudo={pseudo} userId={userId}/>
 }
 
 export default App

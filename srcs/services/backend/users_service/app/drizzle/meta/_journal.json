@@ -36,6 +36,34 @@
       "when": 1784152097042,
       "tag": "0004_sudden_the_liberteens",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1784804569373,
+      "tag": "0005_melted_lightspeed",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1784898782102,
+      "tag": "0006_cultured_eternals",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1785070617501,
+      "tag": "0007_damp_switch",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1787001471093,
+      "tag": "0008_gorgeous_redwing",
+      "breakpoints": true
     }
   ]
 }

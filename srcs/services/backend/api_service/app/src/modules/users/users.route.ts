@@ -13,7 +13,7 @@ export async function usersRoutes(app: FastifyInstance): Promise<void> {
   await app.register(rateLimit, {
     max: 5,
     timeWindow: '1 minute',
-    keyGenerator: (req) => String(req.auth?.ownerId),
+    keyGenerator: (req) => String(req.user?.id),
   })
 
   app.get('/', { schema: listUsersSchema }, listUsersController)

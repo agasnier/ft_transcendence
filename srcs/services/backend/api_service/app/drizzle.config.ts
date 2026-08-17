@@ -24,7 +24,7 @@ export default defineConfig({
   dbCredentials: {
     host: '127.0.0.1',
     port: 3306,
-    user: requireEnv('MARIADB_USER'),
+    user: 'root',
     password: readFileSync(
       new URL('../../../../env/secrets/db_root_password.txt', import.meta.url),
       'utf8',

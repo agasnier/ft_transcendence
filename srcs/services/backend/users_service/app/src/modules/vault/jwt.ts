@@ -1,0 +1,121 @@
+import { env } from '../../config/env.js'
+
+export type AccessTokenUser = {
+	id: number
+	pseudo: string
+	role: string
+	twofa: 'ok' | 'pending'
+	exp: number
+}
+
+export function base64url(obj: object): string {
+	return Buffer.from(JSON.stringify(obj)).toString('base64url')
+}
+
+export function dataAccessToken(user: { id: number; pseudo: string; role: string; twofa?: 'ok' | 'pending' }): string {
+	const now = Math.floor(Date.now() / 1000)
+
+	const header = base64url({ alg: 'ES256', typ: 'JWT' })
+	const payload = base64url({
+		id: user.id,
+		pseudo: user.pseudo,
+		role: user.role,
+		twofa: user.twofa ?? 'ok',
+		exp: now + env.accessTokenExpirationMinutes * 60,
+	})
+
+	return header + '.' + payload
+}
+
+export async function createAccessToken(user: { id: number; pseudo: string; role: string; twofa?: 'ok' | 'pending' }): Promise<string> {
+	const data = dataAccessToken(user)
+
+
+	const res = await fetch(`${env.vaultAgentUrl}/v1/transit/sign/jwt`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			input: Buffer.from(data, 'utf8').toString('base64'),
+			marshaling_algorithm: 'jws',
+		}),
+	})
+
+	if (!res.ok) {
+		throw new Error(`Vault transit sign failed: ${res.status} ${await res.text()}`)
+	}
+
+	const body = await res.json()
+	if (!body.data?.signature)
+		throw new Error('Vault transit sign returned no signature')
+
+	return data + '.' + body.data.signature
+}
+
+
+function base64urlDecode(segment: string): unknown {
+	return JSON.parse(Buffer.from(segment, 'base64url').toString('utf8'))
+}
+
+export function dataOutput(token: string): AccessTokenUser | null {
+	const parts = token.split('.')
+	const payload = parts[1]
+
+	try {
+		const userData = base64urlDecode(payload) as {
+			id?: number
+			pseudo?: string
+			role?: string
+			twofa?: string
+			exp?: number
+		}
+
+		if (
+			typeof userData.id !== 'number' ||
+			typeof userData.pseudo !== 'string' ||
+			typeof userData.role !== 'string' ||
+			typeof userData.exp !== 'number' ||
+			(userData.twofa !== 'ok' && userData.twofa !== 'pending')
+		)
+			return null
+
+		return { id: userData.id, pseudo: userData.pseudo, role: userData.role, twofa: userData.twofa, exp: userData.exp }
+	} catch {
+		return null
+	}
+}
+
+export async function validateAccessToken(token: string): Promise<AccessTokenUser | null> {
+	const [header, payload, signature] = token.split('.')
+	const data = header + '.' + payload
+
+	try {
+		const res = await fetch(`${env.vaultAgentUrl}/v1/transit/verify/jwt`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				input: Buffer.from(data, 'utf8').toString('base64'),
+				signature,
+				marshaling_algorithm: 'jws',
+			}),
+		})
+
+		if (!res.ok)
+			return null
+
+		const body = await res.json()
+		if (!body.data?.valid)
+			return null
+
+	} catch {
+		return null
+	}
+
+	const userData = dataOutput(token)
+	if (!userData)
+		return null
+
+	if (userData.exp < Math.floor(Date.now() / 1000))
+		return null
+
+	return userData
+}

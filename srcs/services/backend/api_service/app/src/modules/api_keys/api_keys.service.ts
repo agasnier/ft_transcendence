@@ -1,9 +1,10 @@
-import { randomBytes, createHmac } from 'node:crypto'
+import { randomBytes } from 'node:crypto'
 import { eq } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { apiKeys } from '../../db/schema.js'
 import { env } from '../../config/env.js'
+import { vaultHash } from '../vault/hash.js'
 
 
 // TODO delete this function before push ?
@@ -16,19 +17,15 @@ export async function getApiKeysByOwnerId(owner_id: number) {
   return rows[0]
 }
 
-function hashApiKey(apiKey: string) {
-  return createHmac('sha256', env.pepper).update(apiKey).digest('hex')
-}
-
-function generateApiKey() {
+async function generateApiKey() {
   const apiKeyCreated = randomBytes(32).toString('hex')
-  const apiKeyHash = hashApiKey(apiKeyCreated);
+  const apiKeyHash = await vaultHash(apiKeyCreated);
 
   return { apiKeyCreated, apiKeyHash }
 }
 
 export async function createApiKeys(owner_id: number) {
-  const { apiKeyCreated, apiKeyHash } = generateApiKey()
+  const { apiKeyCreated, apiKeyHash } = await generateApiKey()
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + env.apiKeyExpirationDays)
 
@@ -39,11 +36,11 @@ export async function createApiKeys(owner_id: number) {
     .insert(apiKeys)
     .values({ owner_id, api_key_hash: apiKeyHash, api_key: apiKeyCreated, expires_at: expiresAt })
 
-  return { id: result.insertId, owner_id, apiKeyCreated }
+  return { id: result.insertId, owner_id, apiKeyCreated, expires_at: expiresAt.toISOString() }
 }
 
 export async function updateApiKeys(owner_id: number) {
-  const { apiKeyCreated, apiKeyHash } = generateApiKey()
+  const { apiKeyCreated, apiKeyHash } = await generateApiKey()
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + env.apiKeyExpirationDays)
 
@@ -56,7 +53,7 @@ export async function updateApiKeys(owner_id: number) {
   if (result.affectedRows === 0)
     return null
 
-  return { owner_id, apiKeyCreated }
+  return { owner_id, apiKeyCreated, expires_at: expiresAt.toISOString() }
 }
 
 export async function deleteApiKeys(owner_id: number) {
@@ -65,7 +62,7 @@ export async function deleteApiKeys(owner_id: number) {
 }
 
 export async function verifyApiKey(apiKey: string): Promise<{ owner_id: number } | null> {
-  const apiKeyHash = hashApiKey(apiKey)
+  const apiKeyHash = await vaultHash(apiKey)
 
   const rows = await db
     .select({ owner_id: apiKeys.owner_id, expires_at: apiKeys.expires_at })

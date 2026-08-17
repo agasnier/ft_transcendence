@@ -1,0 +1,1 @@
+ALTER TABLE `channels` ADD `write_mode` enum('everyone','moderators_only') DEFAULT 'everyone' NOT NULL;

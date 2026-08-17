@@ -3,7 +3,29 @@ const userProperties = {
   id: { type: 'integer' },
   pseudo: { type: 'string' },
   mail: { type: 'string' },
-  role: { type: 'string', enum: ['admin', 'user'] },
+  role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
+}
+
+export const listUsersBatchSchema = {
+  querystring: {
+    type: 'object',
+    required: ['ids'],
+    properties: {
+      ids: { type: 'string' },
+    },
+  },
+  response: {
+    200: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          pseudo: { type: 'string' },
+        },
+      },
+    },
+  },
 }
 
 export const listUsersSchema = {
@@ -12,7 +34,14 @@ export const listUsersSchema = {
       type: 'array',
       items: {
         type: 'object',
-        properties: userProperties,
+        properties: {
+          id: { type: 'integer' },
+          pseudo: { type: 'string' },
+          displayName: { type: ['string', 'null'] },
+          avatarUrl: { type: 'string' },
+          mail: { type: 'string' },
+          role: { type: 'string' },
+        },
       },
     },
   },
@@ -70,6 +99,7 @@ export const updateUserSchema = {
       mail: { type: 'string', format: 'email', maxLength: 255 },
       pseudo: { type: 'string', minLength: 1, maxLength: 255 },
       password: { type: 'string', minLength: 8, maxLength: 255 },
+      role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
     },
   },
   response: {
@@ -86,6 +116,55 @@ export const deleteUserSchema = {
     required: ['id'],
     properties: {
       id: { type: 'integer', minimum: 1 },
+    },
+  },
+}
+
+export const updateProfileSchema = {
+  body: {
+    type: 'object',
+    additionalProperties: false,
+    minProperties: 1,
+    properties: {
+      displayName: { type: 'string', minLength: 2, maxLength: 50 },
+      bio: { type: 'string', maxLength: 500 },
+    },
+  },
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        displayName: { type: ['string', 'null'] },
+        avatarUrl: { type: 'string' },
+        bio: { type: ['string', 'null'] },
+      },
+    },
+  },
+}
+
+export const getUserProfileSchema = {
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        displayName: { type: ['string', 'null'] },
+        avatarUrl: { type: 'string' },
+        bio: { type: ['string', 'null'] },
+        role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
+      },
+    },
+  },
+}
+
+export const uploadAvatarSchema = {
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        avatarUrl: { type: 'string' },
+      },
     },
   },
 }

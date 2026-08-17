@@ -11,8 +11,6 @@ services:
       context: ./services/vault
       dockerfile: Dockerfile.dev
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "root"
-      VAULT_UI: "true"
       VAULT_API_ADDR: "http://vault:8200"
     ports:
       - "8200:8200"
@@ -36,8 +34,6 @@ services:
     volumes:
       # Mount local source for hot reload
       - ./services/backend/users_service/app/src:/app/src
-      # Mount migrations so newly generated ones are picked up without rebuild
-      - ./services/backend/users_service/app/drizzle:/app/drizzle
 
   api_service:
     build:
@@ -46,8 +42,13 @@ services:
     volumes:
       # Mount local source for hot reload
       - ./services/backend/api_service/app/src:/app/src
-      # Mount migrations so newly generated ones are picked up without rebuild
-      - ./services/backend/api_service/app/drizzle:/app/drizzle
+
+  chat_service:
+    build:
+      context: ./services/backend/chat_service
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/backend/chat_service/app/src:/app/src
 
 # dev volume independent from prod volume
 volumes:
@@ -57,3 +58,32 @@ volumes:
       type: none
       o: bind
       device: ./data/mariadb-dev
+
+  vault_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/vault-dev
+  
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/prometheus-dev
+
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/grafana-dev
+
+  chat_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/chat_uploads-dev
+

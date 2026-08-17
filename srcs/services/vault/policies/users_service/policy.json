@@ -3,14 +3,14 @@
     "database/creds/users_service": {
       "capabilities": ["read"]
     },
-    "secret/data/users_service/pepper": {
-      "capabilities": ["read"]
+    "transit/hmac/passwords": {
+      "capabilities": ["update"]
     },
-    "secret/data/users_service/jwt_private": {
-      "capabilities": ["read"]
+    "transit/sign/jwt": {
+      "capabilities": ["update"]
     },
-    "secret/data/users_service/jwt_public": {
-      "capabilities": ["read"]
+    "transit/verify/jwt": {
+      "capabilities": ["update"]
     }
   }
 }

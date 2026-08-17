@@ -19,3 +19,4 @@
 # Scopes: front back infra repo
 #
 # Example: feat(back): add login via 42 oauth
+#|--------------limit 50 chars------------------|
