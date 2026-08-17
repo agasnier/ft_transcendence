@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import BackButton from '../ui/BackButton'
 import ApiKeySection from '../ui/ApiKeySection'
 import TwoFactorSection from '../ui/TwoFactorSection'
-import TextField from '../../../components/TextField' // adapte le chemin exact vers le fichier de ton collègue
+import TextAreaField from '../../../components/TextAreaField' // adapte le chemin exact
 import type { SidebarView } from '../Sidebar'
 
 interface UserMenuViewProps {
@@ -74,12 +74,12 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
                 <div className="w-full px-4">
                     {isEditingBio ? (
                         <div className="flex flex-col gap-2">
-                            <TextField
+                            <TextAreaField
                                 id="bio"
                                 label="Bio"
-                                type="text"
                                 value={bioDraft}
                                 onChange={(e) => setBioDraft(e.target.value)}
+                                autoFocus
                             />
                             <div className="flex justify-center gap-2">
                                 <button
