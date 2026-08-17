@@ -4,19 +4,25 @@
   "metadata": {
     "name": "adjr8g9",
     "namespace": "default",
-    "uid": "55a143f7-817f-4c9e-9366-489f366a7c45",
-    "resourceVersion": "1786626696598018",
-    "generation": 6,
-    "creationTimestamp": "2026-08-13T12:23:27Z",
+    "uid": "c3032658-c923-4f59-802c-b496c86859d3",
+    "resourceVersion": "1786987887982007",
+    "generation": 3,
+    "creationTimestamp": "2026-08-17T17:21:56Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "2711063997775872"
+      "grafana.app/deprecatedInternalID": "4235733512749056"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:afv224qo9ga2oe",
+      "grafana.app/createdBy": "access-policy:service",
       "grafana.app/folder": "",
+      "grafana.app/managedBy": "classic-file-provisioning",
+      "grafana.app/managerAllowsEdits": "true",
+      "grafana.app/managerId": "Default",
       "grafana.app/saved-from-ui": "Grafana v13.1.1 (e784b7782a)",
-      "grafana.app/updatedBy": "user:afv224qo9ga2oe",
-      "grafana.app/updatedTimestamp": "2026-08-13T13:11:36Z"
+      "grafana.app/sourceChecksum": "cba712dbaeaf962254dc97743ae86ce1",
+      "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/Section_communauté_Utilisateur.json",
+      "grafana.app/sourceTimestamp": "1786628722000",
+      "grafana.app/updatedBy": "user:bfvh3bdce8cn4c",
+      "grafana.app/updatedTimestamp": "2026-08-17T17:31:27Z"
     }
   },
   "spec": {

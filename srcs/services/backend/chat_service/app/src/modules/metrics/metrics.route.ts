@@ -5,7 +5,6 @@ import { db } from '../../db/index.js'
 import { channels, messages } from '../../db/schema.js'
 
 client.register.clear()
-client.collectDefaultMetrics()
 
 const httpRequestDuration = new client.Histogram({
   name: 'http_request_duration_seconds',
@@ -49,34 +48,20 @@ export async function metricsRoutes(app: FastifyInstance): Promise<void> {
 
   app.get('/metrics', async (_request, reply) => {
     try {
-      const publicMsgRes = await db
-        .select({ value: count() })
-        .from(messages)
-        .innerJoin(channels, eq(messages.channelId, channels.id))
-        .where(eq(channels.type, 'public'))
-      chatMessagesSentTotal.labels('public').set(publicMsgRes[0]?.value ?? 0)
-
-      const privateMsgRes = await db
-        .select({ value: count() })
-        .from(messages)
-        .innerJoin(channels, eq(messages.channelId, channels.id))
-        .where(eq(channels.type, 'private'))
-      chatMessagesSentTotal.labels('private').set(privateMsgRes[0]?.value ?? 0)
-
-      const directMsgRes = await db
-        .select({ value: count() })
-        .from(messages)
-        .innerJoin(channels, eq(messages.channelId, channels.id))
-        .where(eq(channels.type, 'direct'))
-      chatMessagesSentTotal.labels('direct').set(directMsgRes[0]?.value ?? 0)
-
-      const channelTypes = ['public', 'private', 'direct']
+      const channelTypes = ['channel', 'group', 'discussion']
       for (const cType of channelTypes) {
         const chanRes = await db
           .select({ value: count() })
           .from(channels)
           .where(eq(channels.type, cType))
         chatChannelsTotal.labels(cType).set(chanRes[0]?.value ?? 0)
+
+        const msgRes = await db
+          .select({ value: count() })
+          .from(messages)
+          .innerJoin(channels, eq(messages.channelId, channels.id))
+          .where(eq(channels.type, cType))
+        chatMessagesSentTotal.labels(cType).set(msgRes[0]?.value ?? 0)
       }
     } catch {
       // ignore database errors during metrics collection

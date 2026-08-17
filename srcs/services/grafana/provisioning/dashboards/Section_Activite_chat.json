@@ -4,19 +4,25 @@
   "metadata": {
     "name": "advdzlq",
     "namespace": "default",
-    "uid": "56612e10-3f96-47b0-933c-f35462875b71",
-    "resourceVersion": "1786626389609018",
-    "generation": 3,
-    "creationTimestamp": "2026-08-13T13:00:33Z",
+    "uid": "0b521ba1-b3f3-4ad2-a1b6-99a7b6c9254f",
+    "resourceVersion": "1786987685485983",
+    "generation": 2,
+    "creationTimestamp": "2026-08-17T17:21:56Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "2720402900844544"
+      "grafana.app/deprecatedInternalID": "4235733386919936"
     },
     "annotations": {
-      "grafana.app/createdBy": "user:afv224qo9ga2oe",
+      "grafana.app/createdBy": "access-policy:service",
       "grafana.app/folder": "",
+      "grafana.app/managedBy": "classic-file-provisioning",
+      "grafana.app/managerAllowsEdits": "true",
+      "grafana.app/managerId": "Default",
       "grafana.app/saved-from-ui": "Grafana v13.1.1 (e784b7782a)",
-      "grafana.app/updatedBy": "user:afv224qo9ga2oe",
-      "grafana.app/updatedTimestamp": "2026-08-13T13:06:29Z"
+      "grafana.app/sourceChecksum": "50054ddd1e9da059659a3af88c75bc72",
+      "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/Section_Securite_authentification.json",
+      "grafana.app/sourceTimestamp": "1786981021000",
+      "grafana.app/updatedBy": "user:bfvh3bdce8cn4c",
+      "grafana.app/updatedTimestamp": "2026-08-17T17:28:05Z"
     }
   },
   "spec": {
@@ -87,7 +93,7 @@
             "version": "13.1.1",
             "spec": {
               "options": {
-                "displayMode": "gradient",
+                "displayMode": "basic",
                 "legend": {
                   "calcs": [],
                   "displayMode": "list",
@@ -99,7 +105,7 @@
                 "minVizHeight": 16,
                 "minVizWidth": 8,
                 "namePlacement": "auto",
-                "orientation": "horizontal",
+                "orientation": "vertical",
                 "reduceOptions": {
                   "calcs": [
                     "lastNotNull"
@@ -109,29 +115,34 @@
                 },
                 "showUnfilled": true,
                 "sizing": "auto",
-                "valueMode": "color"
+                "valueMode": "text"
               },
               "fieldConfig": {
                 "defaults": {
+                  "unit": "none",
                   "thresholds": {
-                    "mode": "percentage",
+                    "mode": "absolute",
                     "steps": [
                       {
                         "value": 0,
                         "color": "green"
                       },
                       {
-                        "value": 60,
-                        "color": "orange"
+                        "value": 1500,
+                        "color": "#EAB839"
                       },
                       {
-                        "value": 80,
-                        "color": "red"
+                        "value": 5000,
+                        "color": "#6ED0E0"
+                      },
+                      {
+                        "value": 1000000,
+                        "color": "#EF843C"
                       }
                     ]
                   },
                   "color": {
-                    "mode": "continuous-BlYlRd"
+                    "mode": "thresholds"
                   }
                 },
                 "overrides": []
@@ -220,6 +231,262 @@
                         "color": "green"
                       },
                       {
+                        "value": 5000,
+                        "color": "#EAB839"
+                      },
+                      {
+                        "value": 10000,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-4": {
+        "kind": "Panel",
+        "spec": {
+          "id": 4,
+          "title": "Nombre de messages envoyés (Total global)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "PBFA97CFB590B2093"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(chat_messages_sent_total)",
+                        "legendFormat": "__auto",
+                        "range": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.1",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-5": {
+        "kind": "Panel",
+        "spec": {
+          "id": 5,
+          "title": "Nombre de messages privés",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "PBFA97CFB590B2093"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(chat_messages_sent_total{type=\"discussion\"})",
+                        "legendFormat": "__auto",
+                        "range": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.1",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "panel-6": {
+        "kind": "Panel",
+        "spec": {
+          "id": 6,
+          "title": "Nombre de channels ouverts",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "PBFA97CFB590B2093"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "sum(chat_channels_total)",
+                        "legendFormat": "__auto",
+                        "range": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.1.1",
+            "spec": {
+              "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
                         "value": 80,
                         "color": "red"
                       }
@@ -263,6 +530,45 @@
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-2"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-5"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 12,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-4"
+              }
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "x": 0,
+              "y": 16,
+              "width": 12,
+              "height": 8,
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-6"
               }
             }
           }
