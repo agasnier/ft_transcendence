@@ -13,23 +13,25 @@ function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelVi
 	const [error, setError] = useState<string | null>(null)
 
 	return (
-		<>
+		<div className="flex flex-col gap-2 h-full min-h-0">
 			<div className="flex items-center gap-2">
 				<BackButton onClick={() => setView({ kind: 'home' })} />
 				<h2 className="text-xl font-bold">Nouveau canal</h2>
 			</div>
-			<CreateRoomForm
-				type="channel"
-				onCancel={() => setView({kind: 'home'})}
-				onCreate={async (name, description) => {
-					if (userId === null) return
-					const channel = await onCreateChannel('channel', [userId], name, description)
-					if (channel) setView({kind: 'home'})
-					else setError('Impossible de créer le canal')
-				}}
-			/>
-			{error && <p className="form-error">{error}</p>}
-		</>
+			<div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
+				<CreateRoomForm
+					type="channel"
+					onCancel={() => setView({kind: 'home'})}
+					onCreate={async (name, description) => {
+						if (userId === null) return
+						const channel = await onCreateChannel('channel', [userId], name, description)
+						if (channel) setView({kind: 'home'})
+						else setError('Impossible de créer le canal')
+					}}
+				/>
+				{error && <p className="form-error">{error}</p>}
+			</div>
+		</div>
 	)
 }
 

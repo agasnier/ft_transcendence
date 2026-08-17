@@ -53,7 +53,7 @@ function ChatHeader({channel, onOpenInfoPanel}: ChatHeaderProps) {
 			</span>
 			<div className="flex flex-col min-w-0">
 				<h1 className="font-bold text-gray-800 text-lg truncate">{channel.name}</h1>
-				<span className="text-black/50 truncate">
+				<span className="text-black/50 truncate min-h-6 block">
 					{channel.type === 'discussion' && isOnline !== null && (
 						<span className={`${isOnline ? 'text-green-500' : 'text-red-600'}`}>{isOnline ? 'En ligne' : 'Hors ligne'}</span>
 					)}

@@ -28,50 +28,54 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 	if (step === 'form')
 	{
 		return (
-			<>
+			<div className="flex flex-col gap-2 h-full min-h-0">
 				<div className="flex items-center gap-2">
 					<BackButton onClick={() => setView({ kind: 'home' })} />
 					<h2 className="text-xl font-bold">Nouveau groupe</h2>
 				</div>
-				<CreateRoomForm
-					type="group"
-					onCancel={() => setView({kind: 'home'})}
-					onCreate={async (name, description) => {
-						if (userId === null) return
-						const channel = await onCreateChannel('group', [userId, ...selectedIds], name, description)
-						if (channel) setView({kind: 'home'})
-						else setError('Impossible de créer le groupe')
-					}}
-				/>
-				{error && <p className="form-error">{error}</p>}
-			</>
+				<div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
+					<CreateRoomForm
+						type="group"
+						onCancel={() => setView({kind: 'home'})}
+						onCreate={async (name, description) => {
+							if (userId === null) return
+							const channel = await onCreateChannel('group', [userId, ...selectedIds], name, description)
+							if (channel) setView({kind: 'home'})
+							else setError('Impossible de créer le groupe')
+						}}
+					/>
+					{error && <p className="form-error">{error}</p>}
+				</div>
+			</div>
 		)
 	}
 	return (
-		<>
+		<div className="flex flex-col gap-2 h-full min-h-0">
 			<div className="flex items-center gap-2">
 				<BackButton onClick={() => setView({ kind: 'home' })} />
 				<h2 className="text-xl font-bold">Ajouter des membres</h2>
 			</div>
-			{friends.map((friend) => (
-				<AvatarNameCard
-					key={`friend-${friend.id}`}
-					name={friend.pseudo}
-					selected={selectedIds.has(friend.id)}
-					onClick={() => toggleMember(friend.id)}
-				/>
-			))}
-			<div data-create-room-popover
-			className="relative mt-auto self-end">
-			<button
-				type="button"
-				onClick={() => setStep('form')}
-				title="Créer un groupe"
-				className="fab-button">
-				➡︎
-			</button>
+			<div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
+				{friends.map((friend) => (
+					<AvatarNameCard
+						key={`friend-${friend.id}`}
+						name={friend.pseudo}
+						variant="user"
+						selected={selectedIds.has(friend.id)}
+						onClick={() => toggleMember(friend.id)}
+					/>
+				))}
 			</div>
-		</>
+			<div data-create-room-popover className="relative self-end">
+				<button
+					type="button"
+					onClick={() => setStep('form')}
+					title="Créer un groupe"
+					className="fab-button">
+					➡︎
+				</button>
+			</div>
+		</div>
 	)
 }
 

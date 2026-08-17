@@ -42,31 +42,34 @@ function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscus
 	}
 
 	return (
-		<>
+		<div className="flex flex-col gap-2 h-full min-h-0">
 			<div className="flex items-center gap-2">
 				<BackButton onClick={() => setView({ kind: 'home' })} />
 				<h2 className="text-xl font-bold">Nouvelle discussion</h2>
 			</div>
+			<div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
+				<h3 className="font-semibold text-gray-700 mt-2">Amis</h3>
+				{friends.map((friend) => (
+					<AvatarNameCard
+						key={`friend-${friend.id}`}
+						name={friend.pseudo}
+						variant="user"
+						onClick={() => handleSelect(friend)}
+					/>
+				))}
 
-			<h3 className="font-semibold text-gray-700 mt-2">Amis</h3>
-			{friends.map((friend) => (
-				<AvatarNameCard
-					key={`friend-${friend.id}`}
-					name={friend.pseudo}
-					onClick={() => handleSelect(friend)}
-				/>
-			))}
-
-			<h3 className="font-semibold text-gray-700 mt-4">Autres</h3>
-			{others.map((user) => (
-				<AvatarNameCard
-					key={`other-${user.id}`}
-					name={user.pseudo}
-					onClick={() => handleSelect(user)}
-				/>
-			))}
-			{error && <p className="form-error">{error}</p>}
-		</>
+				<h3 className="font-semibold text-gray-700 mt-4">Autres</h3>
+				{others.map((user) => (
+					<AvatarNameCard
+						key={`other-${user.id}`}
+						name={user.pseudo}
+						variant="user"
+						onClick={() => handleSelect(user)}
+					/>
+				))}
+				{error && <p className="form-error">{error}</p>}
+			</div>
+		</div>
 	)
 }
 
