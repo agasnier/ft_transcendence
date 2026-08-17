@@ -17,15 +17,17 @@ interface Channel {
 
 interface InfoPanelProps {
 	channel: Channel
+	userId: number | null
 	onBack: () => void
 	onDeleteChannel: (id: number) => void
 	onRenameChannel: (id: number, name: string) => Promise<boolean>
 }
 
-function InfoPanel({ channel, onBack, onDeleteChannel, onRenameChannel }: InfoPanelProps) {
+function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel }: InfoPanelProps) {
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState(channel.name ?? '')
 	const [members, setMembers] = useState<Member[] | null>(null)
+	const isModerator = members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false
 
 	useEffect(() => {
 		if (channel.type === 'discussion')
@@ -74,7 +76,7 @@ function InfoPanel({ channel, onBack, onDeleteChannel, onRenameChannel }: InfoPa
 					{channel.type === 'group' ? ' du groupe' : ''}
 					{channel.type === 'channel' ? ' du canal' : ''}
 				</h2>
-				{channel.type !== 'discussion' && (
+				{channel.type !== 'discussion' && isModerator && (
 					<button
 						type="button"
 						onClick={() => {
@@ -134,7 +136,9 @@ function InfoPanel({ channel, onBack, onDeleteChannel, onRenameChannel }: InfoPa
 			</div>
 			<button
 				type="button"
-				onClick={() => onDeleteChannel(channel.id)}
+				onClick={() => (
+					onDeleteChannel(channel.id)
+				)}
 				className="mt-auto w-full text-left px-3 py-2 text-sm text-red-600 bg-white hover:bg-red-100 rounded-xl">
 				🗑️​ Supprimer la conversation
 			</button>

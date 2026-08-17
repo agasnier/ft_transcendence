@@ -38,7 +38,7 @@ function MessagesList({messages, userId, channelType}: MessagesListProps) {
 					const content = msg.type === 'system' ? (
 						<div className="flex flex-col items-center justify-center gap-2">
 							<span className="text-xs text-white bg-blue-400 rounded-2xl p-1">
-								{channelType === 'group' && (
+								{channelType !== 'discussion' && (
 									<span className="font-bold">
 										{msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}
 									</span>
