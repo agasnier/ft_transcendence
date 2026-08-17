@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import BackButton from '../ui/BackButton'
 import ApiKeySection from '../ui/ApiKeySection'
 import TwoFactorSection from '../ui/TwoFactorSection'
@@ -9,7 +10,25 @@ interface UserMenuViewProps {
 	pseudo: string | null
 }
 
+interface Profile {
+	bio: string | null
+}
+
 function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
+	const [profile, setProfile] = useState<Profile | null>(null)
+
+	useEffect(() => {
+		async function fetchProfile() {
+			const res = await fetch('/users/profile')
+			if (res.ok) {
+				setProfile(await res.json())
+			} else {
+            console.error('Failed to fetch profile:', res.status, await res.text())
+       		}
+		}
+		fetchProfile()
+	}, [])
+
 	return (
 		<>
 			<div className="flex items-center gap-2">
@@ -22,6 +41,11 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
 					{pseudo?.charAt(0).toUpperCase() ?? '?'}
 				</span>
 				<span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
+				<div className="w-full px-4">
+					<p className="text-sm text-gray-500 text-center bg-gray-50 rounded-xl px-3 py-2 min-h-[2.5rem]">
+						{profile?.bio || <span className="text-gray-300 italic">Aucune bio</span>}
+					</p>
+				</div>
 			</div>
 			<p className="border-t text-gray-200 my-1"></p>
 			<ApiKeySection />
