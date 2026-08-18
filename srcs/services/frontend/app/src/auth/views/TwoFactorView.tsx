@@ -25,9 +25,8 @@ function TwoFactorView({ setView, onVerifySuccess }: TwoFactorViewProps) {
 		if (res.ok)
 			await onVerifySuccess()
 		else {
-			const body = await res.json()
 			setCode('')
-			setError(body.message)
+			setError('Code 2FA invalide')
 		}
 	}
 

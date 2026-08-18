@@ -33,14 +33,7 @@ function AddFriendForm() {
 			return
 		}
 
-		let text = "Impossible d'envoyer la demande"
-		try {
-			const body = await res.json()
-			if (body?.message)
-				text = body.message
-		} catch {
-		}
-		setFeedback({ type: 'error', text })
+		setFeedback({ type: 'error', text: "Impossible d'envoyer la demande" })
 	}
 
 	return (

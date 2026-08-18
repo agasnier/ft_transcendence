@@ -34,8 +34,7 @@ function SignupView({ setView, onSignupSuccess }: SignupViewProps) {
 		if (res.ok)
 			onSignupSuccess()
 		else {
-			const body = await res.json()
-			setError(body.message)
+			setError('Impossible de créer le compte')
 		}
 	}
 

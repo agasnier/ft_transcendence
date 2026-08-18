@@ -32,9 +32,8 @@ function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
 				await onLoginSuccess()
 		}
 		else {
-			const body = await res.json()
 			setPassword('')
-			setError(body.message)
+			setError('Identifiants incorrects')
 		}
 	}
 
