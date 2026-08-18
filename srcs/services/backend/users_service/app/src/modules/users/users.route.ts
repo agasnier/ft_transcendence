@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
-import { listUsersController, listUsersBatchController, getUserController, createUserController, updateUserController, deleteUserController, updateProfileController, getUserProfileController, uploadAvatarController, getPublicUserProfileController } from './users.controller.js'
-import { listUsersSchema, listUsersBatchSchema, getUserSchema, createUserSchema, updateUserSchema, deleteUserSchema, updateProfileSchema, getUserProfileSchema, uploadAvatarSchema, getPublicUserProfileSchema } from './users.schema.js'
+import { listUsersController, listUsersBatchController, getUserController, createUserController, updateUserController, deleteUserController, updateProfileController, getUserProfileController, uploadAvatarController, getPublicUserProfileController, deleteAvatarController } from './users.controller.js'
+import { listUsersSchema, listUsersBatchSchema, getUserSchema, createUserSchema, updateUserSchema, deleteUserSchema, updateProfileSchema, getUserProfileSchema, uploadAvatarSchema, getPublicUserProfileSchema, deleteAvatarSchema } from './users.schema.js'
 import { userAuthHook } from '../auth/auth.controller.js'
 import { requireSelfOrRole } from '../auth/permissions.js'
 
@@ -16,4 +16,5 @@ export async function usersRoutes(app: FastifyInstance): Promise<void> {
   app.get('/profile', { schema: getUserProfileSchema, preHandler: [userAuthHook] }, getUserProfileController)
   app.post('/profile/avatar', { schema: uploadAvatarSchema, preHandler: [userAuthHook] }, uploadAvatarController)
   app.get('/:id/profile', { schema: getPublicUserProfileSchema, preHandler: [userAuthHook] }, getPublicUserProfileController)
+  app.delete('/profile/avatar', { schema: deleteAvatarSchema, preHandler: [userAuthHook] }, deleteAvatarController)
 }

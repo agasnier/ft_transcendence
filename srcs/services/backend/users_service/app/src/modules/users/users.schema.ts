@@ -38,7 +38,7 @@ export const listUsersSchema = {
           id: { type: 'integer' },
           pseudo: { type: 'string' },
           displayName: { type: ['string', 'null'] },
-          avatarUrl: { type: 'string' },
+          avatarUrl: { type: ['string', 'null'] },
           mail: { type: 'string' },
           role: { type: 'string' },
         },
@@ -136,7 +136,7 @@ export const updateProfileSchema = {
       properties: {
         id: { type: 'integer' },
         displayName: { type: ['string', 'null'] },
-        avatarUrl: { type: 'string' },
+        avatarUrl: { type: ['string', 'null'] },
         bio: { type: ['string', 'null'] },
       },
     },
@@ -150,7 +150,7 @@ export const getUserProfileSchema = {
       properties: {
         id: { type: 'integer' },
         displayName: { type: ['string', 'null'] },
-        avatarUrl: { type: 'string' },
+        avatarUrl: { type: ['string', 'null'] },
         bio: { type: ['string', 'null'] },
         role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
       },
@@ -163,7 +163,18 @@ export const uploadAvatarSchema = {
     200: {
       type: 'object',
       properties: {
-        avatarUrl: { type: 'string' },
+        avatarUrl: { type: ['string', 'null'] },
+      },
+    },
+  },
+}
+
+export const deleteAvatarSchema = {
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
       },
     },
   },
@@ -183,7 +194,7 @@ export const getPublicUserProfileSchema = {
       properties: {
         id: { type: 'integer' },
         displayName: { type: ['string', 'null'] },
-        avatarUrl: { type: 'string' },
+        avatarUrl: { type: ['string', 'null'] },
         bio: { type: ['string', 'null'] },
         isOnline: { type: 'boolean' },
         role: { type: 'string', enum: ['admin', 'moderator', 'user'] },

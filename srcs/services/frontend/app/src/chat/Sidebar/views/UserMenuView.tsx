@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import BackButton from '../ui/BackButton'
 import ApiKeySection from '../ui/ApiKeySection'
 import TwoFactorSection from '../ui/TwoFactorSection'
@@ -16,6 +16,7 @@ interface UserMenuViewProps {
 
 interface Profile {
     bio: string | null
+    avatarUrl: string | null
 }
 
 function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuViewProps) {
@@ -28,6 +29,10 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
     const [pseudoDraft, setPseudoDraft] = useState('')
     const [isSavingPseudo, setIsSavingPseudo] = useState(false)
     const [pseudoError, setPseudoError] = useState<string | null>(null)
+
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+    const [avatarError, setAvatarError] = useState<string | null>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         async function fetchProfile() {
@@ -95,6 +100,33 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
         setIsEditingPseudo(false)
     }
 
+     async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setAvatarError(null)
+        setIsUploadingAvatar(true)
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const res = await fetch('/users/profile/avatar', {
+            method: 'POST',
+            body: formData,
+        })
+
+        if (res.ok) {
+            const data = await res.json()
+            setProfile((prev) => (prev ? { ...prev, avatarUrl: data.avatarUrl } : prev))
+        } else {
+            const err = await res.json().catch(() => null)
+            setAvatarError(err?.message ?? 'Échec de l\'upload')
+        }
+
+        setIsUploadingAvatar(false)
+        if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+
     return (
         <>
             <div className="flex items-center gap-2">
@@ -102,10 +134,35 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                 <h2 className="view-title">Paramètres</h2>
             </div>
             <div className="flex flex-col items-center gap-2 font-semibold text-gray-800 py-2">
-                <span
-                    className="avatar-circle bg-user w-30 h-30 text-6xl">
-                    {pseudo?.charAt(0).toUpperCase() ?? '?'}
-                </span>
+                <div className="relative">
+                    {profile?.avatarUrl ? (
+                        <img
+                            src={profile.avatarUrl}
+                            alt="avatar"
+                            className="w-30 h-30 rounded-full object-cover"
+                        />
+                    ) : (
+                        <span className="avatar-circle bg-user w-30 h-30 text-6xl">
+                            {pseudo?.charAt(0).toUpperCase() ?? '?'}
+                        </span>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingAvatar}
+                        title="Changer la photo de profil"
+                        className="absolute bottom-0 right-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-gray-100 disabled:opacity-50">
+                        {isUploadingAvatar ? '...' : '🖋'}
+                    </button>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                    />
+                </div>
+                {avatarError && <p className="text-xs text-red-600">{avatarError}</p>}
 
                 {isEditingPseudo ? (
                     <div className="flex flex-col gap-2 w-full px-4">
@@ -188,8 +245,6 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
             <ApiKeySection />
             <p className="border-t text-gray-200 my-1"></p>
             <TwoFactorSection />
-            <p className="border-t text-gray-200 my-1"></p>
-            <PasswordSection />
             <p className="border-t text-gray-200 my-1"></p>
             <button
                 onClick={onLogout}

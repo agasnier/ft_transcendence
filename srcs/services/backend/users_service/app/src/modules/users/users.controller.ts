@@ -1,7 +1,8 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { getAllUsers, getUserById, getUsersByIds, createUser, updateUser, deleteUser, listUsers, updateUserProfile, getUserProfile, updateAvatar, getPublicUserProfile } from './users.service.js'
+import { getAllUsers, getUserById, getUsersByIds, createUser, updateUser, deleteUser, listUsers, updateUserProfile, getUserProfile, updateAvatar, getPublicUserProfile, deleteAvatar } from './users.service.js'
 import { pipeline } from 'stream/promises'
 import { createWriteStream } from 'fs'
+import { unlink } from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import { eq } from 'drizzle-orm'
@@ -175,12 +176,29 @@ export async function uploadAvatarController(req: FastifyRequest, reply: Fastify
     await reply.code(400).send({ message: 'Invalid file type' })
     return
   }
+
+  // delete previous avatar
+  const currentUser = await getUserById(req.user.id)
+  if (currentUser?.avatarUrl) {
+    const oldFilename = currentUser.avatarUrl.replace('/avatars/', '')
+    await unlink(path.join('/app/uploads/avatars', oldFilename)).catch(() => {})
+  }
+
   const filename = `${randomUUID()}${path.extname(data.filename)}`
   const filepath = path.join('/app/uploads/avatars', filename)
   await pipeline(data.file, createWriteStream(filepath))
   const avatarUrl = `/avatars/${filename}`
   await updateAvatar(req.user.id, avatarUrl)
   return reply.send({ avatarUrl })
+}
+
+export async function deleteAvatarController(req: FastifyRequest, reply: FastifyReply) {
+  if (!req.user) {
+    await reply.code(401).send({ message: 'Not authenticated' })
+    return
+  }
+  await deleteAvatar(req.user.id)
+  return reply.send({ message: 'Avatar removed' })
 }
 
 export async function getPublicUserProfileController(request: FastifyRequest, reply: FastifyReply): Promise<void> {

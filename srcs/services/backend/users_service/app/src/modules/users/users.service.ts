@@ -1,5 +1,6 @@
 import { eq, inArray, or } from 'drizzle-orm'
-
+import { unlink } from 'fs/promises'
+import path from 'path'
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
 import { hashPassword, verifyPassword } from '../vault/hash.js'
@@ -7,13 +8,13 @@ import { hashPassword, verifyPassword } from '../vault/hash.js'
 
 export async function getAllUsers() {
   return await db
-    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role })
+    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role, avatarUrl: users.avatarUrl })
     .from(users)
 }
 
 export async function getUserById(id: number) {
   const rows = await db
-    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role })
+    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role, avatarUrl: users.avatarUrl })
     .from(users)
     .where(eq(users.id, id))
     .limit(1)
@@ -134,6 +135,16 @@ export async function getUserProfile(id: number) {
 
 export async function updateAvatar(id: number, avatarUrl: string) {
   await db.update(users).set({ avatarUrl }).where(eq(users.id, id))
+}
+
+export async function deleteAvatar(id: number) {
+  const user = await getUserById(id)
+  if (user?.avatarUrl) {
+    const filename = user.avatarUrl.replace('/avatars/', '')
+    const filepath = path.join('/app/uploads/avatars', filename)
+    await unlink(filepath).catch(() => {})
+  }
+  await db.update(users).set({ avatarUrl: null }).where(eq(users.id, id))
 }
 
 export async function deleteUser(id: number) {
