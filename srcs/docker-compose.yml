@@ -136,6 +136,7 @@ services:
         condition: service_healthy
     volumes:
       - users_service_creds:/vault/secrets:ro
+      - users_uploads:/app/uploads
     networks:
       - ft
     restart: unless-stopped
@@ -336,6 +337,13 @@ volumes:
       type: none
       o: bind
       device: ./data/chat_uploads
+
+  users_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/users_uploads
 
 
 secrets:

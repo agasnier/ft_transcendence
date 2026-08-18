@@ -11,6 +11,8 @@ GRAFANA_DATA  = srcs/data/grafana
 GRAFANA_DATA_DEV = srcs/data/grafana-dev
 CHAT_UPLOAD	  = srcs/data/chat_uploads
 CHAT_UPLOAD_DEV	  = srcs/data/chat_uploads-dev
+USER_UPLOAD   = srcs/data/users_uploads
+USER_UPLOAD_DEV   = srcs/data/users_uploads-dev
 
 all: help
 
@@ -32,7 +34,7 @@ help:
 	@echo ""
 
 up:
-	mkdir -p $(DB_DATA) $(VAULT_DATA) $(PROM_DATA) $(GRAFANA_DATA) $(CHAT_UPLOAD)
+	mkdir -p $(DB_DATA) $(VAULT_DATA) $(PROM_DATA) $(GRAFANA_DATA) $(CHAT_UPLOAD) $(USER_UPLOAD)
 	$(COMPOSE) up --build -d
 
 down:
@@ -45,7 +47,7 @@ ps:
 	$(COMPOSE) ps
 
 dev:
-	mkdir -p $(DB_DATA_DEV) $(VAULT_DATA_DEV) $(PROM_DATA_DEV) $(GRAFANA_DATA_DEV) $(CHAT_UPLOAD_DEV)
+	mkdir -p $(DB_DATA_DEV) $(VAULT_DATA_DEV) $(PROM_DATA_DEV) $(GRAFANA_DATA_DEV) $(CHAT_UPLOAD_DEV) $(USER_UPLOAD_DEV)
 	$(COMPOSE_DEV) up --build
 
 dev-down:
@@ -58,7 +60,7 @@ fclean: clean
 	$(COMPOSE) down --rmi all
 	@echo "Delete the persistant data ? : (y/n)"
 	@read ans; if [ "$$ans" = "y" ]; then \
-        sudo rm -rf $(DB_DATA) $(DB_DATA_DEV) $(VAULT_DATA) $(VAULT_DATA_DEV) $(PROM_DATA) $(PROM_DATA_DEV) $(GRAFANA_DATA) $(GRAFANA_DATA_DEV) $(CHAT_UPLOAD) $(CHAT_UPLOAD_DEV); \
+        sudo rm -rf $(DB_DATA) $(DB_DATA_DEV) $(VAULT_DATA) $(VAULT_DATA_DEV) $(PROM_DATA) $(PROM_DATA_DEV) $(GRAFANA_DATA) $(GRAFANA_DATA_DEV) $(CHAT_UPLOAD) $(CHAT_UPLOAD_DEV) $(USER_UPLOAD) $(USER_UPLOAD_DEV); \
 		echo "Deleted."; \
     else \
         echo "Persistant data not deleted."; \
