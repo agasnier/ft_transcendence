@@ -36,7 +36,7 @@ interface ChatWindowProps {
     userId: number | null
     messages: Message[]
     onSendMessage: (content: string) => void
-    onSendFile: (file: File) => Promise<boolean>
+    onSendFile: (file: File, onProgress?: (percent: number) => void) => Promise<boolean>
     onOpenInfoPanel: () => void
 }
 

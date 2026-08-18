@@ -1,48 +1,48 @@
 import { useEffect, useRef, useState } from 'react'
 
 interface MessageInputProps {
-	onSendMessage: (content: string) => void
-	onSendFile: (file: File) => Promise<boolean>
-	disabled?: boolean
+    onSendMessage: (content: string) => void
+    onSendFile: (file: File, onProgress?: (percent: number) => void) => Promise<boolean>
+    disabled?: boolean
 }
 
-// 10Mo limit
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 
 function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) {
-	const [inputText, setInputText] = useState('')
-	const [isUploading, setIsUploading] = useState(false)
+    const [inputText, setInputText] = useState('')
+    const [isUploading, setIsUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
     const [fileError, setFileError] = useState<string | null>(null)
-	const textareaRef = useRef<HTMLTextAreaElement>(null)
-	const fileInputRef = useRef<HTMLInputElement>(null)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
-	useEffect(() => {
-		const el = textareaRef.current
-		if (!el) return
-		el.style.height = 'auto'
-		el.style.height = `${el.scrollHeight}px`
-	}, [inputText])
+    useEffect(() => {
+        const el = textareaRef.current
+        if (!el) return
+        el.style.height = 'auto'
+        el.style.height = `${el.scrollHeight}px`
+    }, [inputText])
 
-	function handleSend() {
-		if (!inputText.trim() || disabled) return
+    function handleSend() {
+        if (!inputText.trim() || disabled) return
 
-		onSendMessage(inputText.trim())
-		setInputText('')
-	}
+        onSendMessage(inputText.trim())
+        setInputText('')
+    }
 
-	function handleSubmit(e: React.FormEvent) {
-		e.preventDefault()
-		handleSend()
-	}
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault()
+        handleSend()
+    }
 
-	function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-		if (e.key === 'Enter' && !e.shiftKey) {
-			e.preventDefault()
-			handleSend()
-		}
-	}
+    function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            handleSend()
+        }
+    }
 
-	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0]
         if (!file) return
 
@@ -55,15 +55,28 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
         }
 
         setIsUploading(true)
-        const ok = await onSendFile(file)
+        setUploadProgress(0)
+        const ok = await onSendFile(file, setUploadProgress)
         if (!ok) setFileError('Échec de l\'envoi du fichier')
         setIsUploading(false)
+        setUploadProgress(0)
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
-	return (
+    return (
         <form onSubmit={handleSubmit} className="p-4 border-t bg-white flex flex-col gap-1">
             {fileError && <p className="text-xs text-red-600 px-1">{fileError}</p>}
+            {isUploading && (
+                <div className="flex items-center gap-2 px-1">
+                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                            className="h-full bg-blue-500 transition-all duration-150"
+                            style={{ width: `${uploadProgress}%` }}
+                        />
+                    </div>
+                    <span className="text-xs text-gray-500 w-9 text-right">{uploadProgress}%</span>
+                </div>
+            )}
             <div className="flex gap-2 items-end">
                 <button
                     type="button"
@@ -71,7 +84,7 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
                     disabled={disabled || isUploading}
                     title="Joindre un fichier"
                     className="icon-button text-xl w-10 h-10 shrink-0 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
-                    {isUploading ? '...' : '📎'}
+                    📎
                 </button>
                 <input
                     ref={fileInputRef}

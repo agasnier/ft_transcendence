@@ -46,16 +46,34 @@ export function useMessage(channelId: number | null) {
 	})
 	}
 
-	async function uploadFile(file: File): Promise<boolean> {
-        if (channelId === null) return false
+	async function uploadFile(file: File, onProgress?: (percent: number) => void): Promise<boolean> {
+    if (channelId === null) return false
+
+    return new Promise((resolve) => {
         const formData = new FormData()
         formData.append('file', file)
-        const res = await fetch(`/chat/files/${channelId}`, {
-            method: 'POST',
-            body: formData,
-        })
-        return res.ok
-    }
+
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', `/chat/files/${channelId}`)
+
+        xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable && onProgress) {
+                const percent = Math.round((event.loaded / event.total) * 100)
+                onProgress(percent)
+            }
+        }
+
+        xhr.onload = () => {
+            resolve(xhr.status >= 200 && xhr.status < 300)
+        }
+
+        xhr.onerror = () => {
+            resolve(false)
+        }
+
+        xhr.send(formData)
+    })
+}
 
 	function addMessage(message: Message) {
 		if (channelId === null || message.channelId !== channelId) return
