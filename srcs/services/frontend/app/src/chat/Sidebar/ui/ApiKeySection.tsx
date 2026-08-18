@@ -6,6 +6,10 @@ function ApiKeySection() {
 	const [copied, setCopied] = useState(false)
 	const [hasKey, setHasKey] = useState(false)
 	const [expiresAt, setExpiresAt] = useState<string | null>(null)
+	const [confirmCreate, setConfirmCreate] = useState(false)
+	const [confirmRenew, setConfirmRenew] = useState(false)
+	const [isCreating, setIsCreating] = useState(false)
+	const [isRenewing, setIsRenewing] = useState(false)
 
 	useEffect(() => {
 		async function loadKey() {
@@ -28,6 +32,8 @@ function ApiKeySection() {
 	}, [])
 
 	async function handleCreateKey() {
+		if (isCreating) return
+		setIsCreating(true)
 		try {
 			const res = await fetch('/api/api_keys/', { method: 'POST' })
 			if (res.ok) {
@@ -35,6 +41,7 @@ function ApiKeySection() {
 				setCreatedKey(body.apiKeyCreated ?? null)
 				setHasKey(true)
 				setExpiresAt(body.expires_at ?? null)
+				setConfirmCreate(false)
 				setCopied(false)
 				setStatusMsg(body.apiKeyCreated ? null : 'Clé API créée !')
 			} else {
@@ -46,6 +53,8 @@ function ApiKeySection() {
 			setCreatedKey(null)
 			setStatusMsg('Erreur réseau')
 			setTimeout(() => setStatusMsg(null), 3000)
+		} finally {
+			setIsCreating(false)
 		}
 	}
 
@@ -62,6 +71,8 @@ function ApiKeySection() {
 	}
 
 	async function handleRenewKey() {
+		if (isRenewing) return
+		setIsRenewing(true)
 		try {
 			const res = await fetch('/api/api_keys/', { method: 'PUT' })
 			if (res.ok) {
@@ -69,6 +80,7 @@ function ApiKeySection() {
 				setCreatedKey(body.apiKeyCreated ?? null)
 				setHasKey(true)
 				setExpiresAt(body.expires_at ?? null)
+				setConfirmRenew(false)
 				setCopied(false)
 				setStatusMsg(body.apiKeyCreated ? null : 'Clé API renouvelée !')
 			} else {
@@ -78,6 +90,8 @@ function ApiKeySection() {
 		} catch {
 			setStatusMsg('Erreur réseau')
 			setTimeout(() => setStatusMsg(null), 3000)
+		} finally {
+			setIsRenewing(false)
 		}
 	}
 
@@ -88,6 +102,7 @@ function ApiKeySection() {
 				setCreatedKey(null)
 				setHasKey(false)
 				setExpiresAt(null)
+				setConfirmRenew(false)
 				setCopied(false)
 				setStatusMsg('Clé API supprimée !')
 			} else {
@@ -102,12 +117,42 @@ function ApiKeySection() {
 	return (
 		<>
 			<h3 className="font-semibold text-gray-700 mt-2">Clé API</h3>
-			{!hasKey && (
+			{!hasKey && !confirmCreate && (
 				<button
-					onClick={handleCreateKey}
+					type="button"
+					onClick={() => setConfirmCreate(true)}
 					className="menu-item text-blue-600 hover:bg-blue-50">
 					Créer clé API
 				</button>
+			)}
+			{!hasKey && confirmCreate && (
+				<div className="flex flex-col gap-2 px-2 py-1">
+					<p className="text-xs text-amber-700 leading-snug">
+						Cette clé ne s'affichera qu'une seule fois. En cas de problème, contactez le support :
+						{' '}
+						<a
+							href="mailto:support.transcendence@gmail.com"
+							className="underline break-all">
+							support.transcendence@gmail.com
+						</a>
+					</p>
+					<div className="flex justify-center gap-2">
+						<button
+							type="button"
+							onClick={handleCreateKey}
+							disabled={isCreating}
+							className="text-sm px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
+							{isCreating ? '...' : 'Confirmer'}
+						</button>
+						<button
+							type="button"
+							onClick={() => setConfirmCreate(false)}
+							disabled={isCreating}
+							className="text-sm px-3 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50">
+							Annuler
+						</button>
+					</div>
+				</div>
 			)}
 			{hasKey && (
 				<>
@@ -117,15 +162,47 @@ function ApiKeySection() {
 								? `Expire le ${new Date(expiresAt).toLocaleDateString('fr-FR')}`
 								: 'Expire le —'}
 						</p>
-						<button
-							type="button"
-							onClick={handleRenewKey}
-							className="icon-button w-12 h-10 text-2xl text-gray-500 leading-none"
-							title="Renouveler">
-							⟲
-						</button>
+						{!confirmRenew && (
+							<button
+								type="button"
+								onClick={() => setConfirmRenew(true)}
+								className="icon-button w-12 h-10 text-2xl text-gray-500 leading-none"
+								title="Renouveler">
+								⟲
+							</button>
+						)}
 					</div>
+					{confirmRenew && (
+						<div className="flex flex-col gap-2 px-2 py-1">
+							<p className="text-xs text-amber-700 leading-snug">
+								Cette clé ne s'affichera qu'une seule fois. En cas de problème, contactez le support :
+								{' '}
+								<a
+									href="mailto:support.transcendence@gmail.com"
+									className="underline break-all">
+									support.transcendence@gmail.com
+								</a>
+							</p>
+							<div className="flex justify-center gap-2">
+								<button
+									type="button"
+									onClick={handleRenewKey}
+									disabled={isRenewing}
+									className="text-sm px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
+									{isRenewing ? '...' : 'Confirmer'}
+								</button>
+								<button
+									type="button"
+									onClick={() => setConfirmRenew(false)}
+									disabled={isRenewing}
+									className="text-sm px-3 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50">
+									Annuler
+								</button>
+							</div>
+						</div>
+					)}
 					<button
+						type="button"
 						onClick={handleDeleteKey}
 						className="menu-item text-amber-600 hover:bg-amber-50">
 						Supprimer clé API
@@ -133,12 +210,12 @@ function ApiKeySection() {
 				</>
 			)}
 			{createdKey && (
-				<div className="flex items-start gap-2 px-2 py-1">
-					<p className="text-xs font-medium text-emerald-600 break-all flex-1 min-w-0">{createdKey}</p>
+				<div className="flex items-center gap-1 px-2 py-1">
+					<p className="text-xs font-medium text-emerald-600 break-all flex-1 min-w-0 leading-7">{createdKey}</p>
 					<button
 						type="button"
 						onClick={handleCopyKey}
-						className="menu-item w-auto shrink-0 text-blue-600 hover:bg-blue-50"
+						className="icon-button w-7 h-7 shrink-0 text-blue-600"
 						title={copied ? 'Copiée' : 'Copier'}>
 						{copied ? '✓' : '⎘'}
 					</button>

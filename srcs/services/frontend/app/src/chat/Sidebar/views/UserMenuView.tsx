@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import BackButton from '../ui/BackButton'
 import ApiKeySection from '../ui/ApiKeySection'
 import TwoFactorSection from '../ui/TwoFactorSection'
+import PasswordSection from '../ui/PasswordSection'
 import TextField from '../../../components/TextField'
 import TextAreaField from '../../../components/TextAreaField'
 import type { SidebarView } from '../Sidebar'
@@ -187,6 +188,8 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
             <ApiKeySection />
             <p className="border-t text-gray-200 my-1"></p>
             <TwoFactorSection />
+            <p className="border-t text-gray-200 my-1"></p>
+            <PasswordSection />
             <p className="border-t text-gray-200 my-1"></p>
             <button
                 onClick={onLogout}

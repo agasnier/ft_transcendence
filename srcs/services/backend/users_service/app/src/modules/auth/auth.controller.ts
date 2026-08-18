@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { createCookie, createPending2FACookie, deleteRefreshToken, validateRefreshToken } from './auth.service.js'
-import { createUser, verifyCredentials, getUserById } from '../users/users.service.js'
+import { createUser, verifyCredentials, getUserById, changePassword } from '../users/users.service.js'
 import { getTwoFAByUserId } from '../twofa/twofa.service.js'
 import { validateAccessToken } from '../vault/jwt.js'
 
@@ -75,6 +75,29 @@ export async function logoutController(request: FastifyRequest, reply: FastifyRe
       .clearCookie('refresh_token', { path: '/auth' })
 
     await reply.status(200).send({ message: 'Logged out' })
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function changePasswordController(
+  request: FastifyRequest<{ Body: { currentPassword: string; newPassword: string } }>,
+  reply: FastifyReply,
+): Promise<void> {
+  try {
+    const { currentPassword, newPassword } = request.body
+    const result = await changePassword(request.user!.id, currentPassword, newPassword)
+    if (result === 'not_found') {
+      await reply.status(404).send({ message: 'User not found' })
+      return
+    }
+    if (result === 'invalid') {
+      await reply.status(401).send({ message: 'Invalid current password' })
+      return
+    }
+
+    await reply.status(200).send({ message: 'Password updated' })
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

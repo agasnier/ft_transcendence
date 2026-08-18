@@ -59,6 +59,27 @@ export async function createUser(mail: string, pseudo: string, password: string)
 
 type UserRole = 'admin' | 'moderator' | 'user'
 
+export async function changePassword(userId: number, currentPassword: string, newPassword: string): Promise<'ok' | 'not_found' | 'invalid'> {
+  const rows = await db
+    .select({ password: users.password })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+
+  const user = rows[0]
+  if (!user)
+    return 'not_found'
+  if (!(await verifyPassword(user.password, currentPassword)))
+    return 'invalid'
+
+  await db
+    .update(users)
+    .set({ password: await hashPassword(newPassword) })
+    .where(eq(users.id, userId))
+
+  return 'ok'
+}
+
 export async function updateUser(id: number, data: { mail?: string; pseudo?: string; password?: string; role?: UserRole }) {
   const User = await getUserById(id)
   if (!User)

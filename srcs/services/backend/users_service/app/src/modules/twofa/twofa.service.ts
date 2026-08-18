@@ -30,7 +30,7 @@ export async function setupTwoFA(userId: number, label: string): Promise<{ secre
 
   const secret = generateSecret()
   const otpauthUrl = generateURI({
-    issuer: 'users_service',
+    issuer: 'Transcendence',
     label,
     secret,
   })
