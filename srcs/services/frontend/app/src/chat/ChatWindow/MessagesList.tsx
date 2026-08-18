@@ -1,4 +1,4 @@
-import { useEffect, useRef, Fragment } from 'react'
+import { useEffect, useRef, useState, Fragment } from 'react'
 
 interface FileInfo {
     id: number
@@ -22,7 +22,11 @@ interface Message {
 interface MessagesListProps {
     messages: Message[]
     userId: number | null
+    role: 'admin' | 'moderator' | 'user' | null
+    myChannelRole: 'moderator' | 'member' | null
     channelType: 'channel' | 'group' | 'discussion'
+    onEditMessage: (messageId: number, content: string) => Promise<boolean>
+    onDeleteMessage: (messageId: number) => Promise<boolean>
 }
 
 function formatFileSize(bytes: number): string {
@@ -59,12 +63,47 @@ function FileAttachment({ file }: { file: FileInfo }) {
     )
 }
 
-function MessagesList({messages, userId, channelType}: MessagesListProps) {
+function MessagesList({messages, userId, role, myChannelRole, channelType, onEditMessage, onDeleteMessage}: MessagesListProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const [editingId, setEditingId] = useState<number | null>(null)
+    const [editDraft, setEditDraft] = useState('')
+    const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
+
+    function startEditing(msg: Message) {
+        setEditingId(msg.id)
+        setEditDraft(msg.content)
+    }
+
+    function cancelEditing() {
+        setEditingId(null)
+    }
+
+    async function saveEdit(messageId: number) {
+        if (!editDraft.trim()) return
+        const ok = await onEditMessage(messageId, editDraft.trim())
+        if (ok) setEditingId(null)
+    }
+
+    async function confirmDelete(messageId: number) {
+        await onDeleteMessage(messageId)
+        setConfirmDeleteId(null)
+    }
+
+    function canManage(msg: Message, senderIsAdmin: boolean): { canEdit: boolean; canDelete: boolean } {
+        const isOwn = msg.senderId === userId
+        if (isOwn) {
+            // can't edit files messages
+            return { canEdit: msg.fileId === null, canDelete: true }
+        }
+        if (role === 'admin') return { canEdit: false, canDelete: true }
+        if (senderIsAdmin) return { canEdit: false, canDelete: false }
+        if (myChannelRole === 'moderator') return { canEdit: false, canDelete: true }
+        return { canEdit: false, canDelete: false }
+    }
 
     return (
         <div className="flex-1 p-4 overflow-y-auto space-y-3">
@@ -78,6 +117,9 @@ function MessagesList({messages, userId, channelType}: MessagesListProps) {
                     const prevDay = index > 0 ? new Date(messages[index - 1].createdAt).toDateString() : null
                     const showDateDivider = msgDay !== prevDay
                     const isOwn = msg.senderId === userId
+                    // We let the button and the server refuse if the role is not adapted
+                    const { canEdit, canDelete } = canManage(msg, false)
+
                     const content = msg.type === 'system' ? (
                         <div className="flex flex-col items-center justify-center gap-2">
                             <span className="text-xs text-white bg-blue-400 rounded-2xl p-1">
@@ -90,8 +132,8 @@ function MessagesList({messages, userId, channelType}: MessagesListProps) {
                             </span>
                         </div>
                     ) : (
-                        <div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`flex flex-col min-w-0 p-3 rounded-2xl max-w-md shadow-sm
+                        <div key={msg.id} className={`group flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`flex flex-col min-w-0 p-3 rounded-2xl max-w-md shadow-sm relative
                                 ${isOwn
                                 ? 'items-end bg-blue-200'
                                 : 'items-start bg-white border-blue-100'}
@@ -102,10 +144,78 @@ function MessagesList({messages, userId, channelType}: MessagesListProps) {
                                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
-                                {msg.file ? (
+
+                                {editingId === msg.id ? (
+                                    <div className="flex flex-col gap-2 w-full">
+                                        <textarea
+                                            value={editDraft}
+                                            onChange={(e) => setEditDraft(e.target.value)}
+                                            maxLength={2000}
+                                            rows={2}
+                                            className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1 resize-none"
+                                        />
+                                        <div className="flex gap-2 justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => saveEdit(msg.id)}
+                                                className="text-xs px-2 py-1 rounded-lg bg-blue-500 text-white hover:bg-blue-600">
+                                                Enregistrer
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={cancelEditing}
+                                                className="text-xs px-2 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">
+                                                Annuler
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : msg.file ? (
                                     <FileAttachment file={msg.file} />
                                 ) : (
                                     <p className="text-gray-800 whitespace-pre-wrap wrap-break-word min-w-0 w-full">{msg.content}</p>
+                                )}
+
+                                {(canEdit || canDelete) && editingId !== msg.id && (
+                                    <div className="absolute -top-3 right-2 hidden group-hover:flex gap-1 bg-white rounded-lg shadow border px-1">
+                                        {canEdit && (
+                                            <button
+                                                type="button"
+                                                onClick={() => startEditing(msg)}
+                                                title="Modifier"
+                                                className="text-xs w-6 h-6 hover:bg-gray-100 rounded">
+                                                🖋
+                                            </button>
+                                        )}
+                                        {canDelete && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setConfirmDeleteId(msg.id)}
+                                                title="Supprimer"
+                                                className="text-xs w-6 h-6 hover:bg-red-100 rounded">
+                                                🗑️
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+
+                                {confirmDeleteId === msg.id && (
+                                    <div className="absolute top-full right-0 mt-1 z-10 bg-white border rounded-xl shadow-lg p-2 flex flex-col gap-2 w-48">
+                                        <span className="text-xs text-gray-600">Supprimer ce message ?</span>
+                                        <div className="flex gap-2 justify-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => confirmDelete(msg.id)}
+                                                className="text-xs px-2 py-1 rounded-lg bg-red-500 text-white hover:bg-red-600">
+                                                Confirmer
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setConfirmDeleteId(null)}
+                                                className="text-xs px-2 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">
+                                                Annuler
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>

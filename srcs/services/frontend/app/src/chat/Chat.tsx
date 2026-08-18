@@ -23,10 +23,10 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 	const { channels, createChannel, deleteChannel, addChannel, markChannelRead, setChannelUnread, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole, removeMember, uploadChannelAvatar, deleteChannelAvatar } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
-	const { messages, createMessage, uploadFile, addMessage } = useMessage(selectedChannelId)
+	const { messages, createMessage, uploadFile, addMessage, editMessage, deleteMessage, updateMessage, removeMessage } = useMessage(selectedChannelId)
 	const [showInfoPanel, setShowInfoPanel] = useState(false)
 
-	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId)
+	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId, updateMessage, removeMessage)
 
 	function handleSelectChannel(id: number) {
 		setSelectedChannelId(id)
@@ -88,9 +88,12 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 										key={selectedChannel.id}
 										channel={selectedChannel}
 										userId={userId}
+										role={role}
 										messages={messages}
 										onSendMessage={handleSendMessage}
 										onSendFile={uploadFile}
+										onEditMessage={editMessage}
+    									onDeleteMessage={deleteMessage}
 										onOpenInfoPanel={() => setShowInfoPanel(true)}
 									/>
 									{showInfoPanel && (

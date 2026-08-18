@@ -34,45 +34,47 @@ interface Channel {
 interface ChatWindowProps {
     channel: Channel
     userId: number | null
+    role: 'admin' | 'moderator' | 'user' | null
     messages: Message[]
     onSendMessage: (content: string) => void
     onSendFile: (file: File, onProgress?: (percent: number) => void) => Promise<boolean>
+    onEditMessage: (messageId: number, content: string) => Promise<boolean>
+    onDeleteMessage: (messageId: number) => Promise<boolean>
     onOpenInfoPanel: () => void
 }
 
-function ChatWindow({ channel, userId, messages, onSendMessage, onSendFile, onOpenInfoPanel }: ChatWindowProps) {
+function ChatWindow({ channel, userId, role, messages, onSendMessage, onSendFile, onEditMessage, onDeleteMessage, onOpenInfoPanel }: ChatWindowProps) {
     const [canWrite, setCanWrite] = useState(true)
+    const [myChannelRole, setMyChannelRole] = useState<'moderator' | 'member' | null>(null)
 
     useEffect(() => {
         async function checkWritePermission() {
             // discussion and channel are free writing
-            if (channel.type === 'discussion' || channel.writeMode !== 'moderators_only') {
+            if (channel.type === 'discussion') {
                 setCanWrite(true)
                 return
             }
 
-            // bypass admin global
-            const profileRes = await fetch('/users/profile')
-            if (profileRes.ok) {
-                const profile = await profileRes.json()
-                if (profile.role === 'admin') {
-                    setCanWrite(true)
-                    return
-                }
-            }
-
-            // check role in specific channel
+            // fetch my role in this channel (used both for write-permission and for message management buttons)
             const membersRes = await fetch(`/chat/channels/${channel.id}/members`)
             if (!membersRes.ok) {
-                setCanWrite(false)
+                setMyChannelRole(null)
+                if (channel.writeMode === 'moderators_only' && role !== 'admin') setCanWrite(false)
                 return
             }
             const members: { userId: number; role: 'moderator' | 'member' }[] = await membersRes.json()
             const me = members.find((m) => m.userId === userId)
+            setMyChannelRole(me?.role ?? null)
+
+            if (channel.writeMode !== 'moderators_only' || role === 'admin') {
+                setCanWrite(true)
+                return
+            }
+
             setCanWrite(me?.role === 'moderator')
         }
         checkWritePermission()
-    }, [channel.id, channel.type, channel.writeMode, userId])
+    }, [channel.id, channel.type, channel.writeMode, userId, role])
 
     return (
         <main className="w-full h-full max-w-175 mx-auto flex flex-col bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
@@ -83,7 +85,11 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onSendFile, onOp
             <MessagesList
                 messages={messages}
                 userId={userId}
-                channelType={channel.type}/>
+                role={role}
+                myChannelRole={myChannelRole}
+                channelType={channel.type}
+                onEditMessage={onEditMessage}
+                onDeleteMessage={onDeleteMessage}/>
             <MessageInput
                 onSendMessage={onSendMessage}
                 onSendFile={onSendFile}

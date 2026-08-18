@@ -84,10 +84,41 @@ export function useMessage(channelId: number | null) {
 		)
 	}
 
+	async function editMessage(messageId: number, content: string): Promise<boolean> {
+    if (channelId === null) return false
+    const res = await fetch(`/chat/channels/${channelId}/messages/${messageId}`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ content }),
+    })
+    return res.ok
+	}
+
+	async function deleteMessage(messageId: number): Promise<boolean> {
+		if (channelId === null) return false
+		const res = await fetch(`/chat/channels/${channelId}/messages/${messageId}`, {
+			method: 'DELETE',
+		})
+		return res.ok
+	}
+
+	function updateMessage(message: Message) {
+    if (channelId === null || message.channelId !== channelId) return
+    setMessages((prev) => prev.map((m) => (m.id === message.id ? message : m)))
+	}
+
+	function removeMessage(messageId: number) {
+		setMessages((prev) => prev.filter((m) => m.id !== messageId))
+	}
+
 	return {
 		messages,
 		createMessage,
 		uploadFile,
 		addMessage,
+		editMessage,
+		deleteMessage,
+		updateMessage,
+		removeMessage,
 	}
 }
