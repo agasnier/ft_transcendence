@@ -32,6 +32,12 @@ function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
 		markChannelRead(id)
 	}
 
+	async function handleSendMessage(content: string) {
+		await createMessage(content)
+		if (selectedChannelId !== null)
+			await markChannelRead(selectedChannelId)
+	}
+
 	async function handleDeleteChannel(id: number) {
 		if (!(await deleteChannel(id))) return
 		removeChannel(id)
@@ -81,7 +87,7 @@ function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
 										channel={selectedChannel}
 										userId={userId}
 										messages={messages}
-										onSendMessage={createMessage}
+										onSendMessage={handleSendMessage}
 										onOpenInfoPanel={() => setShowInfoPanel(true)}
 									/>
 									{showInfoPanel && (
