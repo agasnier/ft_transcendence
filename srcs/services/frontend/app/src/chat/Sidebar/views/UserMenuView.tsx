@@ -274,6 +274,8 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
             <p className="border-t text-gray-200 my-1"></p>
             <TwoFactorSection />
             <p className="border-t text-gray-200 my-1"></p>
+            <PasswordSection />
+            <p className="border-t text-gray-200 my-1"></p>
             <button
                 onClick={onLogout}
                 className="menu-item text-danger hover:bg-danger-bg">

@@ -7,5 +7,9 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   app.post('/login', { schema: loginSchema }, loginController)
   app.post('/logout', logoutController)
   app.get('/session', sessionController)
-  app.post('/password', { schema: changePasswordSchema, preHandler: [userAuthHook] }, changePasswordController)
+  app.post<{ Body: { currentPassword: string; newPassword: string } }>(
+    '/password',
+    { schema: changePasswordSchema, preHandler: [userAuthHook] },
+    changePasswordController,
+  )
 }
