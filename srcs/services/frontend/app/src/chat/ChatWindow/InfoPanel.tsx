@@ -68,7 +68,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [avatarError, setAvatarError] = useState<string | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
 
-	const isModerator = members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false
+	const isModerator = myRole === 'admin' || (members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false)
 	const friends = useFriends()
 
 	async function loadMembers() {

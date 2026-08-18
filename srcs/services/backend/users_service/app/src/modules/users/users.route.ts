@@ -15,6 +15,6 @@ export async function usersRoutes(app: FastifyInstance): Promise<void> {
   app.patch('/profile', { schema: updateProfileSchema, preHandler: [userAuthHook] }, updateProfileController)
   app.get('/profile', { schema: getUserProfileSchema, preHandler: [userAuthHook] }, getUserProfileController)
   app.post('/profile/avatar', { schema: uploadAvatarSchema, preHandler: [userAuthHook] }, uploadAvatarController)
-  app.get('/:id/profile', { schema: getPublicUserProfileSchema, preHandler: [userAuthHook] }, getPublicUserProfileController)
+  app.get('/:id/profile', { schema: getPublicUserProfileSchema }, getPublicUserProfileController)
   app.delete('/profile/avatar', { schema: deleteAvatarSchema, preHandler: [userAuthHook] }, deleteAvatarController)
 }
