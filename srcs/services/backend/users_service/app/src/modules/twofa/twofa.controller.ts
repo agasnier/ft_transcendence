@@ -97,8 +97,14 @@ export async function verifyController(request: FastifyRequest<{ Body: { code: s
   }
 }
 
-export async function disableController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+export async function disableController(request: FastifyRequest<{ Body: { code: string } }>, reply: FastifyReply): Promise<void> {
   try {
+    const valid = await verifyTwoFA(request.user!.id, request.body.code)
+    if (!valid) {
+      await reply.status(401).send({ message: 'Invalid 2FA code' })
+      return
+    }
+
     const updated = await setTwoFAEnabled(request.user!.id, false)
     if (!updated) {
       await reply.status(400).send({ message: '2FA setup required first' })

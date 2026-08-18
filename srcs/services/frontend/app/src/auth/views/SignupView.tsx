@@ -34,8 +34,7 @@ function SignupView({ setView, onSignupSuccess }: SignupViewProps) {
 		if (res.ok)
 			onSignupSuccess()
 		else {
-			const body = await res.json()
-			setError(body.message)
+			setError('Impossible de créer le compte')
 		}
 	}
 
@@ -68,6 +67,7 @@ function SignupView({ setView, onSignupSuccess }: SignupViewProps) {
 				onChange={(e) => setMail(e.target.value)}
 				required
 				autoFocus
+				autoComplete="email"
 			/>
 
 			<TextField
@@ -77,6 +77,7 @@ function SignupView({ setView, onSignupSuccess }: SignupViewProps) {
 				value={pseudo}
 				onChange={(e) => setPseudo(e.target.value)}
 				required
+				autoComplete="username"
 			/>
 
 			<TextField
@@ -86,6 +87,7 @@ function SignupView({ setView, onSignupSuccess }: SignupViewProps) {
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				required
+				autoComplete="new-password"
 			/>
 
 			<TextField
@@ -95,6 +97,7 @@ function SignupView({ setView, onSignupSuccess }: SignupViewProps) {
 				value={confirmPassword}
 				onChange={(e) => setConfirmPassword(e.target.value)}
 				required
+				autoComplete="new-password"
 			/>
 
 			{error && (<p className="form-error">{error}</p>)}

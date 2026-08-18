@@ -1,25 +1,38 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import BackButton from '../ui/BackButton'
 import ApiKeySection from '../ui/ApiKeySection'
 import TwoFactorSection from '../ui/TwoFactorSection'
-import TextField from '../../../components/TextField' // adapte le chemin exact vers le fichier de ton collègue
+import PasswordSection from '../ui/PasswordSection'
+import TextField from '../../../components/TextField'
+import TextAreaField from '../../../components/TextAreaField'
 import type { SidebarView } from '../Sidebar'
 
 interface UserMenuViewProps {
     setView: (view: SidebarView) => void
     onLogout: () => void
     pseudo: string | null
+    onUpdatePseudo: (newPseudo: string) => Promise<boolean>
 }
 
 interface Profile {
     bio: string | null
+    avatarUrl: string | null
 }
 
-function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
+function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuViewProps) {
     const [profile, setProfile] = useState<Profile | null>(null)
     const [isEditingBio, setIsEditingBio] = useState(false)
     const [bioDraft, setBioDraft] = useState('')
     const [isSaving, setIsSaving] = useState(false)
+
+    const [isEditingPseudo, setIsEditingPseudo] = useState(false)
+    const [pseudoDraft, setPseudoDraft] = useState('')
+    const [isSavingPseudo, setIsSavingPseudo] = useState(false)
+    const [pseudoError, setPseudoError] = useState<string | null>(null)
+
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+    const [avatarError, setAvatarError] = useState<string | null>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         async function fetchProfile() {
@@ -58,34 +71,179 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
         setIsEditingBio(false)
     }
 
+    function startEditingPseudo() {
+        setPseudoDraft(pseudo ?? '')
+        setPseudoError(null)
+        setIsEditingPseudo(true)
+    }
+
+    async function savePseudo() {
+        const trimmed = pseudoDraft.trim()
+        if (trimmed === '') {
+            setPseudoError('Le pseudo ne peut pas être vide')
+            return
+        }
+        setIsSavingPseudo(true)
+        setPseudoError(null)
+        const ok = await onUpdatePseudo(trimmed)
+        if (ok) {
+            setIsEditingPseudo(false)
+        } else {
+            setPseudoError('Ce pseudo est peut-être déjà pris')
+        }
+        setIsSavingPseudo(false)
+    }
+
+    function cancelEditingPseudo() {
+        setPseudoDraft(pseudo ?? '')
+        setPseudoError(null)
+        setIsEditingPseudo(false)
+    }
+
+     async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setAvatarError(null)
+        setIsUploadingAvatar(true)
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const res = await fetch('/users/profile/avatar', {
+            method: 'POST',
+            body: formData,
+        })
+
+        if (res.ok) {
+            const data = await res.json()
+            setProfile((prev) => (prev ? { ...prev, avatarUrl: data.avatarUrl } : prev))
+        } else {
+            setAvatarError('Échec de l\'upload')
+        }
+
+        setIsUploadingAvatar(false)
+        if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+
+        async function handleDeleteAvatar() {
+        setAvatarError(null)
+        setIsUploadingAvatar(true)
+
+        const res = await fetch('/users/profile/avatar', {
+            method: 'DELETE',
+        })
+
+        if (res.ok) {
+            setProfile((prev) => (prev ? { ...prev, avatarUrl: null } : prev))
+        } else {
+            setAvatarError('Échec de la suppression')
+        }
+
+        setIsUploadingAvatar(false)
+    }
+
     return (
         <>
             <div className="flex items-center gap-2">
                 <BackButton onClick={() => setView({ kind: 'home' })} />
-                <h2 className="text-xl font-bold">Paramètres</h2>
+                <h2 className="view-title">Paramètres</h2>
             </div>
             <div className="flex flex-col items-center gap-2 font-semibold text-gray-800 py-2">
-                <span
-                    className="avatar-circle bg-blue-500 w-30 h-30 text-6xl">
-                    {pseudo?.charAt(0).toUpperCase() ?? '?'}
-                </span>
-                <span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
+                                <div className="relative">
+                    {profile?.avatarUrl ? (
+                        <img
+                            src={profile.avatarUrl}
+                            alt="avatar"
+                            className="w-30 h-30 rounded-full object-cover"
+                        />
+                    ) : (
+                        <span className="avatar-circle bg-user w-30 h-30 text-6xl">
+                            {pseudo?.charAt(0).toUpperCase() ?? '?'}
+                        </span>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingAvatar}
+                        title="Changer la photo de profil"
+                        className="absolute bottom-0 right-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-gray-100 disabled:opacity-50">
+                        {isUploadingAvatar ? '...' : '🖋'}
+                    </button>
+                    {profile?.avatarUrl && (
+                        <button
+                            type="button"
+                            onClick={handleDeleteAvatar}
+                            disabled={isUploadingAvatar}
+                            title="Supprimer la photo de profil"
+                            className="absolute bottom-0 left-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-red-100 disabled:opacity-50">
+                            🗑️
+                        </button>
+                    )}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                    />
+                </div>
+                {avatarError && <p className="text-xs text-red-600">{avatarError}</p>}
+
+                {isEditingPseudo ? (
+                    <div className="flex flex-col gap-2 w-full px-4">
+                        <TextField
+                            id="pseudo"
+                            label="Pseudo"
+                            type="text"
+                            value={pseudoDraft}
+                            onChange={(e) => setPseudoDraft(e.target.value)}
+                            autoFocus
+                            autoComplete="username"
+                        />
+                        {pseudoError && <p className="text-xs text-red-600 text-center">{pseudoError}</p>}
+                        <div className="flex justify-center gap-2">
+                            <button
+                                onClick={savePseudo}
+                                disabled={isSavingPseudo}
+                                className="text-sm px-3 py-1 rounded-lg bg-user text-white hover:bg-blue-600 disabled:opacity-50">
+                                {isSavingPseudo ? 'Sauvegarde...' : 'Enregistrer'}
+                            </button>
+                            <button
+                                onClick={cancelEditingPseudo}
+                                disabled={isSavingPseudo}
+                                className="text-sm px-3 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2">
+                        <span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
+                        <button
+                            onClick={startEditingPseudo}
+                            title="Modifier le pseudo"
+                            className="text-gray-400 hover:text-gray-700 text-sm">
+                            🖋
+                        </button>
+                    </div>
+                )}
 
                 <div className="w-full px-4">
                     {isEditingBio ? (
                         <div className="flex flex-col gap-2">
-                            <TextField
+                            <TextAreaField
                                 id="bio"
                                 label="Bio"
-                                type="text"
                                 value={bioDraft}
                                 onChange={(e) => setBioDraft(e.target.value)}
+                                autoFocus
                             />
                             <div className="flex justify-center gap-2">
                                 <button
                                     onClick={saveBio}
                                     disabled={isSaving}
-                                    className="text-sm px-3 py-1 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50">
+                                    className="text-sm px-3 py-1 rounded-lg bg-user text-white hover:bg-blue-600 disabled:opacity-50">
                                     {isSaving ? 'Sauvegarde...' : 'Enregistrer'}
                                 </button>
                                 <button
@@ -98,7 +256,7 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-1">
-                            <p className="text-sm text-gray-500 text-center bg-gray-50 rounded-xl px-3 py-2 min-h-[2.5rem] w-full font-normal">
+                            <p className="text-sm text-gray-500 text-center bg-gray-50 rounded-xl px-3 py-2 min-h-[2.5rem] w-full font-normal whitespace-pre-line break-words">
                                 {profile?.bio || <span className="text-gray-300 italic">Aucune bio</span>}
                             </p>
                             <button
@@ -115,9 +273,11 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
             <p className="border-t text-gray-200 my-1"></p>
             <TwoFactorSection />
             <p className="border-t text-gray-200 my-1"></p>
+            <PasswordSection />
+            <p className="border-t text-gray-200 my-1"></p>
             <button
                 onClick={onLogout}
-                className="menu-item text-red-600 hover:bg-red-100">
+                className="menu-item text-danger hover:bg-danger-bg">
                 Déconnexion
             </button>
         </>

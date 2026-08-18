@@ -25,9 +25,8 @@ function TwoFactorView({ setView, onVerifySuccess }: TwoFactorViewProps) {
 		if (res.ok)
 			await onVerifySuccess()
 		else {
-			const body = await res.json()
 			setCode('')
-			setError(body.message)
+			setError('Code 2FA invalide')
 		}
 	}
 
@@ -60,6 +59,7 @@ function TwoFactorView({ setView, onVerifySuccess }: TwoFactorViewProps) {
 				onChange={(e) => setCode(e.target.value)}
 				required
 				autoFocus
+				autoComplete="one-time-code"
 			/>
 			{error && (<p className="form-error">{error}</p>)}
 
@@ -68,6 +68,16 @@ function TwoFactorView({ setView, onVerifySuccess }: TwoFactorViewProps) {
 				className="btn-primary">
 				Valider
 			</button>
+
+			<p className="text-xs text-amber-700 leading-snug text-center">
+				En cas de problème, contactez le support :
+				{' '}
+				<a
+					href="mailto:support.transcendence@gmail.com"
+					className="underline break-all">
+					support.transcendence@gmail.com
+				</a>
+			</p>
 
 			<button
 				type="button"

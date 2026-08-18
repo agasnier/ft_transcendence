@@ -6,6 +6,9 @@ interface Channel {
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
 	memberIds?: number[]
+	otherUserId?: number
+    writeMode?: 'everyone' | 'moderators_only'
+	hasUnread?: boolean
 }
 
 export function useChannel() {
@@ -44,6 +47,15 @@ export function useChannel() {
 		return res.ok
 	}
 
+	async function markChannelRead(id: number): Promise<void> {
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, hasUnread: false } : c)))
+		await fetch(`/chat/channels/${id}/read`, { method: 'PATCH' })
+	}
+
+	function setChannelUnread(id: number, hasUnread: boolean) {
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, hasUnread } : c)))
+	}
+
 	function addChannel(channel: Channel) {
 		setChannels((prev) =>
 			prev.some((c) => c.id === channel.id)
@@ -72,13 +84,67 @@ export function useChannel() {
 		return true
 	}
 
+	async function updateDescription(id: number, description: string): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${id}`, {
+			method: 'PUT',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ description }),
+		})
+		if (!res.ok) return false
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, description } : c)))
+		return true
+	}
+
+	async function addMembers(channelId: number, memberIds: number[]): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${channelId}/members`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ memberIds }),
+		})
+		return res.ok
+	}
+
+	async function updateWriteMode(id: number, writeMode: 'everyone' | 'moderators_only'): Promise<boolean> {
+        const res = await fetch(`/chat/channels/${id}/write-mode`, {
+            method: 'PUT',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ writeMode }),
+        })
+        if (!res.ok) return false
+        setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, writeMode } : c)))
+        return true
+    }
+
+	async function updateMemberRole(channelId: number, userId: number, role: 'moderator' | 'member'): Promise<boolean> {
+        const res = await fetch(`/chat/channels/${channelId}/members/${userId}/role`, {
+            method: 'PUT',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ role }),
+        })
+        return res.ok
+    }
+
+	async function removeMember(channelId: number, userId: number): Promise<boolean> {
+        const res = await fetch(`/chat/channels/${channelId}/members/${userId}`, {
+            method: 'DELETE',
+        })
+        return res.ok
+    }
+
 	return {
 		channels,
 		createChannel,
 		deleteChannel,
 		addChannel,
+		markChannelRead,
+		setChannelUnread,
 		removeChannel,
 		renameChannel,
-		updateChannel
+		updateDescription,
+		addMembers,
+		updateChannel,
+		updateWriteMode,
+		updateMemberRole,
+		removeMember
 	}
 }

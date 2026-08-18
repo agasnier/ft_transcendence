@@ -1,0 +1,1 @@
+ALTER TABLE `channel_members` ADD `last_read_message_id` int;

@@ -8,7 +8,7 @@ export const users = mysqlTable('users', {
   password: varchar('password', { length: 255 }).notNull(),
   role: mysqlEnum('role', ['admin', 'moderator', 'user']).notNull().default('user'),
   displayName: varchar('display_name', { length: 50 }),
-  avatarUrl: varchar('avatar_url', { length: 255 }).default('/avatars/default.png'),
+  avatarUrl: varchar("avatar_url", { length: 255 }),
   bio: text('bio'),
 })
 

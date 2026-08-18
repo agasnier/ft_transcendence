@@ -1,12 +1,11 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { validateAccessToken } from '../vault/jwt.js'
-import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers } from './channels.service.js'
+import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers, getLastMessageId, getLastReadMessageId, markChannelRead } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 import { createMessage } from '../messages/messages.service.js'
+import { env } from '../../config/env.js'
 
 // hooks
-
-// TODO hook is a channel members
 
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const accessToken = request.cookies.access_token
@@ -42,11 +41,13 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
 
     if (type === 'group') {
       const message = await createMessage(channel.id, request.user!.id, ' a créé le groupe', 'system')
+      await markChannelRead(channel.id, request.user!.id)
       wsMessageCreated(message)
     }
 
     if (type === 'channel') {
       const message = await createMessage(channel.id, request.user!.id, 'Le canal a été créé', 'system')
+      await markChannelRead(channel.id, request.user!.id)
       wsMessageCreated(message)
     }
 
@@ -60,7 +61,29 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
 export async function listUserChannelsController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const userChannels = await listUserChannels(request.user!.id)
-    await reply.send(userChannels)
+    const result = []
+    for (const channel of userChannels) {
+      const lastMessageId = await getLastMessageId(channel.id) ?? 0
+      const lastReadId = await getLastReadMessageId(channel.id, request.user!.id) ?? 0
+      result.push({ ...channel, hasUnread: lastMessageId > lastReadId })
+    }
+    await reply.send(result)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function markChannelReadController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id } = request.params as { id: string }
+    const channelId = Number(id)
+    const ok = await markChannelRead(channelId, request.user!.id)
+    if (!ok) {
+      await reply.status(403).send({ message: 'Not a channel member' })
+      return
+    }
+    await reply.status(204).send()
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })
@@ -134,16 +157,20 @@ export async function listAllChannelsController(request: FastifyRequest, reply: 
 export async function updateChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
-    const { name } = request.body as { name: string }
+    const { name, description } = request.body as { name?: string; description?: string }
     const channelId = Number(id)
-    const channel = await updateChannel(channelId, name)
+    const channel = await updateChannel(channelId, { name, description })
 
-    const members = await listChannelMembers(channelId)
-    for (const {userId} of members)
-      wsChannelUpdatedTo(userId, channel)
+    if (channel) {
+      const members = await listChannelMembers(channelId)
+      for (const {userId} of members)
+        wsChannelUpdatedTo(userId, channel)
 
-    const message = await createMessage(channelId, request.user!.id, ` a renommé le groupe en "${name}"`, 'system')
-    wsMessageCreated(message)
+      if (name) {
+        const message = await createMessage(channelId, request.user!.id, ` a renommé le groupe en "${name}"`, 'system')
+        wsMessageCreated(message)
+      }
+    }
     await reply.send(channel)
   } catch (err) {
     request.log.error(err)
@@ -154,6 +181,18 @@ export async function updateChannelController(request: FastifyRequest, reply: Fa
 export async function removeChannelMemberController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id, userId } = request.params as { id: string; userId: string }
+
+    if (request.user!.role !== 'admin') {
+      const targetRes = await fetch(`${env.usersServiceUrl}/users/${userId}/profile`)
+      if (targetRes.ok) {
+        const targetProfile = await targetRes.json()
+        if (targetProfile.role === 'admin') {
+          await reply.status(403).send({ message: 'Cannot remove an admin from the channel' })
+          return
+        }
+      }
+    }
+
     await removeChannelMember(Number(id), Number(userId))
     await reply.send({ message: 'Member removed' })
   } catch (err) {
@@ -178,6 +217,25 @@ export async function updateMemberRoleController(request: FastifyRequest, reply:
   try {
     const { id, userId } = request.params as { id: string; userId: string }
     const { role } = request.body as { role: 'moderator' | 'member' }
+
+    // user can't change their own role
+    if (Number(userId) === request.user!.id) {
+      await reply.status(403).send({ message: 'Cannot change your own role' })
+      return
+    }
+
+    // moderator can't retrograde admin
+    if (request.user!.role !== 'admin') {
+      const targetRes = await fetch(`${env.usersServiceUrl}/users/${userId}/profile`)
+      if (targetRes.ok) {
+        const targetProfile = await targetRes.json()
+        if (targetProfile.role === 'admin') {
+          await reply.status(403).send({ message: 'Cannot change an admin\'s role' })
+          return
+        }
+      }
+    }
+
     await updateMemberRole(Number(id), Number(userId), role)
     await reply.send({ message: 'Member role updated' })
   } catch (err) {

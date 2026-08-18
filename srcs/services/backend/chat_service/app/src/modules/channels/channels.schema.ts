@@ -10,6 +10,9 @@ export const listUserChannelsSchema = {
           type: { type: 'string' },
           description: { type: ['string', 'null'] },
           createdAt: { type: 'string' },
+          otherUserId: { type: 'integer' },
+          writeMode: { type: 'string', enum: ['everyone', 'moderators_only'] },
+          hasUnread: { type: 'boolean' },
         },
       },
     },
@@ -30,6 +33,16 @@ export const createChannelSchema = {
         minItems: 1,
         items: { type: 'integer', minimum: 1 },
       },
+    },
+  },
+}
+
+export const markChannelReadSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
     },
   },
 }
@@ -91,10 +104,10 @@ export const updateChannelSchema = {
   params: channelIdParamSchema.params,
   body: {
     type: 'object',
-    required: ['name'],
     additionalProperties: false,
     properties: {
       name: { type: 'string', minLength: 1, maxLength: 255 },
+      description: { type: 'string', maxLength: 255 },
     },
   },
   response: {
@@ -103,6 +116,8 @@ export const updateChannelSchema = {
       properties: {
         id: { type: 'integer' },
         name: { type: ['string', 'null'] },
+        description: { type: ['string', 'null'] },
+        type: { type: 'string' },
         createdAt: { type: 'string', format: 'date-time' },
       },
     },

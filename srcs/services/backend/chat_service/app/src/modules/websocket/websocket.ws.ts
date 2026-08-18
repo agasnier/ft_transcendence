@@ -58,7 +58,6 @@ function wsSendToSocket(socket: WebSocket, data: object): void {
 		socket.send(JSON.stringify(data))
 }
 
-// TODO send only to user concerned
 function wsSendAll(data: object): void {
 	const raw = JSON.stringify(data)
 	for (const userSockets of socketsByUser.values()) {
@@ -118,4 +117,8 @@ export function wsMessageCreated(message: {
 	createdAt: Date | string
 }): void {
 	wsSendAll({ type: 'MESSAGE_CREATED', payload: message })
+}
+
+export function getOnlineUserCount() : number{
+	return socketsByUser.size
 }

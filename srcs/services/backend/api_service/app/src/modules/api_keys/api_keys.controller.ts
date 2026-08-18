@@ -39,13 +39,13 @@ export async function  apiKeyAuthHook (request: FastifyRequest, reply: FastifyRe
 // controllers
 export async function getApiKeysController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const user = await getApiKeysByOwnerId(request.user!.id)
-    if (!user) {
-      await reply.status(404).send({ message: 'No API key found' })
+    const key = await getApiKeysByOwnerId(request.user!.id)
+    if (!key) {
+      await reply.status(200).send({ hasKey: false })
       return
     }
 
-    await reply.send(user)
+    await reply.send({ hasKey: true, ...key })
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

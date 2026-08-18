@@ -1,11 +1,9 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
-import { channelInfo, ensureMembership, getOtherDiscussionParticipant, isChannelMember, resolveDiscussionNames } from '../channels/channels.service.js'
+import { channelInfo, ensureMembership, getOtherDiscussionParticipant, isChannelMember, markChannelRead, resolveDiscussionNames } from '../channels/channels.service.js'
 import { createMessage, listMessages } from './messages.service.js'
 import { wsChannelCreatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 import { getMemberRole } from '../channels/channels.service.js'
-
-// TODO hook is a channel members
 
 // controllers
 export async function listMessagesController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -51,6 +49,7 @@ export async function createMessageController(request: FastifyRequest, reply: Fa
     }
 
     const message = await createMessage(channelId, request.user!.id, content)
+    await markChannelRead(channelId, request.user!.id)
 
     if (channel?.type === 'discussion') {
       const otherUserId = await getOtherDiscussionParticipant(channelId, request.user!.id)

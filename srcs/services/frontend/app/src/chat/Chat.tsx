@@ -15,16 +15,28 @@ interface ChatProps {
 	onLogout: () => void
 	pseudo: string | null
 	userId: number | null
+	onUpdatePseudo: (newPseudo: string) => Promise<boolean>
 }
 
-function Chat({onLogout, pseudo, userId}: ChatProps) {
-	const { channels, createChannel, deleteChannel, addChannel, removeChannel, renameChannel, updateChannel } = useChannel()
+function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
+	const { channels, createChannel, deleteChannel, addChannel, markChannelRead, setChannelUnread, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole, removeMember } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
 	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
 	const [showInfoPanel, setShowInfoPanel] = useState(false)
 
-	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage)
+	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId)
+
+	function handleSelectChannel(id: number) {
+		setSelectedChannelId(id)
+		markChannelRead(id)
+	}
+
+	async function handleSendMessage(content: string) {
+		await createMessage(content)
+		if (selectedChannelId !== null)
+			await markChannelRead(selectedChannelId)
+	}
 
 	async function handleDeleteChannel(id: number) {
 		if (!(await deleteChannel(id))) return
@@ -62,9 +74,10 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 								onLogout={onLogout}
 								pseudo={pseudo}
 								userId={userId}
+								onUpdatePseudo={onUpdatePseudo}
 								channels={channels}
 								selectedChannelId={selectedChannelId}
-								onSelectChannel={setSelectedChannelId}
+								onSelectChannel={handleSelectChannel}
 								onCreateChannel={createChannel}
 							/>
 							{selectedChannel && (
@@ -74,7 +87,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 										channel={selectedChannel}
 										userId={userId}
 										messages={messages}
-										onSendMessage={createMessage}
+										onSendMessage={handleSendMessage}
 										onOpenInfoPanel={() => setShowInfoPanel(true)}
 									/>
 									{showInfoPanel && (
@@ -84,6 +97,11 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 											onBack={() => setShowInfoPanel(false)}
 											onDeleteChannel={handleDeleteChannel}
 											onRenameChannel={renameChannel}
+											onUpdateDescription={updateDescription}
+											onAddMembers={addMembers}
+											onUpdateWriteMode={updateWriteMode}
+											onUpdateMemberRole={updateMemberRole}
+											onRemoveMember={removeMember}
 										/>
 									)}
 								</div>

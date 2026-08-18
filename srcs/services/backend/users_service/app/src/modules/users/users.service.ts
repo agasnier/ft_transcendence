@@ -1,5 +1,6 @@
 import { eq, inArray, or } from 'drizzle-orm'
-
+import { unlink } from 'fs/promises'
+import path from 'path'
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
 import { hashPassword, verifyPassword } from '../vault/hash.js'
@@ -7,13 +8,13 @@ import { hashPassword, verifyPassword } from '../vault/hash.js'
 
 export async function getAllUsers() {
   return await db
-    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role })
+    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role, avatarUrl: users.avatarUrl })
     .from(users)
 }
 
 export async function getUserById(id: number) {
   const rows = await db
-    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role })
+    .select({ id: users.id, mail: users.mail, pseudo: users.pseudo, role: users.role, avatarUrl: users.avatarUrl })
     .from(users)
     .where(eq(users.id, id))
     .limit(1)
@@ -58,6 +59,27 @@ export async function createUser(mail: string, pseudo: string, password: string)
 }
 
 type UserRole = 'admin' | 'moderator' | 'user'
+
+export async function changePassword(userId: number, currentPassword: string, newPassword: string): Promise<'ok' | 'not_found' | 'invalid'> {
+  const rows = await db
+    .select({ password: users.password })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
+
+  const user = rows[0]
+  if (!user)
+    return 'not_found'
+  if (!(await verifyPassword(user.password, currentPassword)))
+    return 'invalid'
+
+  await db
+    .update(users)
+    .set({ password: await hashPassword(newPassword) })
+    .where(eq(users.id, userId))
+
+  return 'ok'
+}
 
 export async function updateUser(id: number, data: { mail?: string; pseudo?: string; password?: string; role?: UserRole }) {
   const User = await getUserById(id)
@@ -115,7 +137,24 @@ export async function updateAvatar(id: number, avatarUrl: string) {
   await db.update(users).set({ avatarUrl }).where(eq(users.id, id))
 }
 
+export async function deleteAvatar(id: number) {
+  const user = await getUserById(id)
+  if (user?.avatarUrl) {
+    const filename = user.avatarUrl.replace('/avatars/', '')
+    const filepath = path.join('/app/uploads/avatars', filename)
+    await unlink(filepath).catch(() => {})
+  }
+  await db.update(users).set({ avatarUrl: null }).where(eq(users.id, id))
+}
+
 export async function deleteUser(id: number) {
   const [result] = await db.delete(users).where(eq(users.id, id))
   return result.affectedRows > 0
+}
+
+export async function getPublicUserProfile(id: number) {
+  return db.query.users.findFirst({
+    where: eq(users.id, id),
+    columns: { id: true, displayName: true, avatarUrl: true, bio: true, isOnline: true, role: true },
+  })
 }

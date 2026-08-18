@@ -1,7 +1,7 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, desc, eq, inArray } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
-import { channels, channelMembers, discussionPairs } from '../../db/schema.js'
+import { channels, channelMembers, discussionPairs, messages } from '../../db/schema.js'
 import { env } from '../../config/env.js'
 
 type ChannelRow = {
@@ -10,6 +10,7 @@ type ChannelRow = {
   type: string
   description: string | null
   createdAt: Date
+  otherUserId?: number
 }
 
 export async function resolveDiscussionNames(rows: ChannelRow[], userId: number): Promise<ChannelRow[]> {
@@ -41,11 +42,15 @@ export async function resolveDiscussionNames(rows: ChannelRow[], userId: number)
   }
 
   return rows.map((c) => {
-    if (c.type !== 'discussion' || c.name !== null)
+    if (c.type !== 'discussion')
       return c
     const otherUserId = otherUserIdByChannel.get(c.id)
     const pseudo = otherUserId !== undefined ? pseudoById.get(otherUserId) : undefined
-    return pseudo !== undefined ? { ...c, name: pseudo } : c
+    return {
+      ...c,
+      otherUserId,
+      name: c.name === null && pseudo !== undefined ? pseudo : c.name,
+    }
   })
 }
 
@@ -58,6 +63,7 @@ export async function listUserChannels(userId: number) {
       name: channels.name,
       type: channels.type,
       description: channels.description,
+      writeMode: channels.writeMode,
       createdAt: channels.createdAt,
     })
     .from(channels)
@@ -65,6 +71,36 @@ export async function listUserChannels(userId: number) {
     .where(eq(channelMembers.userId, userId))
 
   return resolveDiscussionNames(rows, userId)
+}
+
+export async function getLastMessageId(channelId: number): Promise<number | null> {
+  const [row] = await db
+    .select({ id: messages.id })
+    .from(messages)
+    .where(eq(messages.channelId, channelId))
+    .orderBy(desc(messages.id))
+    .limit(1)
+  return row?.id ?? null
+}
+
+export async function getLastReadMessageId(channelId: number, userId: number): Promise<number | null> {
+  const [row] = await db
+    .select({ lastReadMessageId: channelMembers.lastReadMessageId })
+    .from(channelMembers)
+    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+    .limit(1)
+  return row?.lastReadMessageId ?? null
+}
+
+export async function markChannelRead(channelId: number, userId: number): Promise<boolean> {
+  if (!(await isChannelMember(channelId, userId)))
+    return false
+
+  await db
+    .update(channelMembers)
+    .set({ lastReadMessageId: await getLastMessageId(channelId) ?? 0 })
+    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+  return true
 }
 
 export async function leaveChannel(channelId: number, userId: number): Promise<void> {
@@ -142,7 +178,8 @@ export async function addChannelMembers(channelId: number, userIds: number[], ro
 
 export async function createChannel(name: string | undefined, memberIds: number[], type: string, description: string | undefined, creatorId: number): Promise<{ channel: ChannelRow; reused: boolean }> {
   if (type !== 'discussion') {
-    const result = await db.insert(channels).values({ name, type, description })
+    const writeMode = type === 'channel' ? 'moderators_only' : 'everyone'
+    const result = await db.insert(channels).values({ name, type, description, writeMode })
     const channelId = Number(result[0].insertId)
 
     // Creator becomes moderator
@@ -189,7 +226,6 @@ export async function createChannel(name: string | undefined, memberIds: number[
   }
 }
 
-// TODO delete a group if no members
 export async function deleteChannel(channelId: number): Promise<void> {
   await db.delete(channels).where(eq(channels.id, channelId))
 }
@@ -198,8 +234,13 @@ export async function removeChannelMember(channelId: number, userId: number): Pr
   await db.delete(channelMembers).where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
 }
 
-export async function updateChannel(channelId: number, name: string) {
-  await db.update(channels).set({ name }).where(eq(channels.id, channelId))
+export async function updateChannel(channelId: number, data: { name?: string; description?: string }) {
+  const toUpdate: Partial<{ name: string; description: string }> = {}
+  if (data.name !== undefined) toUpdate.name = data.name
+  if (data.description !== undefined) toUpdate.description = data.description
+  if (Object.keys(toUpdate).length > 0) {
+    await db.update(channels).set(toUpdate).where(eq(channels.id, channelId))
+  }
   return channelInfo(channelId)
 }
 

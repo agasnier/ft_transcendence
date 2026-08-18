@@ -17,6 +17,7 @@ export const channelMembers = mysqlTable('channel_members', {
   userId: int('user_id').notNull(),
   role: mysqlEnum('role', ['moderator', 'member']).notNull().default('member'),
   joinedAt: timestamp('joined_at').defaultNow().notNull(),
+  lastReadMessageId: int('last_read_message_id'),
 }, (table) => ({
   uniqueMember: unique().on(table.channelId, table.userId),
 }))

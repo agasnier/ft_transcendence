@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { createCookie, createPending2FACookie, deleteRefreshToken, validateRefreshToken } from './auth.service.js'
-import { createUser, verifyCredentials, getUserById } from '../users/users.service.js'
+import { createCookie, createPending2FACookie, deleteRefreshToken, deleteRefreshTokensByUser, validateRefreshToken } from './auth.service.js'
+import { createUser, verifyCredentials, getUserById, changePassword } from '../users/users.service.js'
 import { getTwoFAByUserId } from '../twofa/twofa.service.js'
 import { validateAccessToken } from '../vault/jwt.js'
 
@@ -81,40 +81,62 @@ export async function logoutController(request: FastifyRequest, reply: FastifyRe
   }
 }
 
+export async function changePasswordController(
+  request: FastifyRequest<{ Body: { currentPassword: string; newPassword: string } }>,
+  reply: FastifyReply,
+): Promise<void> {
+  try {
+    const { currentPassword, newPassword } = request.body
+    const result = await changePassword(request.user!.id, currentPassword, newPassword)
+    if (result === 'not_found') {
+      await reply.status(404).send({ message: 'User not found' })
+      return
+    }
+    if (result === 'invalid') {
+      await reply.status(401).send({ message: 'Invalid current password' })
+      return
+    }
+
+    await reply.status(200).send({ message: 'Password updated' })
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
 export async function sessionController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const accessToken = request.cookies.access_token
     if (accessToken) {
       const user = await validateAccessToken(accessToken)
       if (user && user.twofa !== 'pending') {
-        await reply.status(200).send({ id: user.id, pseudo: user.pseudo, role: user.role })
+        await reply.status(200).send({ authenticated: true, id: user.id, pseudo: user.pseudo, role: user.role })
         return
       }
     }
 
     const refreshToken = request.cookies.refresh_token
     if (!refreshToken) {
-      await reply.status(401).send({ message: 'Not authenticated' })
+      await reply.status(200).send({ authenticated: false })
       return
     }
 
     const stored = await validateRefreshToken(refreshToken)
     if (!stored) {
-      await reply.status(401).send({ message: 'Not authenticated' })
+      await reply.status(200).send({ authenticated: false })
       return
     }
 
-    await deleteRefreshToken(refreshToken)
-
     const user = await getUserById(stored.owner_id)
     if (!user) {
-      await reply.status(401).send({ message: 'Not authenticated' })
+      await deleteRefreshTokensByUser(stored.owner_id)
+      await reply.status(200).send({ authenticated: false })
       return
     }
 
     await createCookie(reply, user)
 
-    await reply.status(200).send(user)
+    await reply.status(200).send({ authenticated: true, id: user.id, pseudo: user.pseudo, role: user.role })
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

@@ -33,14 +33,7 @@ function AddFriendForm() {
 			return
 		}
 
-		let text = "Impossible d'envoyer la demande"
-		try {
-			const body = await res.json()
-			if (body?.message)
-				text = body.message
-		} catch {
-		}
-		setFeedback({ type: 'error', text })
+		setFeedback({ type: 'error', text: "Impossible d'envoyer la demande" })
 	}
 
 	return (
@@ -57,6 +50,7 @@ function AddFriendForm() {
 						}
 					}
 					placeholder='Pseudo'
+					autoComplete="off"
 					onKeyDown={(e) => {
 						if (e.key === 'Escape')
 							e.currentTarget.blur()
@@ -67,12 +61,12 @@ function AddFriendForm() {
 				<button
 					type="button"
 					onClick={handleAddByPseudo}
-					className="text-xs bg-blue-500 text-white rounded-full px-3 hover:bg-blue-600">
+					className="text-xs bg-user text-white rounded-full px-3 hover:bg-blue-600">
 					Ajouter
 				</button>
 			</div>
 			{feedback && (
-				<p className={`text-sm ${feedback.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+				<p className={`text-sm ${feedback.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
 					{feedback.text}
 				</p>
 			)}

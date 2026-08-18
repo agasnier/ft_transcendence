@@ -1,7 +1,6 @@
 const apiKeysProperties = {
   id: { type: 'integer' },
   owner_id: { type: 'integer' },
-  api_key_hash: { type: 'string' },
   expires_at: { type: 'string' },
 }
 
@@ -14,7 +13,10 @@ export const getApiKeysSchema = {
   response: {
     200: {
       type: 'object',
-      properties: apiKeysProperties,
+      properties: {
+        hasKey: { type: 'boolean' },
+        ...apiKeysProperties,
+      },
     },
   },
 }

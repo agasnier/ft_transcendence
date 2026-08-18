@@ -4,12 +4,12 @@
   "metadata": {
     "name": "adjr8g9",
     "namespace": "default",
-    "uid": "c3032658-c923-4f59-802c-b496c86859d3",
-    "resourceVersion": "1786987887982007",
-    "generation": 3,
-    "creationTimestamp": "2026-08-17T17:21:56Z",
+    "uid": "97135436-f207-43a6-b6df-5b48a1a32988",
+    "resourceVersion": "1787005909334993",
+    "generation": 2,
+    "creationTimestamp": "2026-08-17T21:57:34Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "4235733512749056"
+      "grafana.app/deprecatedInternalID": "4305099533119488"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
@@ -18,11 +18,11 @@
       "grafana.app/managerAllowsEdits": "true",
       "grafana.app/managerId": "Default",
       "grafana.app/saved-from-ui": "Grafana v13.1.1 (e784b7782a)",
-      "grafana.app/sourceChecksum": "cba712dbaeaf962254dc97743ae86ce1",
+      "grafana.app/sourceChecksum": "8f0ec8c92212d5ddf3331a3afd47a82b",
       "grafana.app/sourcePath": "/etc/grafana/provisioning/dashboards/Section_communauté_Utilisateur.json",
-      "grafana.app/sourceTimestamp": "1786628722000",
-      "grafana.app/updatedBy": "user:bfvh3bdce8cn4c",
-      "grafana.app/updatedTimestamp": "2026-08-17T17:31:27Z"
+      "grafana.app/sourceTimestamp": "1786987898000",
+      "grafana.app/updatedBy": "user:afvhrw98yxiwwa",
+      "grafana.app/updatedTimestamp": "2026-08-17T22:31:49Z"
     }
   },
   "spec": {
@@ -95,7 +95,7 @@
                       "spec": {
                         "editorMode": "code",
                         "exemplar": false,
-                        "expr": "sum(users_active_connections)",
+                        "expr": "sum(chat_online_users_total)",
                         "format": "time_series",
                         "instant": false,
                         "legendFormat": "En Ligne",
