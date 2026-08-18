@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* TODO add tailwind theme here */
 @theme {
 	--color-conversation: var(--color-orange-400);
 	--color-user: var(--color-blue-500);
