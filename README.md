@@ -43,11 +43,11 @@ Service-level detail lives next to the code:
 
 Work is split by service (`users_service`, `chat_service`, `api_service`, frontend, vault, nginx, monitoring). Each service has its own README. Git history uses `feat` / `fix` messages. `make dev` and `make up` are the shared entry points.
 
-We organise the work with a notion table. 
+We organise the work with a Notion table.
 
-We communicate with discord, call and messages.
+We communicate on Discord (calls and messages).
 
-Coordination is through Git and the service folders. Update this section with the real meeting rhythm and chat tool before the eval.
+Coordination is through Git and the service folders.
 
 ## Technical Stack
 
