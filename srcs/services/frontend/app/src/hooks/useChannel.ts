@@ -6,6 +6,8 @@ interface Channel {
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
 	memberIds?: number[]
+	otherUserId?: number
+    writeMode?: 'everyone' | 'moderators_only'
 }
 
 export function useChannel() {
@@ -92,6 +94,17 @@ export function useChannel() {
 		return res.ok
 	}
 
+	async function updateWriteMode(id: number, writeMode: 'everyone' | 'moderators_only'): Promise<boolean> {
+        const res = await fetch(`/chat/channels/${id}/write-mode`, {
+            method: 'PUT',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ writeMode }),
+        })
+        if (!res.ok) return false
+        setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, writeMode } : c)))
+        return true
+    }
+
 	return {
 		channels,
 		createChannel,
@@ -101,6 +114,7 @@ export function useChannel() {
 		renameChannel,
 		updateDescription,
 		addMembers,
-		updateChannel
+		updateChannel,
+		updateWriteMode
 	}
 }

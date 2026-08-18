@@ -63,6 +63,7 @@ export async function listUserChannels(userId: number) {
       name: channels.name,
       type: channels.type,
       description: channels.description,
+      writeMode: channels.writeMode,
       createdAt: channels.createdAt,
     })
     .from(channels)
@@ -147,7 +148,8 @@ export async function addChannelMembers(channelId: number, userIds: number[], ro
 
 export async function createChannel(name: string | undefined, memberIds: number[], type: string, description: string | undefined, creatorId: number): Promise<{ channel: ChannelRow; reused: boolean }> {
   if (type !== 'discussion') {
-    const result = await db.insert(channels).values({ name, type, description })
+    const writeMode = type === 'channel' ? 'moderators_only' : 'everyone'
+    const result = await db.insert(channels).values({ name, type, description, writeMode })
     const channelId = Number(result[0].insertId)
 
     // Creator becomes moderator

@@ -11,6 +11,7 @@ export const listUserChannelsSchema = {
           description: { type: ['string', 'null'] },
           createdAt: { type: 'string' },
           otherUserId: { type: 'integer' },
+          writeMode: { type: 'string', enum: ['everyone', 'moderators_only'] },
         },
       },
     },
