@@ -15,6 +15,7 @@ interface Channel {
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
 	otherUserId?: number
+	writeMode?: 'everyone' | 'moderators_only'
 }
 
 interface PublicProfile {
@@ -34,9 +35,10 @@ interface InfoPanelProps {
 	onRenameChannel: (id: number, name: string) => Promise<boolean>
 	onUpdateDescription?: (id: number, description: string) => Promise<boolean>
 	onAddMembers?: (channelId: number, memberIds: number[]) => Promise<boolean>
+	onUpdateWriteMode?: (id: number, writeMode: 'everyone' | 'moderators_only') => Promise<boolean>
 }
 
-function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, onUpdateDescription, onAddMembers }: InfoPanelProps) {
+function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, onUpdateDescription, onAddMembers, onUpdateWriteMode }: InfoPanelProps) {
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState(channel.name ?? '')
 	const [isEditingDesc, setIsEditingDesc] = useState(false)
@@ -50,6 +52,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [extraUsers, setExtraUsers] = useState<{ id: number; pseudo: string }[]>([])
 	const [selectedMember, setSelectedMember] = useState<Member | null>(null)
 	const [selectedMemberProfile, setSelectedMemberProfile] = useState<PublicProfile | null>(null)
+	const [isSavingWriteMode, setIsSavingWriteMode] = useState(false)
 
 	const isModerator = members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false
 	const friends = useFriends()
@@ -185,6 +188,14 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		}
 	}
 
+	async function handleToggleWriteMode() {
+		if (!onUpdateWriteMode) return
+		const newMode = channel.writeMode === 'moderators_only' ? 'everyone' : 'moderators_only'
+		setIsSavingWriteMode(true)
+		await onUpdateWriteMode(channel.id, newMode)
+		setIsSavingWriteMode(false)
+	}
+
 	const existingMemberIds = new Set(members?.map((m) => m.userId) ?? [])
 	const availableFriends = friends.filter((f) => !existingMemberIds.has(f.id))
 	const selectableUsers = [
@@ -297,7 +308,6 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-3 shadow-sm border border-gray-100">
 						<div className="flex items-center justify-between">
 							<h2 className="font-bold text-gray-700 flex items-center gap-1">
-								ⓘ Description
 							</h2>
 							{isModerator && (
 								<button
@@ -330,6 +340,26 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 								{channel.description || <span className="italic text-gray-400">Aucune description</span>}
 							</p>
 						)}
+					</div>
+				)}
+
+				{channel.type === 'channel' && isModerator && (
+					<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-3 shadow-sm border border-gray-100">
+						<div className="flex items-center justify-between">
+							<span className="font-bold text-gray-700">ⓘ Qui peut écrire</span>
+						</div>
+						<div className="flex items-center justify-between mt-1">
+							<span className="text-gray-600 text-xs">
+								{channel.writeMode === 'moderators_only' ? 'Modérateurs uniquement' : 'Tout le monde'}
+							</span>
+							<button
+								type="button"
+								onClick={handleToggleWriteMode}
+								disabled={isSavingWriteMode}
+								className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-50">
+								{isSavingWriteMode ? '...' : 'Changer'}
+							</button>
+						</div>
 					</div>
 				)}
 
