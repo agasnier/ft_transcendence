@@ -201,6 +201,7 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                             value={pseudoDraft}
                             onChange={(e) => setPseudoDraft(e.target.value)}
                             autoFocus
+                            autoComplete="username"
                         />
                         {pseudoError && <p className="text-xs text-red-600 text-center">{pseudoError}</p>}
                         <div className="flex justify-center gap-2">

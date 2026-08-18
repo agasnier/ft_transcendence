@@ -57,6 +57,7 @@ function AddFriendForm() {
 						}
 					}
 					placeholder='Pseudo'
+					autoComplete="off"
 					onKeyDown={(e) => {
 						if (e.key === 'Escape')
 							e.currentTarget.blur()

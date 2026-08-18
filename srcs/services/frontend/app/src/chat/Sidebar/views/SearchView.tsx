@@ -42,6 +42,7 @@ function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, se
                         placeholder="🔍︎ Rechercher"
                         autoFocus
                         maxLength={255}
+                        autoComplete="off"
                         className="search-input focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white"
                     />
                     {searchQuery !== '' && (

@@ -86,6 +86,7 @@ function PasswordSection() {
 						onChange={(e) => setCurrentPassword(e.target.value)}
 						required
 						autoFocus
+						autoComplete="current-password"
 					/>
 					<TextField
 						id="new-password"
@@ -94,6 +95,7 @@ function PasswordSection() {
 						value={newPassword}
 						onChange={(e) => setNewPassword(e.target.value)}
 						required
+						autoComplete="new-password"
 					/>
 					<TextField
 						id="confirm-new-password"
@@ -102,6 +104,7 @@ function PasswordSection() {
 						value={confirmPassword}
 						onChange={(e) => setConfirmPassword(e.target.value)}
 						required
+						autoComplete="new-password"
 					/>
 					{error && (
 						<p className="text-xs text-center font-medium text-red-600">{error}</p>

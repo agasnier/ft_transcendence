@@ -13,7 +13,10 @@ export const getApiKeysSchema = {
   response: {
     200: {
       type: 'object',
-      properties: apiKeysProperties,
+      properties: {
+        hasKey: { type: 'boolean' },
+        ...apiKeysProperties,
+      },
     },
   },
 }

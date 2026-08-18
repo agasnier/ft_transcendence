@@ -67,6 +67,7 @@ function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
 				onChange={(e) => setLogin(e.target.value)}
 				required
 				autoFocus
+				autoComplete="username"
 			/>
 
 			<TextField
@@ -76,6 +77,7 @@ function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				required
+				autoComplete="current-password"
 			/>
 			{error && (<p className="form-error">{error}</p>)}
 

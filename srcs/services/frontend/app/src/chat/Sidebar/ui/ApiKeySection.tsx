@@ -21,7 +21,7 @@ function ApiKeySection() {
 					return
 				}
 				const body = await res.json()
-				setHasKey(true)
+				setHasKey(body.hasKey === true)
 				setExpiresAt(body.expires_at ?? null)
 			} catch {
 				setHasKey(false)

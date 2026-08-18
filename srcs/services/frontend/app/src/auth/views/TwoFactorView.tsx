@@ -60,6 +60,7 @@ function TwoFactorView({ setView, onVerifySuccess }: TwoFactorViewProps) {
 				onChange={(e) => setCode(e.target.value)}
 				required
 				autoFocus
+				autoComplete="one-time-code"
 			/>
 			{error && (<p className="form-error">{error}</p>)}
 
