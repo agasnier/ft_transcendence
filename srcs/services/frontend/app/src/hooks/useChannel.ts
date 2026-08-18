@@ -5,6 +5,7 @@ interface Channel {
 	name: string | null
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
+	avatarUrl?: string | null
 	memberIds?: number[]
 	otherUserId?: number
     writeMode?: 'everyone' | 'moderators_only'
@@ -131,6 +132,29 @@ export function useChannel() {
         return res.ok
     }
 
+	async function uploadChannelAvatar(id: number, file: File): Promise<{ avatarUrl: string } | null> {
+		const formData = new FormData()
+		formData.append('file', file)
+
+		const res = await fetch(`/chat/channels/${id}/avatar`, {
+			method: 'POST',
+			body: formData,
+		})
+		if (!res.ok) return null
+		const data = await res.json()
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, avatarUrl: data.avatarUrl } : c)))
+		return data
+	}
+
+	async function deleteChannelAvatar(id: number): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${id}/avatar`, {
+			method: 'DELETE',
+		})
+		if (!res.ok) return false
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, avatarUrl: null } : c)))
+		return true
+	}
+
 	return {
 		channels,
 		createChannel,
@@ -145,6 +169,8 @@ export function useChannel() {
 		updateChannel,
 		updateWriteMode,
 		updateMemberRole,
-		removeMember
+		removeMember,
+		uploadChannelAvatar,
+		deleteChannelAvatar,
 	}
 }

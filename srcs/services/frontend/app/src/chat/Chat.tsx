@@ -15,17 +15,18 @@ interface ChatProps {
 	onLogout: () => void
 	pseudo: string | null
 	userId: number | null
+	role: 'admin' | 'moderator' | 'user' | null
 	onUpdatePseudo: (newPseudo: string) => Promise<boolean>
 }
 
-function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
-	const { channels, createChannel, deleteChannel, addChannel, markChannelRead, setChannelUnread, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole, removeMember } = useChannel()
+function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
+	const { channels, createChannel, deleteChannel, addChannel, markChannelRead, setChannelUnread, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole, removeMember, uploadChannelAvatar, deleteChannelAvatar } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
-	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
+	const { messages, createMessage, uploadFile, addMessage, editMessage, deleteMessage, updateMessage, removeMessage } = useMessage(selectedChannelId)
 	const [showInfoPanel, setShowInfoPanel] = useState(false)
 
-	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId)
+	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId, updateMessage, removeMessage)
 
 	function handleSelectChannel(id: number) {
 		setSelectedChannelId(id)
@@ -74,6 +75,7 @@ function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
 								onLogout={onLogout}
 								pseudo={pseudo}
 								userId={userId}
+								role={role}
 								onUpdatePseudo={onUpdatePseudo}
 								channels={channels}
 								selectedChannelId={selectedChannelId}
@@ -86,8 +88,12 @@ function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
 										key={selectedChannel.id}
 										channel={selectedChannel}
 										userId={userId}
+										role={role}
 										messages={messages}
 										onSendMessage={handleSendMessage}
+										onSendFile={uploadFile}
+										onEditMessage={editMessage}
+    									onDeleteMessage={deleteMessage}
 										onOpenInfoPanel={() => setShowInfoPanel(true)}
 									/>
 									{showInfoPanel && (
@@ -102,6 +108,8 @@ function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
 											onUpdateWriteMode={updateWriteMode}
 											onUpdateMemberRole={updateMemberRole}
 											onRemoveMember={removeMember}
+											onUploadAvatar={uploadChannelAvatar}
+											onDeleteAvatar={deleteChannelAvatar}
 										/>
 									)}
 								</div>

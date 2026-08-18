@@ -9,7 +9,7 @@ RUN     npm install
 COPY    app/ .
 
 # stockage folder for uploaded avatars
-RUN     mkdir -p /app/uploads && chown -R node:node /app/uploads
+RUN     mkdir -p /app/uploads/avatars && chown -R node:node /app/uploads
 
 EXPOSE  3000
 

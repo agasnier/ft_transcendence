@@ -1,4 +1,4 @@
-const messageResponse = {
+export const messageResponse = {
   type: 'object',
   properties: {
     id: { type: 'integer' },
@@ -7,7 +7,17 @@ const messageResponse = {
     senderPseudo: { type: ['string', 'null'] },
     content: { type: 'string' },
     createdAt: { type: 'string' },
-    type: { type: 'string', enum: ['user', 'system']}
+    type: { type: 'string', enum: ['user', 'system']},
+    fileId: { type: ['integer', 'null'] },
+    file: {
+      type: ['object', 'null'],
+      properties: {
+        id: { type: 'integer' },
+        originalName: { type: 'string' },
+        mimeType: { type: 'string' },
+        size: { type: 'integer' },
+      },
+    },
   },
 }
 
@@ -46,4 +56,32 @@ export const createMessageSchema = {
   response: {
     201: messageResponse,
   },
+}
+
+export const messageParamsSchema = {
+  type: 'object',
+  required: ['id', 'messageId'],
+  properties: {
+    id: { type: 'integer', minimum: 1 },
+    messageId: { type: 'integer', minimum: 1 },
+  },
+}
+
+export const updateMessageSchema = {
+  params: messageParamsSchema,
+  body: {
+    type: 'object',
+    required: ['content'],
+    additionalProperties: false,
+    properties: {
+      content: { type: 'string', minLength: 1, maxLength: 2000 },
+    },
+  },
+  response: {
+    200: messageResponse,
+  },
+}
+
+export const deleteMessageSchema = {
+  params: messageParamsSchema,
 }

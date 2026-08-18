@@ -92,7 +92,7 @@ export function wsUserOffline(userId: number): void {
 	wsSendAll({ type: 'USER_OFFLINE', payload: { userId } })
 }
 
-export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, createdAt: Date | string }): void {
+export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, avatarUrl?: string | null, createdAt: Date | string }): void {
 	wsSendToUser(userId, { type: 'CHANNEL_CREATED', payload: channel })
 }
 
@@ -104,7 +104,7 @@ export function wsChannelDeletedTo(userId: number, id: number): void {
 	wsSendToUser(userId, { type: 'CHANNEL_DELETED', payload: { id } })
 }
 
-export function wsChannelUpdatedTo(userId: number, channel: {id: number, name: string | null, type: string, description: string | null}): void {
+export function wsChannelUpdatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, avatarUrl?: string | null }): void {
 	wsSendToUser(userId, { type: 'CHANNEL_UPDATED', payload: channel })
 }
 
@@ -121,4 +121,22 @@ export function wsMessageCreated(message: {
 
 export function getOnlineUserCount() : number{
 	return socketsByUser.size
+}
+
+export function wsMessageUpdated(message: {
+    id: number
+    channelId: number
+    senderId: number
+    senderPseudo: string | null
+    content: string
+    createdAt: Date | string
+    type: string
+    fileId: number | null
+    file: unknown
+}): void {
+    wsSendAll({ type: 'MESSAGE_UPDATED', payload: message })
+}
+
+export function wsMessageDeleted(id: number, channelId: number): void {
+    wsSendAll({ type: 'MESSAGE_DELETED', payload: { id, channelId } })
 }

@@ -1,4 +1,6 @@
 import { and, desc, eq, inArray } from 'drizzle-orm'
+import { unlink } from 'fs/promises'
+import path from 'path'
 
 import { db } from '../../db/index.js'
 import { channels, channelMembers, discussionPairs, messages } from '../../db/schema.js'
@@ -9,6 +11,8 @@ type ChannelRow = {
   name: string | null
   type: string
   description: string | null
+  avatarUrl?: string | null
+  writeMode?: 'everyone' | 'moderators_only'
   createdAt: Date
   otherUserId?: number
 }
@@ -31,11 +35,13 @@ export async function resolveDiscussionNames(rows: ChannelRow[], userId: number)
   const idsToResolve = [...new Set(otherUserIdByChannel.values())]
 
   let pseudoById = new Map<number, string>()
+  let avatarUrlById = new Map<number, string | null>()
   try {
     const res = await fetch(`${env.usersServiceUrl}/users/batch?ids=${idsToResolve.join(',')}`)
     if (res.ok) {
-      const usersList = (await res.json()) as { id: number; pseudo: string }[]
+      const usersList = (await res.json()) as { id: number; pseudo: string; avatarUrl?: string | null }[]
       pseudoById = new Map(usersList.map((u) => [u.id, u.pseudo]))
+      avatarUrlById = new Map(usersList.map((u) => [u.id, u.avatarUrl ?? null]))
     }
   } catch {
     // users_service unreachable: leave name as-is (null), frontend falls back to a placeholder
@@ -46,10 +52,12 @@ export async function resolveDiscussionNames(rows: ChannelRow[], userId: number)
       return c
     const otherUserId = otherUserIdByChannel.get(c.id)
     const pseudo = otherUserId !== undefined ? pseudoById.get(otherUserId) : undefined
+    const avatarUrl = otherUserId !== undefined ? avatarUrlById.get(otherUserId) : undefined
     return {
       ...c,
       otherUserId,
       name: c.name === null && pseudo !== undefined ? pseudo : c.name,
+      avatarUrl: c.avatarUrl ?? avatarUrl ?? null,
     }
   })
 }
@@ -63,6 +71,7 @@ export async function listUserChannels(userId: number) {
       name: channels.name,
       type: channels.type,
       description: channels.description,
+      avatarUrl: channels.avatarUrl,
       writeMode: channels.writeMode,
       createdAt: channels.createdAt,
     })
@@ -136,6 +145,7 @@ export async function channelInfo(channelId: number) {
       name: channels.name,
       type: channels.type,
       description: channels.description,
+      avatarUrl: channels.avatarUrl,
       writeMode: channels.writeMode,
       createdAt: channels.createdAt,
     })
@@ -227,7 +237,29 @@ export async function createChannel(name: string | undefined, memberIds: number[
 }
 
 export async function deleteChannel(channelId: number): Promise<void> {
+  const channel = await channelInfo(channelId)
+  if (channel?.avatarUrl) {
+    const filename = channel.avatarUrl.replace('/chat/avatars/', '')
+    const filepath = path.join(env.uploadsDir, 'avatars', filename)
+    await unlink(filepath).catch(() => {})
+  }
   await db.delete(channels).where(eq(channels.id, channelId))
+}
+
+export async function updateChannelAvatar(channelId: number, avatarUrl: string) {
+  await db.update(channels).set({ avatarUrl }).where(eq(channels.id, channelId))
+  return channelInfo(channelId)
+}
+
+export async function deleteChannelAvatar(channelId: number) {
+  const channel = await channelInfo(channelId)
+  if (channel?.avatarUrl) {
+    const filename = channel.avatarUrl.replace('/chat/avatars/', '')
+    const filepath = path.join(env.uploadsDir, 'avatars', filename)
+    await unlink(filepath).catch(() => {})
+  }
+  await db.update(channels).set({ avatarUrl: null }).where(eq(channels.id, channelId))
+  return channelInfo(channelId)
 }
 
 export async function removeChannelMember(channelId: number, userId: number): Promise<void> {

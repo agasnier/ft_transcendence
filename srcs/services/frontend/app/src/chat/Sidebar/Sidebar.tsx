@@ -12,6 +12,7 @@ interface SidebarProp {
 	onLogout: () => void
 	pseudo: string | null
 	userId: number | null
+	role: 'admin' | 'moderator' | 'user' | null
 	onUpdatePseudo: (newPseudo: string) => Promise<boolean>
 	channels: Channel[]
 	selectedChannelId: number | null
@@ -40,9 +41,9 @@ const variants = {
 	exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
 }
 
-function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, onUpdatePseudo }: SidebarProp) {
+function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, onSelectChannel, onCreateChannel, onUpdatePseudo }: SidebarProp) {
 	const [view, setView] = useState<SidebarView>({ kind: 'home' })
-	const [activeTab, setActiveTab] = useState<'friends' | 'conversations'>('conversations')
+	const [activeTab, setActiveTab] = useState<'friends' | 'conversations' | 'admin'>('conversations')
 	const [searchQuery, setSearchQuery] = useState('')
 	const [direction, setDirection] = useState(1)
 	const prevKindRef = useRef<SidebarView['kind']>('home')
@@ -69,6 +70,7 @@ function Sidebar({ onLogout, pseudo, userId, channels, selectedChannelId, onSele
 				return (
 					<HomeView
 						userId={userId}
+						role={role}
 						channels={channels}
 						selectedChannelId={selectedChannelId}
 						onSelectChannel={onSelectChannel}

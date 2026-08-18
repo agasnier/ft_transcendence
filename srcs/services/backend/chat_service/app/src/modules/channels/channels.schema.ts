@@ -9,6 +9,7 @@ export const listUserChannelsSchema = {
           name: { type: ['string', 'null'] },
           type: { type: 'string' },
           description: { type: ['string', 'null'] },
+          avatarUrl: { type: ['string', 'null'] },
           createdAt: { type: 'string' },
           otherUserId: { type: 'integer' },
           writeMode: { type: 'string', enum: ['everyone', 'moderators_only'] },
@@ -117,8 +118,33 @@ export const updateChannelSchema = {
         id: { type: 'integer' },
         name: { type: ['string', 'null'] },
         description: { type: ['string', 'null'] },
+        avatarUrl: { type: ['string', 'null'] },
         type: { type: 'string' },
         createdAt: { type: 'string', format: 'date-time' },
+      },
+    },
+  },
+}
+
+export const uploadChannelAvatarSchema = {
+  params: channelIdParamSchema.params,
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        avatarUrl: { type: ['string', 'null'] },
+      },
+    },
+  },
+}
+
+export const deleteChannelAvatarSchema = {
+  params: channelIdParamSchema.params,
+  response: {
+    200: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
       },
     },
   },

@@ -8,6 +8,8 @@ import { Readable } from 'stream'
 import { env } from '../../config/env.js'
 import { isAllowedFile, saveFileRecord, getFileById, deleteFileRecord } from './files.service.js'
 import { isChannelMember } from '../channels/channels.service.js'
+import { createMessage } from '../messages/messages.service.js'
+import { wsMessageCreated } from '../websocket/websocket.ws.js'
 
 export async function uploadFileController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
@@ -45,7 +47,11 @@ export async function uploadFileController(request: FastifyRequest, reply: Fasti
       size: buffer.length,
     })
 
-    await reply.status(201).send(record)
+    // create message for file, to appear in conversation
+    const message = await createMessage(chId, request.user!.id, data.filename, 'user', record!.id)
+    wsMessageCreated(message)
+
+    await reply.status(201).send(message)
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

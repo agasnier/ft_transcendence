@@ -6,18 +6,28 @@ interface Channel {
 	name: string | null
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
+	avatarUrl?: string | null
 	memberIds?: number[]
 	hasUnread?: boolean
 }
 
+interface FileInfo {
+    id: number
+    originalName: string
+    mimeType: string
+    size: number
+}
+
 interface Message {
-	id: number
-	channelId: number
-	senderId: number
-	senderPseudo: string | null
-	content: string
-	createdAt: string
-	type: 'user' | 'system'
+    id: number
+    channelId: number
+    senderId: number
+    senderPseudo: string | null
+    content: string
+    createdAt: string
+    type: 'user' | 'system'
+    fileId: number | null
+    file: FileInfo | null
 }
 
 export function useChatSocket(
@@ -28,6 +38,8 @@ export function useChatSocket(
 	setChannelUnread: (id: number, hasUnread: boolean) => void,
 	userId: number | null,
 	selectedChannelId: number | null,
+	updateMessage?: (message: Message) => void,
+    removeMessage?: (messageId: number) => void,
 ) {
 	const [onlineUserIds, setOnlineUserIds] = useState<Set<number>>(() => new Set())
 	const chatSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
@@ -44,6 +56,10 @@ export function useChatSocket(
 			if (userId !== null && message.payload.senderId !== userId && message.payload.channelId !== selectedChannelId)
 				setChannelUnread(message.payload.channelId, true)
 		}
+		if (message.type === 'MESSAGE_UPDATED' && updateMessage)
+            updateMessage(message.payload)
+        if (message.type === 'MESSAGE_DELETED' && removeMessage)
+            removeMessage(message.payload.id)
 		if (message.type === 'PRESENCE_SNAPSHOT')
 			setOnlineUserIds(new Set(message.payload.userIds))
 		if (message.type === 'USER_ONLINE') {

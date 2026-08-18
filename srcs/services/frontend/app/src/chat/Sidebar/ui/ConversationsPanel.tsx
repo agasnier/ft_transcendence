@@ -14,6 +14,7 @@ interface Channel {
 	name: string | null
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
+	avatarUrl?: string | null
 	otherUserId?: number
 	hasUnread?: boolean
 }
@@ -38,6 +39,7 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 				<AvatarNameCard
 					key={channel.id}
 					name={channel.name ?? 'username a gerer'}
+					avatarUrl={channel.avatarUrl}
 					variant={channel.type === 'discussion' ? 'user' : 'conversation'}
 					selected={selectedChannelId === channel.id}
 					onClick={() => onSelectChannel(channel.id)}

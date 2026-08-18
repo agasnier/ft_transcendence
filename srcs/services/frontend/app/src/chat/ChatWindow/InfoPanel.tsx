@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import BackButton from "../Sidebar/ui/BackButton"
 import AvatarNameCard from '../Sidebar/ui/AvatarNameCard'
 import { useFriends } from '../../hooks/useFriends'
@@ -7,6 +7,8 @@ interface Member {
 	userId: number
 	role: 'moderator' | 'member'
 	pseudo: string
+	avatarUrl?: string | null
+	globalRole?: 'admin' | 'moderator' | 'user'
 }
 
 interface Channel {
@@ -14,6 +16,7 @@ interface Channel {
 	name: string | null
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
+	avatarUrl?: string | null
 	otherUserId?: number
 	writeMode?: 'everyone' | 'moderators_only'
 }
@@ -38,9 +41,11 @@ interface InfoPanelProps {
 	onUpdateWriteMode?: (id: number, writeMode: 'everyone' | 'moderators_only') => Promise<boolean>
 	onUpdateMemberRole?: (channelId: number, userId: number, role: 'moderator' | 'member') => Promise<boolean>
 	onRemoveMember?: (channelId: number, userId: number) => Promise<boolean>
+	onUploadAvatar?: (channelId: number, file: File) => Promise<{ avatarUrl: string } | null>
+	onDeleteAvatar?: (channelId: number) => Promise<boolean>
 }
 
-function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, onUpdateDescription, onAddMembers, onUpdateWriteMode, onUpdateMemberRole, onRemoveMember }: InfoPanelProps) {
+function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, onUpdateDescription, onAddMembers, onUpdateWriteMode, onUpdateMemberRole, onRemoveMember, onUploadAvatar, onDeleteAvatar }: InfoPanelProps) {
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState(channel.name ?? '')
 	const [isEditingDesc, setIsEditingDesc] = useState(false)
@@ -60,7 +65,11 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [confirmRemove, setConfirmRemove] = useState(false)
 	const [myRole, setMyRole] = useState<'admin' | 'moderator' | 'user' | null>(null)
 
-	const isModerator = members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false
+	const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+	const [avatarError, setAvatarError] = useState<string | null>(null)
+	const fileInputRef = useRef<HTMLInputElement>(null)
+
+	const isModerator = myRole === 'admin' || (members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false)
 	const friends = useFriends()
 
 	async function loadMembers() {
@@ -78,10 +87,17 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		const usersRes = await fetch(`/users/batch?ids=${rows.map((r) => r.userId).join(',')}`)
 		if (!usersRes.ok)
 			return
-		const users: { id: number; pseudo: string }[] = await usersRes.json()
-		const pseudoById = new Map(users.map((u) => [u.id, u.pseudo]))
-		const membersList: Member[] = rows.map((r) => ({ ...r, pseudo: pseudoById.get(r.userId) ?? '?' }))
+		const users: { id: number; pseudo: string; avatarUrl: string | null; role?: 'admin' | 'moderator' | 'user' }[] = await usersRes.json()
+		const infoById = new Map(users.map((u) => [u.id, u]))
+		const membersList: Member[] = rows.map((r) => ({
+			...r,
+			pseudo: infoById.get(r.userId)?.pseudo ?? '?',
+			avatarUrl: infoById.get(r.userId)?.avatarUrl ?? null,
+			globalRole: infoById.get(r.userId)?.role,
+		}))
 		membersList.sort((a, b) => {
+			if (a.globalRole === 'admin' && b.globalRole !== 'admin') return -1
+			if (b.globalRole === 'admin' && a.globalRole !== 'admin') return 1
 			if (a.role !== b.role)
 				return a.role === 'moderator' ? -1 : 1
 			return a.pseudo.localeCompare(b.pseudo)
@@ -236,6 +252,57 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		}
 	}
 
+	async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+		const file = e.target.files?.[0]
+		if (!file) return
+
+		setAvatarError(null)
+		setIsUploadingAvatar(true)
+
+		if (onUploadAvatar) {
+			const res = await onUploadAvatar(channel.id, file)
+			if (!res) {
+				setAvatarError("Échec de l'upload du logo")
+			}
+		} else {
+			const formData = new FormData()
+			formData.append('file', file)
+			const res = await fetch(`/chat/channels/${channel.id}/avatar`, {
+				method: 'POST',
+				body: formData,
+			})
+			if (!res.ok) {
+				const err = await res.json().catch(() => null)
+				setAvatarError(err?.message ?? "Échec de l'upload")
+			}
+		}
+
+		setIsUploadingAvatar(false)
+		if (fileInputRef.current) fileInputRef.current.value = ''
+	}
+
+	async function handleDeleteAvatar() {
+		setAvatarError(null)
+		setIsUploadingAvatar(true)
+
+		if (onDeleteAvatar) {
+			const ok = await onDeleteAvatar(channel.id)
+			if (!ok) {
+				setAvatarError('Échec de la suppression du logo')
+			}
+		} else {
+			const res = await fetch(`/chat/channels/${channel.id}/avatar`, {
+				method: 'DELETE',
+			})
+			if (!res.ok) {
+				const err = await res.json().catch(() => null)
+				setAvatarError(err?.message ?? 'Échec de la suppression')
+			}
+		}
+
+		setIsUploadingAvatar(false)
+	}
+
 	const existingMemberIds = new Set(members?.map((m) => m.userId) ?? [])
 	const availableFriends = friends.filter((f) => !existingMemberIds.has(f.id))
 	const selectableUsers = [
@@ -252,9 +319,17 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					<h2 className="view-title">Profil</h2>
 				</span>
 				<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
-					<span className="avatar-circle bg-user w-30 h-30 text-6xl">
-						{selectedMember.pseudo.charAt(0).toUpperCase()}
-					</span>
+					{selectedMemberProfile?.avatarUrl ? (
+						<img
+							src={selectedMemberProfile.avatarUrl}
+							alt={selectedMember.pseudo}
+							className="w-30 h-30 rounded-full object-cover"
+						/>
+					) : (
+						<span className="avatar-circle bg-user w-30 h-30 text-6xl">
+							{selectedMember.pseudo.charAt(0).toUpperCase()}
+						</span>
+					)}
 					<h1 className="font-bold text-gray-800 text-lg truncate">{selectedMember.pseudo}</h1>
 					{selectedMemberProfile?.isOnline !== undefined && (
 						<span className={`text-sm ${selectedMemberProfile.isOnline ? 'text-green-500' : 'text-red-500'}`}>
@@ -262,7 +337,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 						</span>
 					)}
 					<span className="text-xs text-gray-500">
-						{selectedMember.role === 'moderator' ? 'Modérateur' : 'Membre'}
+						{selectedMemberProfile?.role === 'admin' ? 'Admin' : selectedMember.role === 'moderator' ? 'Modérateur' : 'Membre'}
 					</span>
 					{isModerator && selectedMember.userId !== userId && (myRole === 'admin' || selectedMemberProfile?.role !== 'admin') && onUpdateMemberRole && (
 						<button
@@ -330,10 +405,63 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 			</span>
 
 			<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
-				<span
-					className={`avatar-circle w-30 h-30 text-6xl ${channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}`}>
-					{channel.name?.charAt(0).toUpperCase() ?? '?'}
-				</span>
+				<div className="relative">
+					{channel.type === 'discussion' ? (
+						otherProfile?.avatarUrl || channel.avatarUrl ? (
+							<img
+								src={otherProfile?.avatarUrl ?? channel.avatarUrl!}
+								alt="avatar"
+								className="w-30 h-30 rounded-full object-cover"
+							/>
+						) : (
+							<span className="avatar-circle bg-user w-30 h-30 text-6xl">
+								{channel.name?.charAt(0).toUpperCase() ?? '?'}
+							</span>
+						)
+					) : (
+						channel.avatarUrl ? (
+							<img
+								src={channel.avatarUrl}
+								alt="logo"
+								className="w-30 h-30 rounded-full object-cover"
+							/>
+						) : (
+							<span className="avatar-circle bg-conversation w-30 h-30 text-6xl">
+								{channel.name?.charAt(0).toUpperCase() ?? '?'}
+							</span>
+						)
+					)}
+					{channel.type !== 'discussion' && isModerator && (
+						<>
+							<button
+								type="button"
+								onClick={() => fileInputRef.current?.click()}
+								disabled={isUploadingAvatar}
+								title="Changer le logo du salon"
+								className="absolute bottom-0 right-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-gray-100 disabled:opacity-50">
+								{isUploadingAvatar ? '...' : '🖋'}
+							</button>
+							{channel.avatarUrl && (
+								<button
+									type="button"
+									onClick={handleDeleteAvatar}
+									disabled={isUploadingAvatar}
+									title="Supprimer le logo du salon"
+									className="absolute bottom-0 left-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-red-100 disabled:opacity-50">
+									🗑️
+								</button>
+							)}
+							<input
+								ref={fileInputRef}
+								type="file"
+								accept="image/jpeg,image/png,image/webp"
+								onChange={handleAvatarChange}
+								className="hidden"
+							/>
+						</>
+					)}
+				</div>
+				{avatarError && <p className="text-xs text-red-600">{avatarError}</p>}
 
 				<div className="flex items-center justify-center gap-2 max-w-full px-2">
 					{isEditingName ? (
@@ -527,7 +655,8 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 										key={m.userId}
 										name={m.pseudo}
 										variant="user"
-										subtitle={m.role === 'moderator' ? 'Modérateur' : undefined}
+										avatarUrl={m.avatarUrl}
+										subtitle={m.globalRole === 'admin' ? 'Admin' : m.role === 'moderator' ? 'Modérateur' : undefined}
 										onClick={() => handleSelectMember(m)}
 									/>
 								))}
