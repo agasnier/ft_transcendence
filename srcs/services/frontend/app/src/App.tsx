@@ -23,6 +23,16 @@ function App() {
 		checkSession()
 	}, [])
 
+	useEffect(() => {
+		function handleAuthLost() {
+			setIsLoggedIn(false)
+			setUserId(null)
+			setPseudo(null)
+		}
+		window.addEventListener('auth-lost', handleAuthLost)
+		return () => window.removeEventListener('auth-lost', handleAuthLost)
+	}, [])
+
 	async function handleLogout() {
 		await fetch('/auth/logout', { method: 'POST' })
 		setIsLoggedIn(false)
