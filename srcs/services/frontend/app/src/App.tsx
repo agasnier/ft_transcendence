@@ -44,7 +44,7 @@ function App() {
     }
 
 	if (isCheckingSession)
-		return null // TODO add skeleton
+		return null
 
 	if (!isLoggedIn)
 		return <Auth onAuthSuccess={checkSession} />

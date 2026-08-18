@@ -5,8 +5,6 @@ import { createMessage, listMessages } from './messages.service.js'
 import { wsChannelCreatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 import { getMemberRole } from '../channels/channels.service.js'
 
-// TODO hook is a channel members
-
 // controllers
 export async function listMessagesController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {

@@ -22,6 +22,8 @@ export async function createCookie(reply: FastifyReply, user: { id: number; pseu
 export async function createPending2FACookie(reply: FastifyReply, user: { id: number; pseudo: string; role: string }): Promise<string> {
   const accessToken = await createAccessToken({ id: user.id, pseudo: user.pseudo, role: user.role, twofa: 'pending' })
 
+  await deleteRefreshTokensByUser(user.id)
+
   reply
     .setCookie('access_token', accessToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' })
     .clearCookie('refresh_token', { path: '/auth' })
@@ -35,11 +37,19 @@ export async function createRefreshToken(owner_id: number): Promise<string> {
   const expiresAt = new Date()
   expiresAt.setDate(expiresAt.getDate() + env.refreshTokenExpirationDays)
 
+  await deleteRefreshTokensByUser(owner_id)
+
   await db
     .insert(jwtRefreshToken)
     .values({ owner_id, token_hash: await vaultHash(token), expires_at: expiresAt })
 
   return token
+}
+
+export async function deleteRefreshTokensByUser(owner_id: number): Promise<void> {
+  await db
+    .delete(jwtRefreshToken)
+    .where(eq(jwtRefreshToken.owner_id, owner_id))
 }
 
 export async function deleteRefreshToken(token: string): Promise<void> {

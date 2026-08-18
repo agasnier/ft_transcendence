@@ -1,4 +1,2 @@
 
-TODO consume the refresh token, now it create two refresh token
-
 TODO hook access token reply 401 so front need to handle this to fetch /session verifying if refresh token is valid

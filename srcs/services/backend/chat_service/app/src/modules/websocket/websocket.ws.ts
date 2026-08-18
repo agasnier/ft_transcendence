@@ -58,7 +58,6 @@ function wsSendToSocket(socket: WebSocket, data: object): void {
 		socket.send(JSON.stringify(data))
 }
 
-// TODO send only to user concerned
 function wsSendAll(data: object): void {
 	const raw = JSON.stringify(data)
 	for (const userSockets of socketsByUser.values()) {

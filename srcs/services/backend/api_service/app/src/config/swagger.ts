@@ -1,7 +1,5 @@
 import type { FastifyDynamicSwaggerOptions } from '@fastify/swagger'
 
-// TODO API Docs in english ??
-
 export const swaggerSettings = {
   openapi: {
     info: { title: 'ft_transcendence API', version: '1.0.0' },

@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { createCookie, createPending2FACookie, deleteRefreshToken, validateRefreshToken } from './auth.service.js'
+import { createCookie, createPending2FACookie, deleteRefreshToken, deleteRefreshTokensByUser, validateRefreshToken } from './auth.service.js'
 import { createUser, verifyCredentials, getUserById, changePassword } from '../users/users.service.js'
 import { getTwoFAByUserId } from '../twofa/twofa.service.js'
 import { validateAccessToken } from '../vault/jwt.js'
@@ -127,10 +127,9 @@ export async function sessionController(request: FastifyRequest, reply: FastifyR
       return
     }
 
-    await deleteRefreshToken(refreshToken)
-
     const user = await getUserById(stored.owner_id)
     if (!user) {
+      await deleteRefreshTokensByUser(stored.owner_id)
       await reply.status(401).send({ message: 'Not authenticated' })
       return
     }

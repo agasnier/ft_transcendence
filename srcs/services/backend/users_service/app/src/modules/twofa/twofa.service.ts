@@ -35,8 +35,6 @@ export async function setupTwoFA(userId: number, label: string): Promise<{ secre
     secret,
   })
 
-  // TODO hash secret with vault 
-  
   if (existing) {
     await db
       .update(twoFA)
@@ -58,7 +56,6 @@ export async function verifyTwoFA(userId: number, token: string): Promise<boolea
   if (!row)
     return false
 
-  // TODO decrypt secret with vault
   const result = await verify({ secret: row.secret, token })
   return result.valid === true
 }

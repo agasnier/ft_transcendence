@@ -226,7 +226,6 @@ export async function createChannel(name: string | undefined, memberIds: number[
   }
 }
 
-// TODO delete a group if no members
 export async function deleteChannel(channelId: number): Promise<void> {
   await db.delete(channels).where(eq(channels.id, channelId))
 }

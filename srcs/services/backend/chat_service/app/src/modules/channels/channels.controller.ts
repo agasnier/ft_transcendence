@@ -7,8 +7,6 @@ import { env } from '../../config/env.js'
 
 // hooks
 
-// TODO hook is a channel members
-
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const accessToken = request.cookies.access_token
   if (!accessToken) {
