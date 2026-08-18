@@ -23,7 +23,7 @@ Config is mounted at `/etc/prometheus/prometheus.yml`. Jobs: `prometheus`, `mari
 
 ### mysqld-exporter
 
-Image `prom/mysqld-exporter`. It reads `/vault/secrets/.my.cnf` written by `mysqld_exporter_agent`. That user only has `PROCESS`, `REPLICATION CLIENT` and `SELECT`.
+Image `prom/mysqld-exporter`. It reads `/vault/secrets/.my.cnf` written by `mysqld_exporter_agent`. That user only has `PROCESS` and `REPLICATION CLIENT` on `*.*`, plus `SELECT` on `performance_schema.*`.
 
 ### Grafana
 

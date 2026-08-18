@@ -1,6 +1,15 @@
 {
   "db_name": "mariadb",
-  "creation_statements": "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT ALL PRIVILEGES ON `${MARIADB_DATABASE}`.* TO '{{name}}'@'%';",
+  "creation_statements": [
+    "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';",
+    "GRANT CREATE ON `${MARIADB_DATABASE}`.* TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`channels` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`channel_members` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`discussion_pairs` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`files` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`messages` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`__drizzle_migrations_chat` TO '{{name}}'@'%';"
+  ],
   "default_ttl": "24h",
   "max_ttl": "72h"
 }

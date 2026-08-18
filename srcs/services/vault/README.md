@@ -28,7 +28,7 @@ The entrypoint enables `transit/` and creates three keys: `passwords` (HMAC befo
 
 ### Database engine
 
-Vault logs in to MariaDB as `vault` (password from secret `db_vault_password`), then `rotate-root` so only Vault knows it. Role TTL is 24h (max 72h). Agents read `database/creds/<service>` and write `db_creds.json`. The service watches that file and swaps its pool.
+Vault logs in to MariaDB as `vault` (password from secret `db_vault_password`), then `rotate-root` so only Vault knows it. Role TTL is 24h (max 72h). Each role gets `CREATE` on the schema (so Drizzle can create its tables) and DML/DDL only on the tables it owns. Agents read `database/creds/<service>` and write `db_creds.json`. The service watches that file and swaps its pool.
 
 ### AppRole
 
@@ -42,19 +42,19 @@ The agent uses AppRole, writes secrets from templates, and proxies Transit on po
 
 ### users_service
 
-Policy: `database/creds/users_service`, `transit/hmac/passwords`, `transit/sign/jwt`, `transit/verify/jwt`. SQL grant: `ALL` on the app database.
+Policy: `database/creds/users_service`, `transit/hmac/passwords`, `transit/sign/jwt`, `transit/verify/jwt`. SQL: `CREATE` on the schema (Drizzle `CREATE TABLE`), DML/DDL on `users`, `friends`, `jwt_refresh_token`, `two_factor`, `__drizzle_migrations_users`.
 
 ### chat_service
 
-Policy: `database/creds/chat_service`, `transit/verify/jwt`. SQL grant: `ALL` on the app database.
+Policy: `database/creds/chat_service`, `transit/verify/jwt`. SQL: `CREATE` on the schema, DML/DDL on `channels`, `channel_members`, `discussion_pairs`, `files`, `messages`, `__drizzle_migrations_chat`.
 
 ### api_service
 
-Policy: `database/creds/api_service`, `transit/hmac/api-keys`, `transit/verify/jwt`. SQL grant: `ALL` on the app database.
+Policy: `database/creds/api_service`, `transit/hmac/api-keys`, `transit/verify/jwt`. SQL: `CREATE` on the schema, DML/DDL on `api_keys`, `__drizzle_migrations_api`.
 
 ### mysqld_exporter
 
-Policy: `database/creds/mysqld_exporter`. SQL grant: `PROCESS`, `REPLICATION CLIENT`, `SELECT`. Agent template writes `/vault/secrets/.my.cnf`.
+Policy: `database/creds/mysqld_exporter`. SQL: `PROCESS`, `REPLICATION CLIENT` on `*.*`, `SELECT` on `performance_schema.*` (no app table data). Agent template writes `/vault/secrets/.my.cnf`.
 
 ## Commands
 

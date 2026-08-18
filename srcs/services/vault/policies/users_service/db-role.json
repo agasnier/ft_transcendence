@@ -1,6 +1,14 @@
 {
   "db_name": "mariadb",
-  "creation_statements": "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}'; GRANT ALL PRIVILEGES ON `${MARIADB_DATABASE}`.* TO '{{name}}'@'%';",
+  "creation_statements": [
+    "CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';",
+    "GRANT CREATE ON `${MARIADB_DATABASE}`.* TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`users` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`friends` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`jwt_refresh_token` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`two_factor` TO '{{name}}'@'%';",
+    "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON `${MARIADB_DATABASE}`.`__drizzle_migrations_users` TO '{{name}}'@'%';"
+  ],
   "default_ttl": "24h",
   "max_ttl": "72h"
 }
