@@ -7,6 +7,7 @@ interface Member {
 	userId: number
 	role: 'moderator' | 'member'
 	pseudo: string
+	avatarUrl?: string | null
 }
 
 interface Channel {
@@ -85,9 +86,10 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		const usersRes = await fetch(`/users/batch?ids=${rows.map((r) => r.userId).join(',')}`)
 		if (!usersRes.ok)
 			return
-		const users: { id: number; pseudo: string }[] = await usersRes.json()
+		const users: { id: number; pseudo: string;  avatarUrl: string | null }[] = await usersRes.json()
+		const infoById = new Map(users.map((u) => [u.id, u]))
 		const pseudoById = new Map(users.map((u) => [u.id, u.pseudo]))
-		const membersList: Member[] = rows.map((r) => ({ ...r, pseudo: pseudoById.get(r.userId) ?? '?' }))
+		const membersList: Member[] = rows.map((r) => ({ ...r, pseudo: pseudoById.get(r.userId) ?? '?', avatarUrl: infoById.get(r.userId)?.avatarUrl ?? null }))
 		membersList.sort((a, b) => {
 			if (a.role !== b.role)
 				return a.role === 'moderator' ? -1 : 1
@@ -646,6 +648,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 										key={m.userId}
 										name={m.pseudo}
 										variant="user"
+										avatarUrl={m.avatarUrl}
 										subtitle={m.role === 'moderator' ? 'Modérateur' : undefined}
 										onClick={() => handleSelectMember(m)}
 									/>
