@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { validateAccessToken } from '../vault/jwt.js'
-import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers } from './channels.service.js'
+import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers, getLastMessageId, getLastReadMessageId, markChannelRead } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 import { createMessage } from '../messages/messages.service.js'
 import { env } from '../../config/env.js'
@@ -61,7 +61,29 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
 export async function listUserChannelsController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const userChannels = await listUserChannels(request.user!.id)
-    await reply.send(userChannels)
+    const result = []
+    for (const channel of userChannels) {
+      const lastMessageId = await getLastMessageId(channel.id) ?? 0
+      const lastReadId = await getLastReadMessageId(channel.id, request.user!.id) ?? 0
+      result.push({ ...channel, hasUnread: lastMessageId > lastReadId })
+    }
+    await reply.send(result)
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function markChannelReadController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id } = request.params as { id: string }
+    const channelId = Number(id)
+    const ok = await markChannelRead(channelId, request.user!.id)
+    if (!ok) {
+      await reply.status(403).send({ message: 'Not a channel member' })
+      return
+    }
+    await reply.status(204).send()
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

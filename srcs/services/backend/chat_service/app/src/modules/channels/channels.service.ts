@@ -1,7 +1,7 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, desc, eq, inArray } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
-import { channels, channelMembers, discussionPairs } from '../../db/schema.js'
+import { channels, channelMembers, discussionPairs, messages } from '../../db/schema.js'
 import { env } from '../../config/env.js'
 
 type ChannelRow = {
@@ -71,6 +71,36 @@ export async function listUserChannels(userId: number) {
     .where(eq(channelMembers.userId, userId))
 
   return resolveDiscussionNames(rows, userId)
+}
+
+export async function getLastMessageId(channelId: number): Promise<number | null> {
+  const [row] = await db
+    .select({ id: messages.id })
+    .from(messages)
+    .where(eq(messages.channelId, channelId))
+    .orderBy(desc(messages.id))
+    .limit(1)
+  return row?.id ?? null
+}
+
+export async function getLastReadMessageId(channelId: number, userId: number): Promise<number | null> {
+  const [row] = await db
+    .select({ lastReadMessageId: channelMembers.lastReadMessageId })
+    .from(channelMembers)
+    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+    .limit(1)
+  return row?.lastReadMessageId ?? null
+}
+
+export async function markChannelRead(channelId: number, userId: number): Promise<boolean> {
+  if (!(await isChannelMember(channelId, userId)))
+    return false
+
+  await db
+    .update(channelMembers)
+    .set({ lastReadMessageId: await getLastMessageId(channelId) ?? 0 })
+    .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
+  return true
 }
 
 export async function leaveChannel(channelId: number, userId: number): Promise<void> {

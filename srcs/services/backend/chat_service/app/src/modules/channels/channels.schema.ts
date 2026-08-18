@@ -12,6 +12,7 @@ export const listUserChannelsSchema = {
           createdAt: { type: 'string' },
           otherUserId: { type: 'integer' },
           writeMode: { type: 'string', enum: ['everyone', 'moderators_only'] },
+          hasUnread: { type: 'boolean' },
         },
       },
     },
@@ -32,6 +33,16 @@ export const createChannelSchema = {
         minItems: 1,
         items: { type: 'integer', minimum: 1 },
       },
+    },
+  },
+}
+
+export const markChannelReadSchema = {
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'integer', minimum: 1 },
     },
   },
 }

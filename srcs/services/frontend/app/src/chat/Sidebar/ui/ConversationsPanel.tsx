@@ -15,6 +15,7 @@ interface Channel {
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
 	otherUserId?: number
+	hasUnread?: boolean
 }
 
 function ConversationsPanel({ isSearching, searchQuery, channels, selectedChannelId, onSelectChannel }: ConversationsPanelProps) {
@@ -45,6 +46,7 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 							? onlineUserIds.has(channel.otherUserId)
 							: undefined
 					}
+					hasUnread={channel.hasUnread}
 				/>
 			))}
 		</div>

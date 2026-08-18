@@ -8,6 +8,7 @@ interface Channel {
 	memberIds?: number[]
 	otherUserId?: number
     writeMode?: 'everyone' | 'moderators_only'
+	hasUnread?: boolean
 }
 
 export function useChannel() {
@@ -44,6 +45,11 @@ export function useChannel() {
 	async function deleteChannel(id: number): Promise<boolean> {
 		const res = await fetch(`/chat/channels/${id}`, { method: 'DELETE' })
 		return res.ok
+	}
+
+	async function markChannelRead(id: number): Promise<void> {
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, hasUnread: false } : c)))
+		await fetch(`/chat/channels/${id}/read`, { method: 'PATCH' })
 	}
 
 	function addChannel(channel: Channel) {
@@ -126,6 +132,7 @@ export function useChannel() {
 		createChannel,
 		deleteChannel,
 		addChannel,
+		markChannelRead,
 		removeChannel,
 		renameChannel,
 		updateDescription,
