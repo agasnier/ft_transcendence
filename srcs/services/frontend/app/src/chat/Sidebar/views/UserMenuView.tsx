@@ -127,6 +127,24 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
+        async function handleDeleteAvatar() {
+        setAvatarError(null)
+        setIsUploadingAvatar(true)
+
+        const res = await fetch('/users/profile/avatar', {
+            method: 'DELETE',
+        })
+
+        if (res.ok) {
+            setProfile((prev) => (prev ? { ...prev, avatarUrl: null } : prev))
+        } else {
+            const err = await res.json().catch(() => null)
+            setAvatarError(err?.message ?? 'Échec de la suppression')
+        }
+
+        setIsUploadingAvatar(false)
+    }
+
     return (
         <>
             <div className="flex items-center gap-2">
@@ -134,7 +152,7 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                 <h2 className="view-title">Paramètres</h2>
             </div>
             <div className="flex flex-col items-center gap-2 font-semibold text-gray-800 py-2">
-                <div className="relative">
+                                <div className="relative">
                     {profile?.avatarUrl ? (
                         <img
                             src={profile.avatarUrl}
@@ -154,6 +172,16 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                         className="absolute bottom-0 right-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-gray-100 disabled:opacity-50">
                         {isUploadingAvatar ? '...' : '🖋'}
                     </button>
+                    {profile?.avatarUrl && (
+                        <button
+                            type="button"
+                            onClick={handleDeleteAvatar}
+                            disabled={isUploadingAvatar}
+                            title="Supprimer la photo de profil"
+                            className="absolute bottom-0 left-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-red-100 disabled:opacity-50">
+                            🗑️
+                        </button>
+                    )}
                     <input
                         ref={fileInputRef}
                         type="file"
