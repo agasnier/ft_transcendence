@@ -59,7 +59,7 @@ function MessagesList({messages, userId, channelType}: MessagesListProps) {
 										{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 									</span>
 								</div>
-								<p className="text-gray-800 wrap-break-word min-w-0 w-full">{msg.content}</p>
+								<p className="text-gray-800 whitespace-pre-wrap wrap-break-word min-w-0 w-full">{msg.content}</p>
 							</div>
 						</div>
 					)
