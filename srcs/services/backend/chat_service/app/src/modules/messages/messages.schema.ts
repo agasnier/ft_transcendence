@@ -7,7 +7,17 @@ const messageResponse = {
     senderPseudo: { type: ['string', 'null'] },
     content: { type: 'string' },
     createdAt: { type: 'string' },
-    type: { type: 'string', enum: ['user', 'system']}
+    type: { type: 'string', enum: ['user', 'system']},
+    fileId: { type: ['integer', 'null'] },
+    file: {
+      type: ['object', 'null'],
+      properties: {
+        id: { type: 'integer' },
+        originalName: { type: 'string' },
+        mimeType: { type: 'string' },
+        size: { type: 'integer' },
+      },
+    },
   },
 }
 

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { db } from '../../db/index.js'
 import { files } from '../../db/schema.js'
 import { env } from '../../config/env.js'
@@ -36,6 +36,11 @@ export async function saveFileRecord(data: {
 export async function getFileById(id: number) {
   const [row] = await db.select().from(files).where(eq(files.id, id)).limit(1)
   return row
+}
+
+export async function getFilesByIds(ids: number[]) {
+  if (ids.length === 0) return []
+  return db.select().from(files).where(inArray(files.id, ids))
 }
 
 export async function deleteFileRecord(id: number) {

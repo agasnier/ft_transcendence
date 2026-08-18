@@ -1,8 +1,9 @@
-import { asc, eq } from 'drizzle-orm'
+import { asc, eq, inArray } from 'drizzle-orm'
 
 import { db } from '../../db/index.js'
 import { messages } from '../../db/schema.js'
 import { env } from '../../config/env.js'
+import { getFilesByIds } from '../files/files.service.js'
 
 type MessageRow = {
   id: number
@@ -11,6 +12,14 @@ type MessageRow = {
   content: string
   createdAt: Date
   type: 'user' | 'system'
+  fileId: number | null
+}
+
+type FileInfo = {
+  id: number
+  originalName: string
+  mimeType: string
+  size: number
 }
 
 async function resolveSenderPseudos(rows: MessageRow[]): Promise<(MessageRow & { senderPseudo: string | null })[]> {
@@ -32,6 +41,17 @@ async function resolveSenderPseudos(rows: MessageRow[]): Promise<(MessageRow & {
   return rows.map((row) => ({ ...row, senderPseudo: pseudoById.get(row.senderId) ?? null }))
 }
 
+async function resolveFiles<T extends { fileId: number | null }>(rows: T[]): Promise<(T & { file: FileInfo | null })[]> {
+  const fileIds = [...new Set(rows.filter((r) => r.fileId !== null).map((r) => r.fileId as number))]
+  if (fileIds.length === 0)
+    return rows.map((r) => ({ ...r, file: null }))
+
+  const files = await getFilesByIds(fileIds)
+  const fileById = new Map(files.map((f) => [f.id, { id: f.id, originalName: f.originalName, mimeType: f.mimeType, size: f.size }]))
+
+  return rows.map((r) => ({ ...r, file: r.fileId !== null ? fileById.get(r.fileId) ?? null : null }))
+}
+
 export async function listMessages(channelId: number) {
   const rows = await db
     .select({
@@ -40,17 +60,19 @@ export async function listMessages(channelId: number) {
       senderId: messages.senderId,
       content: messages.content,
       createdAt: messages.createdAt,
-      type: messages.type
+      type: messages.type,
+      fileId: messages.fileId,
     })
     .from(messages)
     .where(eq(messages.channelId, channelId))
     .orderBy(asc(messages.createdAt))
 
-  return resolveSenderPseudos(rows)
+  const withPseudos = await resolveSenderPseudos(rows)
+  return resolveFiles(withPseudos)
 }
 
-export async function createMessage(channelId: number, senderId: number, content: string, type: 'user' | 'system' = 'user') {
-  const result = await db.insert(messages).values({ channelId, senderId, content, type })
+export async function createMessage(channelId: number, senderId: number, content: string, type: 'user' | 'system' = 'user', fileId: number | null = null) {
+  const result = await db.insert(messages).values({ channelId, senderId, content, type, fileId })
   const messageId = Number(result[0].insertId)
 
   const [row] = await db
@@ -60,12 +82,14 @@ export async function createMessage(channelId: number, senderId: number, content
       senderId: messages.senderId,
       content: messages.content,
       createdAt: messages.createdAt,
-      type: messages.type
+      type: messages.type,
+      fileId: messages.fileId,
     })
     .from(messages)
     .where(eq(messages.id, messageId))
     .limit(1)
 
-  const [resolved] = await resolveSenderPseudos([row])
+  const [withPseudo] = await resolveSenderPseudos([row])
+  const [resolved] = await resolveFiles([withPseudo])
   return resolved
 }

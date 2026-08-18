@@ -34,17 +34,6 @@ export const discussionPairs = mysqlTable('discussion_pairs', {
   uniquePair: unique().on(table.userMinId, table.userMaxId),
 }))
 
-export const messages = mysqlTable('messages', {
-  id: int('id').autoincrement().primaryKey(),
-  channelId: int('channel_id')
-    .notNull()
-    .references(() => channels.id, { onDelete: 'cascade' }),
-  senderId: int('sender_id').notNull(),
-  content: varchar('content', { length: 2000 }).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  type: mysqlEnum('type', ['user', 'system']).default('user').notNull(),
-})
-
 export const files = mysqlTable('files', {
   id: int('id').autoincrement().primaryKey(),
   channelId: int('channel_id')
@@ -56,6 +45,18 @@ export const files = mysqlTable('files', {
   mimeType: varchar('mime_type', { length: 100 }).notNull(),
   size: bigint('size', { mode: 'number' }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const messages = mysqlTable('messages', {
+  id: int('id').autoincrement().primaryKey(),
+  channelId: int('channel_id')
+    .notNull()
+    .references(() => channels.id, { onDelete: 'cascade' }),
+  senderId: int('sender_id').notNull(),
+  content: varchar('content', { length: 2000 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  type: mysqlEnum('type', ['user', 'system']).default('user').notNull(),
+  fileId: int('file_id').references(() => files.id, { onDelete: 'set null' }),
 })
 
 export type FileRow = typeof files.$inferSelect
