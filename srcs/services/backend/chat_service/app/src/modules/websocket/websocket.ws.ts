@@ -122,3 +122,21 @@ export function wsMessageCreated(message: {
 export function getOnlineUserCount() : number{
 	return socketsByUser.size
 }
+
+export function wsMessageUpdated(message: {
+    id: number
+    channelId: number
+    senderId: number
+    senderPseudo: string | null
+    content: string
+    createdAt: Date | string
+    type: string
+    fileId: number | null
+    file: unknown
+}): void {
+    wsSendAll({ type: 'MESSAGE_UPDATED', payload: message })
+}
+
+export function wsMessageDeleted(id: number, channelId: number): void {
+    wsSendAll({ type: 'MESSAGE_DELETED', payload: { id, channelId } })
+}

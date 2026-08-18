@@ -93,3 +93,47 @@ export async function createMessage(channelId: number, senderId: number, content
   const [resolved] = await resolveFiles([withPseudo])
   return resolved
 }
+
+export async function getMessageById(id: number) {
+  const [row] = await db
+    .select({
+      id: messages.id,
+      channelId: messages.channelId,
+      senderId: messages.senderId,
+      content: messages.content,
+      createdAt: messages.createdAt,
+      type: messages.type,
+      fileId: messages.fileId,
+    })
+    .from(messages)
+    .where(eq(messages.id, id))
+    .limit(1)
+
+  return row
+}
+
+export async function updateMessageContent(id: number, content: string) {
+  await db.update(messages).set({ content }).where(eq(messages.id, id))
+
+  const row = await getMessageById(id)
+  if (!row) return null
+
+  const [withPseudo] = await resolveSenderPseudos([row])
+  const [resolved] = await resolveFiles([withPseudo])
+  return resolved
+}
+
+export async function deleteMessage(id: number) {
+  await db.delete(messages).where(eq(messages.id, id))
+}
+
+export async function getUserRole(userId: number): Promise<string | null> {
+  try {
+    const res = await fetch(`${env.usersServiceUrl}/users/${userId}/profile`)
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.role ?? null
+  } catch {
+    return null
+  }
+}
