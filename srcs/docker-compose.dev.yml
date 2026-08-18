@@ -16,7 +16,6 @@ services:
       - "8200:8200"
 
   database:
-    # expose mariadb into localhost for drizzle
     ports:
       - "3306:3306"
 
@@ -32,7 +31,6 @@ services:
       context: ./services/backend/users_service
       dockerfile: Dockerfile.dev
     volumes:
-      # Mount local source for hot reload
       - ./services/backend/users_service/app/src:/app/src
 
   api_service:
@@ -40,7 +38,6 @@ services:
       context: ./services/backend/api_service
       dockerfile: Dockerfile.dev
     volumes:
-      # Mount local source for hot reload
       - ./services/backend/api_service/app/src:/app/src
 
   chat_service:
@@ -50,7 +47,6 @@ services:
     volumes:
       - ./services/backend/chat_service/app/src:/app/src
 
-# dev volume independent from prod volume
 volumes:
   db_data:
     driver: local

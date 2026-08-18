@@ -4,7 +4,7 @@
 
 `nginx` is the HTTPS front door. The browser only talks to it. It terminates TLS, runs the OWASP ModSecurity CRS, and proxies each path to the right container on the Docker network `ft`.
 
-Published ports are `8080` (HTTP, 301 to HTTPS) and `8443` (TLS 1.2 / 1.3). The cert is self-signed (`/etc/nginx/conf/server.crt`). Max body size is 10 MB.
+Published ports are `80` (HTTP, 301 to HTTPS) and `443` (TLS 1.2 / 1.3). Inside the container Nginx listens on `8080` / `8443` (unprivileged user). The cert is self-signed (`/etc/nginx/conf/server.crt`). Max body size is 10 MB.
 
 In prod, `/` goes to `frontend:80`. In dev (`Dockerfile.dev`), `/` goes to Vite on `frontend:5173` with WebSocket upgrade.
 
@@ -41,8 +41,9 @@ HTTP on `${PORT}` returns `301` to `https://$host:${SSL_PORT}`. SSL listen uses 
 | `/avatars` | `users_service:3000` |
 | `/api/` | `api_service:3000` |
 | `/chat` | `chat_service:3000` (HTTP and `wss`) |
-| `/drizzle/` | `drizzle-gateway:4983` |
 | `/healthz` | `200 OK` |
+| `drizzle.localhost` (`/`) | `drizzle-gateway:4983` |
+| `grafana.localhost` (`/`) | `grafana:3000` |
 
 ## WAF
 
@@ -58,17 +59,17 @@ A normal request should pass (200, 301 or 401). An attack string should be **403
 
 ```bash
 # allowed
-curl -k -o /dev/null -w '%{http_code}\n' https://localhost:8443/healthz
-curl -k -o /dev/null -w '%{http_code}\n' https://localhost:8443/
-curl -o /dev/null -w '%{http_code}\n' http://localhost:8080/
+curl -k -o /dev/null -w '%{http_code}\n' https://localhost/healthz
+curl -k -o /dev/null -w '%{http_code}\n' https://localhost/
+curl -o /dev/null -w '%{http_code}\n' http://localhost/
 
 # blocked by CRS (expect 403)
-curl -k -o /dev/null -w '%{http_code}\n' "https://localhost:8443/?id=1'+OR+'1'='1"
-curl -k -o /dev/null -w '%{http_code}\n' "https://localhost:8443/?q=<script>alert(1)</script>"
-curl -k -o /dev/null -w '%{http_code}\n' "https://localhost:8443/../../etc/passwd"
-curl -k -o /dev/null -w '%{http_code}\n' -A 'sqlmap' https://localhost:8443/
-curl -k -o /dev/null -w '%{http_code}\n' -X TRACE https://localhost:8443/
+curl -k -o /dev/null -w '%{http_code}\n' "https://localhost/?id=1'+OR+'1'='1"
+curl -k -o /dev/null -w '%{http_code}\n' "https://localhost/?q=<script>alert(1)</script>"
+curl -k -o /dev/null -w '%{http_code}\n' "https://localhost/../../etc/passwd"
+curl -k -o /dev/null -w '%{http_code}\n' -A 'sqlmap' https://localhost/
+curl -k -o /dev/null -w '%{http_code}\n' -X TRACE https://localhost/
 
 # /healthz bypasses the WAF (expect 200 even with a payload)
-curl -k -o /dev/null -w '%{http_code}\n' "https://localhost:8443/healthz?id=1'+OR+'1'='1"
+curl -k -o /dev/null -w '%{http_code}\n' "https://localhost/healthz?id=1'+OR+'1'='1"
 ```

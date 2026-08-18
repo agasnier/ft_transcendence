@@ -100,7 +100,7 @@ Counts API keys (active, inactive, expired) and request duration.
 
 With the stack up, open:
 
-`https://localhost:8443/api/docs`
+`https://localhost/api/docs`
 
 The cert is self-signed. Accept the browser warning.
 
@@ -117,26 +117,26 @@ Rate limit is 5 requests per minute per key. A 429 means wait.
 
 ## curl
 
-Host is `https://localhost:8443`. `-k` skips the self-signed cert check. Replace `$KEY` with the raw key from the user menu.
+Host is `https://localhost`. `-k` skips the self-signed cert check. Replace `$KEY` with the raw key from the user menu.
 
 ```bash
-curl -k https://localhost:8443/api/users \
+curl -k https://localhost/api/users \
   -H "x-api-key: $KEY"
 
-curl -k https://localhost:8443/api/users/1 \
+curl -k https://localhost/api/users/1 \
   -H "x-api-key: $KEY"
 
-curl -k -X POST https://localhost:8443/api/users \
+curl -k -X POST https://localhost/api/users \
   -H "x-api-key: $KEY" \
   -H 'Content-Type: application/json' \
   -d '{"mail":"new@mail.com","pseudo":"newuser","password":"atleast8"}'
 
-curl -k -X PUT https://localhost:8443/api/users/1 \
+curl -k -X PUT https://localhost/api/users/1 \
   -H "x-api-key: $KEY" \
   -H 'Content-Type: application/json' \
   -d '{"pseudo":"renamed"}'
 
-curl -k -X DELETE https://localhost:8443/api/users/1 \
+curl -k -X DELETE https://localhost/api/users/1 \
   -H "x-api-key: $KEY"
 ```
 

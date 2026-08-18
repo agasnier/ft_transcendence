@@ -4,7 +4,7 @@
 
 This folder provisions **Grafana**. Next to it, Compose runs **Prometheus** (`srcs/prometheus.yml`) and **mysqld-exporter**. Prometheus scrapes metrics every 15s. Grafana reads Prometheus and shows dashboards plus alert rules.
 
-Grafana is on `http://localhost:3000`. Prometheus is on `http://localhost:9090`. Login uses `GF_SECURITY_ADMIN_USER` and `GF_SECURITY_ADMIN_PASSWORD` from `srcs/env/.env`.
+Grafana is on `https://grafana.localhost`. Prometheus stays on the Docker network (`prometheus:9090`); Grafana reads it there. Login uses `GF_SECURITY_ADMIN_USER` and `GF_SECURITY_ADMIN_PASSWORD` from `srcs/env/.env`.
 
 Dashboards and alerts are files under `provisioning/`. They load on start.
 
@@ -65,16 +65,13 @@ Folder `alerte` in Grafana. Receiver is `empty` (rules fire in the UI only).
 ## Commands
 
 ```bash
-curl -s http://localhost:9090/-/ready
-curl -s http://localhost:9090/api/v1/targets | head
-curl -s http://localhost:3000/api/health
+curl -sk https://grafana.localhost/api/health
+docker compose -f srcs/docker-compose.yml exec prometheus wget -qO- http://localhost:9090/-/ready
 ```
 
-`/metrics` is not published on the host. In Prometheus open **Status → Targets**. Every job should be `UP`.
+`/metrics` is not published on the host. In Grafana, the Prometheus datasource should be up.
 
 | Command | What it does | How |
 |---|---|---|
-| open `http://localhost:3000` | Grafana UI | browser, env admin user |
-| open `http://localhost:9090` | Prometheus UI | browser |
-| open `http://localhost:9090/targets` | scrape status | browser |
-| `curl -s http://localhost:9090/-/ready` | Prometheus health | terminal |
+| open `https://grafana.localhost` | Grafana UI | browser, env admin user |
+| `curl -sk https://grafana.localhost/api/health` | Grafana health | terminal |

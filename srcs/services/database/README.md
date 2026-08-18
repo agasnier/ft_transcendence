@@ -73,7 +73,7 @@ Created by `api_service` migrations.
 
 ## SQL
 
-Open Drizzle Gateway at `https://localhost:8443/drizzle/` (or `http://localhost:8444`). Paste this URL. Password is the content of `srcs/env/secrets/db_root_password.txt`. Database name is `MARIADB_DATABASE` in `srcs/env/.env` (`db_name` by default).
+Open Drizzle Gateway at `https://drizzle.localhost`. Paste this URL. Password is the content of `srcs/env/secrets/db_root_password.txt`. Database name is `MARIADB_DATABASE` in `srcs/env/.env` (`db_name` by default).
 
 ```text
 mysql://root:<password>@database:3306/db_name

@@ -1,3 +1,14 @@
 FROM 	owasp/modsecurity-crs:nginx-alpine
 
+USER	root
+RUN	mkdir -p /etc/nginx/conf \
+	&& openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+		-keyout /etc/nginx/conf/server.key \
+		-out /etc/nginx/conf/server.crt \
+		-subj "/CN=localhost" \
+		-addext "subjectAltName=DNS:localhost,DNS:drizzle.localhost,DNS:grafana.localhost" \
+	&& chown nginx:nginx /etc/nginx/conf/server.key /etc/nginx/conf/server.crt \
+	&& chmod 600 /etc/nginx/conf/server.key /etc/nginx/conf/server.crt
+USER	nginx
+
 COPY	nginx.conf /etc/nginx/templates/conf.d/default.conf.template

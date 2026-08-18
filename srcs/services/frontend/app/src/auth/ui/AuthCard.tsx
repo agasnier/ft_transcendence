@@ -16,7 +16,7 @@ function AuthCard({ title, onSubmit, children, privacyPolicy, termsOfService }: 
 				className="bg-image"
 			/>
 			<h1 className="shrink-0 mt-32 text-center text-white text-8xl font-bold drop-shadow">
-				Nom du site
+				ft_telegram
 			</h1>
 			<div className="flex flex-1 flex-col items-center justify-center gap-3 w-full max-w-sm py-8">
 				<form

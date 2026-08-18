@@ -84,7 +84,7 @@ Sidebar plus conversation. Friends, create channel / group / discussion, profile
 
 ## Commands
 
-Scripts for this service. Open the app at `https://localhost:8443` (cert is self-signed).
+Scripts for this service. Open the app at `https://localhost` (cert is self-signed).
 
 | Command | What it does | How |
 |---|---|---|

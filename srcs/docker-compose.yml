@@ -1,11 +1,7 @@
 services:
-# TODO delete before push
-# connect with url : mysql://<user>:<password>@<host>:<port>/<database>
-# del the persistant files
+  # connect with url : mysql://<user>:<password>@<host>:<port>/<database>
   drizzle-gateway:
     image: ghcr.io/drizzle-team/gateway:latest
-    ports:
-      - "8444:4983"
     depends_on:
       database:
         condition: service_healthy
@@ -13,15 +9,15 @@ services:
       - ./data/drizzle-gateway:/app
     networks:
       - ft
-# NGINX
+
   nginx:
     image: ft_nginx
     build: ./services/nginx
     environment:
       ALLOWED_METHODS: "GET HEAD POST OPTIONS PUT DELETE PATCH"
-    ports: #TODO 443 80
-      - "8080:8080"
-      - "8443:8443"
+    ports:
+      - "80:8080"
+      - "443:8443"
     depends_on:
       frontend:
         condition: service_healthy
@@ -31,10 +27,14 @@ services:
         condition: service_healthy
       chat_service:
         condition: service_healthy
+      drizzle-gateway:
+        condition: service_started
+      grafana:
+        condition: service_started
     networks:
       - ft
     restart: unless-stopped
-# VAULT
+
   vault:
     image: ft_vault
     build: ./services/vault
@@ -42,7 +42,7 @@ services:
       - ./env/.env
     secrets:
       - db_vault_password
-    volumes: 
+    volumes:
       - vault_data:/vault/file
       - approle:/vault/approle
     depends_on:
@@ -57,7 +57,7 @@ services:
     networks:
       - ft
     restart: unless-stopped
-# DATABASE
+
   database:
     image: ft_database
     build: ./services/database
@@ -96,7 +96,6 @@ services:
     networks:
       - ft
 
-# MYSQLD EXPORTER VAULT AGENT
   mysqld_exporter_agent:
     image: ft_mysqld_exporter_agent
     build: ./services/vault/agents/mysqld_exporter
@@ -116,14 +115,13 @@ services:
       - ft
     restart: unless-stopped
 
-# FRONTEND
   frontend:
     image: ft_frontend
     build: ./services/frontend
     networks:
       - ft
     restart: unless-stopped
-# USERS_SERVICE
+
   users_service:
     image: ft_users
     build: ./services/backend/users_service
@@ -140,7 +138,7 @@ services:
     networks:
       - ft
     restart: unless-stopped
-# USERS SERVICE AGENT
+
   users_service_agent:
     image: ft_users_agent
     build: ./services/vault/agents/users_service
@@ -159,7 +157,7 @@ services:
     networks:
       - ft
     restart: unless-stopped
-# API SERVICE
+
   api_service:
     image: ft_api
     build: ./services/backend/api_service
@@ -175,7 +173,7 @@ services:
     networks:
       - ft
     restart: unless-stopped
-# API SERVICE AGENT
+
   api_service_agent:
     image: ft_api_agent
     build: ./services/vault/agents/api_service
@@ -194,7 +192,7 @@ services:
     networks:
       - ft
     restart: unless-stopped
-# CHAT SERVICE
+
   chat_service:
     image: ft_chat
     build: ./services/backend/chat_service
@@ -211,7 +209,7 @@ services:
     networks:
       - ft
     restart: unless-stopped
-# CHAT SERVICE AGENT
+
   chat_service_agent:
     image: ft_chat_agent
     build: ./services/vault/agents/chat_service
@@ -230,7 +228,7 @@ services:
     networks:
       - ft
     restart: unless-stopped
-# PROMETHEUS SERVICE
+
   prometheus:
     image: prom/prometheus:v3.13.1
     container_name: prometheus
@@ -241,12 +239,9 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
     networks:
       - ft
 
-# GRAFANA SERVICE
   grafana:
     image: grafana/grafana:13.1.1
     container_name: grafana
@@ -256,8 +251,8 @@ services:
     environment:
       - GF_ANALYTICS_CHECK_FOR_UPDATES=false
       - GF_ANALYTICS_REPORTING_ENABLED=false
-    ports:
-      - "3000:3000"
+      - GF_SERVER_DOMAIN=grafana.localhost
+      - GF_SERVER_ROOT_URL=https://grafana.localhost/
     volumes:
       - grafana_data:/var/lib/grafana
       - ./services/grafana/provisioning:/etc/grafana/provisioning:ro
@@ -265,8 +260,6 @@ services:
       - prometheus
     networks:
       - ft
-
-
 
 networks:
   ft:

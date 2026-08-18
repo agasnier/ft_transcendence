@@ -2,7 +2,7 @@
 
 # Description
 
-**ft_transcendence** is a real-time messaging app: private discussions, groups and channels, friends, profiles and a public REST API.
+**ft_telegram** is a real-time messaging app: private discussions, groups and channels, friends, profiles and a public REST API.
 
 Users sign up with email and password, can enable TOTP 2FA, chat live over WebSockets, share files, and manage an API key for the documented `/api/users` endpoints. The stack is split into Docker microservices behind Nginx (HTTPS + ModSecurity). Secrets and JWT signing go through HashiCorp Vault. Metrics are scraped by Prometheus and shown in Grafana.
 
@@ -42,6 +42,10 @@ Service-level detail lives next to the code:
 ## Project Management
 
 Work is split by service (`users_service`, `chat_service`, `api_service`, frontend, vault, nginx, monitoring). Each service has its own README. Git history uses `feat` / `fix` messages. `make dev` and `make up` are the shared entry points.
+
+We organise the work with a notion table. 
+
+We communicate with discord, call and messages.
 
 Coordination is through Git and the service folders. Update this section with the real meeting rhythm and chat tool before the eval.
 
@@ -164,42 +168,42 @@ Column lists: [users_service](srcs/services/backend/users_service/README.md), [c
 
 ## Features List
 
-| Feature | What it does | Main commits |
+| Feature | What it does | Who |
 |---|---|---|
-| Sign up / log in | email or pseudo, hashed password, httpOnly cookies | `users_service`, frontend `auth/` |
-| Session refresh | `GET /auth/session` plus frontend retry on 401 | `users_service`, `frontend/src/api.ts` |
-| 2FA | TOTP setup, QR, pending login until verify | `users_service` `twofa`, frontend user menu |
-| Profile | display name, bio, avatar | `users_service` `users`, `UserMenuView` |
-| Friends | request, accept, decline, list, search | `users_service` `friends` |
-| Chat | discussions, groups, channels, live WS | `chat_service`, frontend `chat/` |
-| Presence | online dots from open sockets | `chat_service` websocket |
-| Channel moderation | roles, write mode, members, avatars | `chat_service` `channels` |
-| Files | upload in a channel (jpeg, png, webp, gif, pdf, txt, doc) | `chat_service` `files` |
-| Public API | CRUD `/api/users` with `x-api-key`, rate limit, Scalar docs | `api_service` |
-| Admin panel | list / edit / delete users, change roles | frontend `AdminPanel` |
-| Privacy and terms | pages on the auth card | `LegalContent.ts` |
-| WAF + HTTPS | Nginx TLS, OWASP CRS | `nginx` |
-| Vault | dynamic SQL users, HMAC, JWT sign/verify | `vault` |
-| Monitoring | Prometheus + Grafana dashboards and alerts | `grafana`, `prometheus.yml` |
+| Sign up / log in | email or pseudo, hashed password, httpOnly cookies | `mgarnier`, `jodone` |
+| Session refresh | `GET /auth/session` plus frontend retry on 401 | `algasnie` |
+| 2FA | TOTP setup, QR, pending login until verify | `algasnie` |
+| Profile | display name, bio, avatar | `mgarnier`, `jodone` |
+| Friends | request, accept, decline, list, search | `mgarnier`, `jodone` |
+| Chat | discussions, groups, channels, live WS | `mgarnier`, `jodone` |
+| Presence | online dots from open sockets | `mgarnier`, `jodone` |
+| Channel moderation | roles, write mode, members, avatars | `mgarnier`, `jodone` |
+| Files | upload in a channel (jpeg, png, webp, gif, pdf, txt, doc) | `mgarnier`, `jodone` |
+| Public API | CRUD `/api/users` with `x-api-key`, rate limit, Scalar docs | `algasnie` |
+| Admin panel | list / edit / delete users, change roles | `mgarnier`, `jodone` |
+| Privacy and terms | pages on the auth card | `mgarnier`, `jodone` |
+| WAF + HTTPS | Nginx TLS, OWASP CRS | `algasnie` |
+| Vault | dynamic SQL users, HMAC, JWT sign/verify | `algasnie` |
+| Monitoring | Prometheus + Grafana dashboards and alerts | `masenche` |
 
 ## Modules
 
 Major = 2 pts. Minor = 1 pt. Threshold is 14. Extra modules count as bonus (max +5).
 
-| Module | Type | Pts | How |
-|---|---|---|---|
-| Framework frontend and backend | Major | 2 | React + Fastify |
-| Real-time (WebSockets) | Major | 2 | `GET /chat/ws`, presence and message events |
-| User interaction | Major | 2 | chat, profiles, friends |
-| Public API | Major | 2 | `/api/users` CRUD, `x-api-key`, 5 req/min, `/api/docs` |
-| Standard user management | Major | 2 | profile, avatar, friends, online status |
-| Advanced permissions | Major | 2 | roles `admin` / `moderator` / `user`, channel roles, admin panel |
-| WAF + Vault | Major | 2 | ModSecurity CRS + Vault Transit / AppRole / DB engine |
-| Prometheus + Grafana | Major | 2 | scrapes, 5 dashboards, alert rules |
-| Backend microservices | Major | 2 | `users_service`, `chat_service`, `api_service` |
-| ORM | Minor | 1 | Drizzle on all three backends |
-| 2FA | Minor | 1 | TOTP (`otplib`) |
-| File upload | Minor | 1 | chat attachments + avatars, type and size checks |
+| Module | Type | Pts | How | Who |
+|---|---|---|---|---|
+| Framework frontend and backend | Major | 2 | React + Fastify | `mgarnier`, `jodone` |
+| Real-time (WebSockets) | Major | 2 | `GET /chat/ws`, presence and message events | `mgarnier`, `jodone` |
+| User interaction | Major | 2 | chat, profiles, friends | `mgarnier`, `jodone` |
+| Public API | Major | 2 | `/api/users` CRUD, `x-api-key`, 5 req/min, `/api/docs` | `algasnie` |
+| Standard user management | Major | 2 | profile, avatar, friends, online status | `mgarnier`, `jodone` |
+| Advanced permissions | Major | 2 | roles `admin` / `moderator` / `user`, channel roles, admin panel | `mgarnier`, `jodone` |
+| WAF + Vault | Major | 2 | ModSecurity CRS + Vault Transit / AppRole / DB engine | `algasnie` |
+| Prometheus + Grafana | Major | 2 | scrapes, 5 dashboards, alert rules | `masenche` |
+| Backend microservices | Major | 2 | `users_service`, `chat_service`, `api_service` | `mgarnier`, `jodone` |
+| ORM | Minor | 1 | Drizzle on all three backends | `mgarnier`, `jodone` |
+| 2FA | Minor | 1 | TOTP (`otplib`) | `algasnie` |
+| File upload | Minor | 1 | chat attachments + avatars, type and size checks | `mgarnier`, `jodone` |
 
 **Total: 21 pts** (14 required + bonus capped at 5).
 
@@ -212,11 +216,10 @@ From `git log` on each folder:
 | Person | Where most of the commits landed |
 |---|---|
 | `algasnie` | vault, nginx, `users_service`, `api_service`, database, chat, frontend |
-| `jodone` | chat and frontend, some `users_service` |
-| `masenche` | Grafana / Prometheus, plus bits of vault, database, all three backends |
+| `jodone` | chat and frontend, `users_service` |
+| `masenche` | Grafana / Prometheus, vault, database, all three backends |
 | `mgarnier` | frontend (largest share), some chat / users / nginx |
 
-Replace this table with the team's own words (and challenges) before the eval if you want more than git counts.
 
 # Instructions
 
@@ -243,7 +246,7 @@ GF_SECURITY_ADMIN_USER=admin
 GF_SECURITY_ADMIN_PASSWORD=change-me
 ```
 
-Nginx listens on `8080` and `8443`. If the image expects `PORT` / `SSL_PORT`, set `PORT=8080` and `SSL_PORT=8443` in that file.
+Nginx is published on `80` (HTTP, 301 to HTTPS) and `443` (TLS). Inside the container it still listens on `8080` / `8443` (unprivileged user).
 
 Put non-empty passwords in:
 
@@ -275,11 +278,11 @@ First boot takes a while (Vault init, agents, migrations).
 
 | URL | What |
 |---|---|
-| `https://localhost:8443` | app (self-signed cert) |
-| `http://localhost:8080` | redirect to HTTPS |
-| `https://localhost:8443/api/docs` | public API docs |
-| `http://localhost:3000` | Grafana |
-| `http://localhost:9090` | Prometheus |
+| `https://localhost` | app (self-signed cert) |
+| `http://localhost` | redirect to HTTPS |
+| `https://drizzle.localhost` | Drizzle Gateway |
+| `https://grafana.localhost` | Grafana |
+| `https://localhost/api/docs` | public API docs |
 | `http://localhost:8200` | Vault UI (`make dev` only) |
 
 WAF checks: [nginx README](srcs/services/nginx/README.md). API curls: [api_service README](srcs/services/backend/api_service/README.md).
