@@ -159,6 +159,18 @@ export async function updateChannelController(request: FastifyRequest, reply: Fa
 export async function removeChannelMemberController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id, userId } = request.params as { id: string; userId: string }
+
+    if (request.user!.role !== 'admin') {
+      const targetRes = await fetch(`${env.usersServiceUrl}/users/${userId}/profile`)
+      if (targetRes.ok) {
+        const targetProfile = await targetRes.json()
+        if (targetProfile.role === 'admin') {
+          await reply.status(403).send({ message: 'Cannot remove an admin from the channel' })
+          return
+        }
+      }
+    }
+
     await removeChannelMember(Number(id), Number(userId))
     await reply.send({ message: 'Member removed' })
   } catch (err) {

@@ -114,6 +114,13 @@ export function useChannel() {
         return res.ok
     }
 
+	async function removeMember(channelId: number, userId: number): Promise<boolean> {
+        const res = await fetch(`/chat/channels/${channelId}/members/${userId}`, {
+            method: 'DELETE',
+        })
+        return res.ok
+    }
+
 	return {
 		channels,
 		createChannel,
@@ -125,6 +132,7 @@ export function useChannel() {
 		addMembers,
 		updateChannel,
 		updateWriteMode,
-		updateMemberRole
+		updateMemberRole,
+		removeMember
 	}
 }

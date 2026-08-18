@@ -37,9 +37,10 @@ interface InfoPanelProps {
 	onAddMembers?: (channelId: number, memberIds: number[]) => Promise<boolean>
 	onUpdateWriteMode?: (id: number, writeMode: 'everyone' | 'moderators_only') => Promise<boolean>
 	onUpdateMemberRole?: (channelId: number, userId: number, role: 'moderator' | 'member') => Promise<boolean>
+	onRemoveMember?: (channelId: number, userId: number) => Promise<boolean>
 }
 
-function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, onUpdateDescription, onAddMembers, onUpdateWriteMode, onUpdateMemberRole }: InfoPanelProps) {
+function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, onUpdateDescription, onAddMembers, onUpdateWriteMode, onUpdateMemberRole, onRemoveMember }: InfoPanelProps) {
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState(channel.name ?? '')
 	const [isEditingDesc, setIsEditingDesc] = useState(false)
@@ -55,6 +56,8 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [selectedMemberProfile, setSelectedMemberProfile] = useState<PublicProfile | null>(null)
 	const [isSavingWriteMode, setIsSavingWriteMode] = useState(false)
 	const [isSavingMemberRole, setIsSavingMemberRole] = useState(false)
+	const [isRemovingMember, setIsRemovingMember] = useState(false)
+	const [confirmRemove, setConfirmRemove] = useState(false)
 
 	const isModerator = members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false
 	const friends = useFriends()
@@ -210,6 +213,17 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		setIsSavingMemberRole(false)
 	}
 
+	async function handleRemoveMember() {
+		if (!selectedMember || !onRemoveMember) return
+		setIsRemovingMember(true)
+		const ok = await onRemoveMember(channel.id, selectedMember.userId)
+		setIsRemovingMember(false)
+		if (ok) {
+			setSelectedMember(null)
+			await loadMembers()
+		}
+	}
+
 	const existingMemberIds = new Set(members?.map((m) => m.userId) ?? [])
 	const availableFriends = friends.filter((f) => !existingMemberIds.has(f.id))
 	const selectableUsers = [
@@ -222,7 +236,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		return (
 			<aside className="absolute top-0 right-0 h-full w-90 shadow-2xl rounded-3xl flex flex-col gap-2 p-4 bg-gray-100 z-10">
 				<span className="flex items-center gap-2">
-					<BackButton onClick={() => setSelectedMember(null)} />
+					<BackButton onClick={() => { setSelectedMember(null); setConfirmRemove(false) }} />
 					<h2 className="view-title">Profil</h2>
 				</span>
 				<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
@@ -253,6 +267,38 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 							<p className="whitespace-pre-line wrap-break-word">
 								{selectedMemberProfile.bio || <span className="text-gray-300 italic">Aucune bio</span>}
 							</p>
+						</div>
+					)}
+					{isModerator && selectedMember.userId !== userId && selectedMemberProfile?.role !== 'admin' && onRemoveMember && (
+						<div className="w-full mt-2">
+							{confirmRemove ? (
+								<div className="flex flex-col gap-2">
+									<p className="text-xs text-gray-600 text-center">Retirer {selectedMember.pseudo} du salon ?</p>
+									<div className="flex justify-center gap-2">
+										<button
+											type="button"
+											onClick={handleRemoveMember}
+											disabled={isRemovingMember}
+											className="text-sm px-3 py-1 rounded-lg bg-red-500 text-white hover:bg-red-600 disabled:opacity-50">
+											{isRemovingMember ? '...' : 'Confirmer'}
+										</button>
+										<button
+											type="button"
+											onClick={() => setConfirmRemove(false)}
+											disabled={isRemovingMember}
+											className="text-sm px-3 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">
+											Annuler
+										</button>
+									</div>
+								</div>
+							) : (
+								<button
+									type="button"
+									onClick={() => setConfirmRemove(true)}
+									className="w-full text-left px-3 py-2 text-sm text-red-600 bg-white hover:bg-red-100 rounded-xl">
+									🗑️ Retirer du salon
+								</button>
+							)}
 						</div>
 					)}
 				</div>
