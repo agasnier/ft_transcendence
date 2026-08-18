@@ -7,6 +7,7 @@ interface Member {
 	userId: number
 	role: 'moderator' | 'member'
 	pseudo: string
+	avatarUrl?: string | null
 }
 
 interface Channel {
@@ -78,9 +79,10 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		const usersRes = await fetch(`/users/batch?ids=${rows.map((r) => r.userId).join(',')}`)
 		if (!usersRes.ok)
 			return
-		const users: { id: number; pseudo: string }[] = await usersRes.json()
+		const users: { id: number; pseudo: string;  avatarUrl: string | null }[] = await usersRes.json()
+		const infoById = new Map(users.map((u) => [u.id, u]))
 		const pseudoById = new Map(users.map((u) => [u.id, u.pseudo]))
-		const membersList: Member[] = rows.map((r) => ({ ...r, pseudo: pseudoById.get(r.userId) ?? '?' }))
+		const membersList: Member[] = rows.map((r) => ({ ...r, pseudo: pseudoById.get(r.userId) ?? '?', avatarUrl: infoById.get(r.userId)?.avatarUrl ?? null }))
 		membersList.sort((a, b) => {
 			if (a.role !== b.role)
 				return a.role === 'moderator' ? -1 : 1
@@ -252,9 +254,17 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					<h2 className="view-title">Profil</h2>
 				</span>
 				<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
-					<span className="avatar-circle bg-user w-30 h-30 text-6xl">
-						{selectedMember.pseudo.charAt(0).toUpperCase()}
-					</span>
+					{selectedMemberProfile?.avatarUrl ? (
+						<img
+							src={selectedMemberProfile.avatarUrl}
+							alt={selectedMember.pseudo}
+							className="w-30 h-30 rounded-full object-cover"
+						/>
+					) : (
+						<span className="avatar-circle bg-user w-30 h-30 text-6xl">
+							{selectedMember.pseudo.charAt(0).toUpperCase()}
+						</span>
+					)}
 					<h1 className="font-bold text-gray-800 text-lg truncate">{selectedMember.pseudo}</h1>
 					{selectedMemberProfile?.isOnline !== undefined && (
 						<span className={`text-sm ${selectedMemberProfile.isOnline ? 'text-green-500' : 'text-red-500'}`}>
@@ -330,10 +340,18 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 			</span>
 
 			<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
-				<span
-					className={`avatar-circle w-30 h-30 text-6xl ${channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}`}>
-					{channel.name?.charAt(0).toUpperCase() ?? '?'}
-				</span>
+				{channel.type === 'discussion' && otherProfile?.avatarUrl ? (
+					<img
+						src={otherProfile.avatarUrl}
+						alt={channel.name ?? ''}
+						className="w-30 h-30 rounded-full object-cover"
+					/>
+				) : (
+					<span
+						className={`avatar-circle w-30 h-30 text-6xl ${channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}`}>
+						{channel.name?.charAt(0).toUpperCase() ?? '?'}
+					</span>
+				)}
 
 				<div className="flex items-center justify-center gap-2 max-w-full px-2">
 					{isEditingName ? (
@@ -527,6 +545,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 										key={m.userId}
 										name={m.pseudo}
 										variant="user"
+										avatarUrl={m.avatarUrl}
 										subtitle={m.role === 'moderator' ? 'Modérateur' : undefined}
 										onClick={() => handleSelectMember(m)}
 									/>
