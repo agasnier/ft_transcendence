@@ -52,6 +52,10 @@ export function useChannel() {
 		await fetch(`/chat/channels/${id}/read`, { method: 'PATCH' })
 	}
 
+	function setChannelUnread(id: number, hasUnread: boolean) {
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, hasUnread } : c)))
+	}
+
 	function addChannel(channel: Channel) {
 		setChannels((prev) =>
 			prev.some((c) => c.id === channel.id)
@@ -133,6 +137,7 @@ export function useChannel() {
 		deleteChannel,
 		addChannel,
 		markChannelRead,
+		setChannelUnread,
 		removeChannel,
 		renameChannel,
 		updateDescription,

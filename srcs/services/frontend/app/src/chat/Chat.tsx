@@ -19,13 +19,13 @@ interface ChatProps {
 }
 
 function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
-	const { channels, createChannel, deleteChannel, addChannel, markChannelRead, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole, removeMember } = useChannel()
+	const { channels, createChannel, deleteChannel, addChannel, markChannelRead, setChannelUnread, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole, removeMember } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
 	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
 	const [showInfoPanel, setShowInfoPanel] = useState(false)
 
-	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage)
+	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId)
 
 	function handleSelectChannel(id: number) {
 		setSelectedChannelId(id)
