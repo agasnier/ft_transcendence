@@ -22,6 +22,8 @@ COPY	--from=builder /app/dist ./dist
 # Migrations SQL nécessaires au runtime (appliquées au démarrage)
 COPY	app/drizzle ./drizzle
 
+RUN     mkdir -p /app/uploads/avatars && chown -R node:node /app/uploads
+
 EXPOSE	3000
 
 HEALTHCHECK --interval=1s --timeout=3s --retries=60 --start-period=15s \
