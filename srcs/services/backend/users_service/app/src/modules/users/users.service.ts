@@ -26,7 +26,7 @@ export async function getUsersByIds(ids: number[]) {
     return []
 
   return db
-    .select({ id: users.id, pseudo: users.pseudo, avatarUrl: users.avatarUrl })
+    .select({ id: users.id, pseudo: users.pseudo, avatarUrl: users.avatarUrl, role: users.role })
     .from(users)
     .where(inArray(users.id, ids))
 }

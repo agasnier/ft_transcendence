@@ -23,6 +23,7 @@ export const listUsersBatchSchema = {
           id: { type: 'integer' },
           pseudo: { type: 'string' },
           avatarUrl: { type: ['string', 'null'] },
+          role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
         },
       },
     },

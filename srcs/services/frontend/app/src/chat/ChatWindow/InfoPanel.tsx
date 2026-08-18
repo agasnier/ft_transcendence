@@ -8,6 +8,7 @@ interface Member {
 	role: 'moderator' | 'member'
 	pseudo: string
 	avatarUrl?: string | null
+	globalRole?: 'admin' | 'moderator' | 'user'
 }
 
 interface Channel {
@@ -86,11 +87,17 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		const usersRes = await fetch(`/users/batch?ids=${rows.map((r) => r.userId).join(',')}`)
 		if (!usersRes.ok)
 			return
-		const users: { id: number; pseudo: string;  avatarUrl: string | null }[] = await usersRes.json()
+		const users: { id: number; pseudo: string; avatarUrl: string | null; role?: 'admin' | 'moderator' | 'user' }[] = await usersRes.json()
 		const infoById = new Map(users.map((u) => [u.id, u]))
-		const pseudoById = new Map(users.map((u) => [u.id, u.pseudo]))
-		const membersList: Member[] = rows.map((r) => ({ ...r, pseudo: pseudoById.get(r.userId) ?? '?', avatarUrl: infoById.get(r.userId)?.avatarUrl ?? null }))
+		const membersList: Member[] = rows.map((r) => ({
+			...r,
+			pseudo: infoById.get(r.userId)?.pseudo ?? '?',
+			avatarUrl: infoById.get(r.userId)?.avatarUrl ?? null,
+			globalRole: infoById.get(r.userId)?.role,
+		}))
 		membersList.sort((a, b) => {
+			if (a.globalRole === 'admin' && b.globalRole !== 'admin') return -1
+			if (b.globalRole === 'admin' && a.globalRole !== 'admin') return 1
 			if (a.role !== b.role)
 				return a.role === 'moderator' ? -1 : 1
 			return a.pseudo.localeCompare(b.pseudo)
@@ -330,7 +337,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 						</span>
 					)}
 					<span className="text-xs text-gray-500">
-						{selectedMember.role === 'moderator' ? 'Modérateur' : 'Membre'}
+						{selectedMemberProfile?.role === 'admin' ? 'Admin' : selectedMember.role === 'moderator' ? 'Modérateur' : 'Membre'}
 					</span>
 					{isModerator && selectedMember.userId !== userId && (myRole === 'admin' || selectedMemberProfile?.role !== 'admin') && onUpdateMemberRole && (
 						<button
@@ -649,7 +656,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 										name={m.pseudo}
 										variant="user"
 										avatarUrl={m.avatarUrl}
-										subtitle={m.role === 'moderator' ? 'Modérateur' : undefined}
+										subtitle={m.globalRole === 'admin' ? 'Admin' : m.role === 'moderator' ? 'Modérateur' : undefined}
 										onClick={() => handleSelectMember(m)}
 									/>
 								))}
