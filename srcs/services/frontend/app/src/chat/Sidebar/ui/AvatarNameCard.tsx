@@ -6,18 +6,27 @@ interface AvatarNameCardProps {
 	onClick?: () => void
 	isOnline?: boolean
 	hasUnread?: boolean
+	avatarUrl?: string | null
 }
 
-function AvatarNameCard({ name, subtitle, selected = false, variant, onClick, isOnline, hasUnread = false }: AvatarNameCardProps) {
+function AvatarNameCard({ name, subtitle, selected = false, variant, onClick, isOnline, hasUnread = false, avatarUrl }: AvatarNameCardProps) {
 	return (
 		<button
 			onClick={onClick}
 			className={`group flex items-center text-left font-bold px-3 py-2 rounded-2xl ${selected ? 'bg-blue-400' : 'hover:bg-gray-100'} `}>
 			<span className="relative shrink-0">
-				<span
-					className={`avatar-circle text-2xl border font-thin w-15 h-15 ${variant === 'user' ? 'bg-user' : 'bg-conversation'}`}>
-					{name.charAt(0).toUpperCase()}
-				</span>
+				{avatarUrl ? (
+					<img
+						src={avatarUrl}
+						alt={name}
+						className="w-15 h-15 rounded-full object-cover border"
+					/>
+				) : (
+					<span
+						className={`avatar-circle text-2xl border font-thin w-15 h-15 ${variant === 'user' ? 'bg-user' : 'bg-conversation'}`}>
+						{name.charAt(0).toUpperCase()}
+					</span>
+				)}
 				{isOnline !== undefined && (
 					<span
 						className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 ${

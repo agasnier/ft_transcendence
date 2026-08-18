@@ -22,6 +22,7 @@ export const listUsersBatchSchema = {
         properties: {
           id: { type: 'integer' },
           pseudo: { type: 'string' },
+          avatarUrl: { type: ['string', 'null'] },
         },
       },
     },

@@ -28,10 +28,18 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
 					{friends.map((friend) => (
 						<li key={friend.id} className="group flex items-center justify-between gap-2 px-2 py-1 rounded-2xl hover:bg-gray-200">
 							<span className="flex items-center gap-2">
-								<span className="relative">
-									<span className="avatar-circle bg-user w-8 h-8 text-sm font-semibold">
-										{friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
-									</span>
+								<span className="relative shrink-0">
+									{friend.avatarUrl ? (
+										<img
+											src={friend.avatarUrl}
+											alt={friend.pseudo}
+											className="w-8 h-8 rounded-full object-cover"
+										/>
+									) : (
+										<span className="avatar-circle bg-user w-8 h-8 text-sm font-semibold">
+											{friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
+										</span>
+									)}
 									<span
 										className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-gray-100 ${onlineUserIds.has(friend.id) ? 'bg-green-500' : 'bg-gray-400'}`}
 									/>

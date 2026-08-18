@@ -92,7 +92,7 @@ export function wsUserOffline(userId: number): void {
 	wsSendAll({ type: 'USER_OFFLINE', payload: { userId } })
 }
 
-export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, createdAt: Date | string }): void {
+export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, avatarUrl?: string | null, createdAt: Date | string }): void {
 	wsSendToUser(userId, { type: 'CHANNEL_CREATED', payload: channel })
 }
 
@@ -104,7 +104,7 @@ export function wsChannelDeletedTo(userId: number, id: number): void {
 	wsSendToUser(userId, { type: 'CHANNEL_DELETED', payload: { id } })
 }
 
-export function wsChannelUpdatedTo(userId: number, channel: {id: number, name: string | null, type: string, description: string | null}): void {
+export function wsChannelUpdatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, avatarUrl?: string | null }): void {
 	wsSendToUser(userId, { type: 'CHANNEL_UPDATED', payload: channel })
 }
 

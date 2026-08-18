@@ -6,6 +6,7 @@ interface Channel {
 	name: string | null
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
+	avatarUrl?: string | null
 }
 
 interface ChatHeaderProps {
@@ -68,10 +69,18 @@ function ChatHeader({channel, UserId, onOpenInfoPanel}: ChatHeaderProps) {
 		<div
 			onClick={onOpenInfoPanel}
 			className="flex p-1 border-b bg-white items-center gap-4 min-w-0 cursor-pointer">
-			<span
-				className={`avatar-circle font-thin w-10 h-10 ${channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}`}>
-				{channel.name?.charAt(0).toUpperCase()}
-			</span>
+			{channel.avatarUrl ? (
+				<img
+					src={channel.avatarUrl}
+					alt="logo"
+					className="w-10 h-10 rounded-full object-cover shrink-0"
+				/>
+			) : (
+				<span
+					className={`avatar-circle font-thin w-10 h-10 shrink-0 ${channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}`}>
+					{channel.name?.charAt(0).toUpperCase()}
+				</span>
+			)}
 			<div className="flex flex-col min-w-0">
 				<h1 className="font-bold text-gray-800 text-lg truncate">{channel.name}</h1>
 				<span className="text-black/50 truncate min-h-6 block">

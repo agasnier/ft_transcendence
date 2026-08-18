@@ -1,6 +1,11 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { randomUUID } from 'crypto'
+import path from 'path'
+import { pipeline } from 'stream/promises'
+import { createWriteStream } from 'fs'
+import { unlink } from 'fs/promises'
 import { validateAccessToken } from '../vault/jwt.js'
-import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers, getLastMessageId, getLastReadMessageId, markChannelRead } from './channels.service.js'
+import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers, getLastMessageId, getLastReadMessageId, markChannelRead, updateChannelAvatar, deleteChannelAvatar } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 import { createMessage } from '../messages/messages.service.js'
 import { env } from '../../config/env.js'
@@ -253,3 +258,69 @@ export async function updateWriteModeController(request: FastifyRequest, reply: 
     await reply.status(500).send({ message: 'Internal error' })
   }
 }
+
+export async function uploadChannelAvatarController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id } = request.params as { id: string }
+    const channelId = Number(id)
+
+    const data = await request.file()
+    if (!data) {
+      await reply.status(400).send({ message: 'No file provided' })
+      return
+    }
+
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!allowed.includes(data.mimetype)) {
+      await reply.status(400).send({ message: 'Invalid file type' })
+      return
+    }
+
+    // delete previous avatar if exists
+    const currentChannel = await channelInfo(channelId)
+    if (currentChannel?.avatarUrl) {
+      const oldFilename = currentChannel.avatarUrl.replace('/chat/avatars/', '')
+      await unlink(path.join(env.uploadsDir, 'avatars', oldFilename)).catch(() => {})
+    }
+
+    const filename = `${randomUUID()}${path.extname(data.filename)}`
+    const filepath = path.join(env.uploadsDir, 'avatars', filename)
+    await pipeline(data.file, createWriteStream(filepath))
+
+    const avatarUrl = `/chat/avatars/${filename}`
+    const updated = await updateChannelAvatar(channelId, avatarUrl)
+
+    if (updated) {
+      const members = await listChannelMembers(channelId)
+      for (const { userId } of members) {
+        wsChannelUpdatedTo(userId, updated)
+      }
+    }
+
+    await reply.send({ avatarUrl })
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+
+export async function deleteChannelAvatarController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  try {
+    const { id } = request.params as { id: string }
+    const channelId = Number(id)
+
+    const updated = await deleteChannelAvatar(channelId)
+    if (updated) {
+      const members = await listChannelMembers(channelId)
+      for (const { userId } of members) {
+        wsChannelUpdatedTo(userId, updated)
+      }
+    }
+
+    await reply.send({ message: 'Avatar removed' })
+  } catch (err) {
+    request.log.error(err)
+    await reply.status(500).send({ message: 'Internal error' })
+  }
+}
+

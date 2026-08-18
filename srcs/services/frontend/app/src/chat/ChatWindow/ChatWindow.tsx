@@ -18,6 +18,7 @@ interface Channel {
     name: string | null
     description: string | null
     type: 'channel' | 'group' | 'discussion'
+    avatarUrl?: string | null
     writeMode?: 'everyone' | 'moderators_only'
 }
 

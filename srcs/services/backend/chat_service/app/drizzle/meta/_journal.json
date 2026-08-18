@@ -71,6 +71,13 @@
       "when": 1787041844539,
       "tag": "0009_fearless_madrox",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1787041900000,
+      "tag": "0010_channel_avatar",
+      "breakpoints": true
     }
   ]
 }

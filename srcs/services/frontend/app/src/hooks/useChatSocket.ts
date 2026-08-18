@@ -6,6 +6,7 @@ interface Channel {
 	name: string | null
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
+	avatarUrl?: string | null
 	memberIds?: number[]
 	hasUnread?: boolean
 }

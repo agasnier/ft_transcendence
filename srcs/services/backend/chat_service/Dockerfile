@@ -23,7 +23,7 @@ COPY	--from=builder /app/dist ./dist
 COPY	app/drizzle ./drizzle
 
 # upload files save folder
-RUN     mkdir -p /app/uploads && chown -R node:node /app/uploads
+RUN     mkdir -p /app/uploads/avatars && chown -R node:node /app/uploads
 
 EXPOSE	3000
 

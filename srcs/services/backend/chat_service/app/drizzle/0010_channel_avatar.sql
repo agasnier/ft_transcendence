@@ -1,0 +1,1 @@
+ALTER TABLE `channels` ADD `avatar_url` varchar(255);
