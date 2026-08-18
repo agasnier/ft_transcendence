@@ -238,7 +238,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					<span className="text-xs text-gray-500">
 						{selectedMember.role === 'moderator' ? 'Modérateur' : 'Membre'}
 					</span>
-					{isModerator && selectedMember.userId !== userId && onUpdateMemberRole && (
+					{isModerator && selectedMember.userId !== userId && selectedMemberProfile?.role !== 'admin' && onUpdateMemberRole && (
 						<button
 							type="button"
 							onClick={handleToggleMemberRole}
