@@ -87,3 +87,9 @@ volumes:
       o: bind
       device: ./data/chat_uploads-dev
 
+  users_uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/users_uploads-dev
