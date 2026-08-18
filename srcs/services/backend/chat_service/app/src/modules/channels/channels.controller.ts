@@ -3,6 +3,7 @@ import { validateAccessToken } from '../vault/jwt.js'
 import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 import { createMessage } from '../messages/messages.service.js'
+import { env } from '../../config/env.js'
 
 // hooks
 
@@ -182,6 +183,19 @@ export async function updateMemberRoleController(request: FastifyRequest, reply:
   try {
     const { id, userId } = request.params as { id: string; userId: string }
     const { role } = request.body as { role: 'moderator' | 'member' }
+
+    // moderator can't retrograde admin
+    if (request.user!.role !== 'admin') {
+      const targetRes = await fetch(`${env.usersServiceUrl}/users/${userId}/profile`)
+      if (targetRes.ok) {
+        const targetProfile = await targetRes.json()
+        if (targetProfile.role === 'admin') {
+          await reply.status(403).send({ message: 'Cannot change an admin\'s role' })
+          return
+        }
+      }
+    }
+
     await updateMemberRole(Number(id), Number(userId), role)
     await reply.send({ message: 'Member role updated' })
   } catch (err) {
