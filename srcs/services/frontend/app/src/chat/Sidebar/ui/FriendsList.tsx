@@ -36,18 +36,10 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
                                             className="w-8 h-8 rounded-full object-cover"
                                         />
                                     ) : (
-									{friend.avatarUrl ? (
-										<img
-											src={friend.avatarUrl}
-											alt={friend.pseudo}
-											className="w-8 h-8 rounded-full object-cover"
-										/>
-									) : (
-	                                        <span className="avatar-circle bg-user w-8 h-8 text-sm font-semibold">
-	                                            {friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
-	                                        </span>
+                                        <span className="avatar-circle bg-user w-8 h-8 text-sm font-semibold">
+                                            {friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
+                                        </span>
                                     )}
-									)}
                                     <span
                                         className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-gray-100 ${onlineUserIds.has(friend.id) ? 'bg-green-500' : 'bg-gray-400'}`}
                                     />

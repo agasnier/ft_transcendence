@@ -1,16 +1,15 @@
 interface AvatarNameCardProps {
-	name: string
-	subtitle?: string
-	selected?: boolean
-	variant?: 'conversation' | 'user'
-	avatarUrl?: string | null
-	onClick?: () => void
-	isOnline?: boolean
-	hasUnread?: boolean
-	avatarUrl?: string | null
+    name: string
+    subtitle?: string
+    selected?: boolean
+    variant?: 'conversation' | 'user'
+    avatarUrl?: string | null
+    onClick?: () => void
+    isOnline?: boolean
+    hasUnread?: boolean
 }
 
-function AvatarNameCard({ name, subtitle, selected = false, variant, avatarUrl, onClick, isOnline, hasUnread = false, avatarUrl }: AvatarNameCardProps) {
+function AvatarNameCard({ name, subtitle, selected = false, variant, avatarUrl, onClick, isOnline, hasUnread = false }: AvatarNameCardProps) {
     return (
         <button
             onClick={onClick}
@@ -23,19 +22,11 @@ function AvatarNameCard({ name, subtitle, selected = false, variant, avatarUrl, 
                         className="w-15 h-15 rounded-full object-cover border"
                     />
                 ) : (
-				{avatarUrl ? (
-					<img
-						src={avatarUrl}
-						alt={name}
-						className="w-15 h-15 rounded-full object-cover border"
-					/>
-				) : (
-	                    <span
-	                        className={`avatar-circle text-2xl border font-thin w-15 h-15 ${variant === 'user' ? 'bg-user' : 'bg-conversation'}`}>
-	                        {name.charAt(0).toUpperCase()}
-	                    </span>
+                    <span
+                        className={`avatar-circle text-2xl border font-thin w-15 h-15 ${variant === 'user' ? 'bg-user' : 'bg-conversation'}`}>
+                        {name.charAt(0).toUpperCase()}
+                    </span>
                 )}
-				)}
                 {isOnline !== undefined && (
                     <span
                         className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 ${
