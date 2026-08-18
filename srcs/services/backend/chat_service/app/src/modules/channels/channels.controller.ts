@@ -210,7 +210,17 @@ export async function addChannelMembersController(request: FastifyRequest, reply
   try {
     const { id } = request.params as { id: string }
     const { memberIds } = request.body as { memberIds: number[] }
-    await addChannelMembers(Number(id), memberIds, 'member')
+    const channelId = Number(id)
+
+    await addChannelMembers(channelId, memberIds, 'member')
+
+    // notify all new members to show the conversation
+    const channel = await channelInfo(channelId)
+    if (channel) {
+      for (const memberId of memberIds)
+        wsChannelCreatedTo(memberId, channel)
+    }
+
     await reply.status(201).send({ message: 'Members added' })
   } catch (err) {
     request.log.error(err)
