@@ -1,6 +1,8 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 import fastifyMultipart from '@fastify/multipart'
+import fastifyStatic from '@fastify/static'
 import cookie from '@fastify/cookie'
+import path from 'path'
 
 import { usersRoutes } from './modules/users/users.route.js'
 import { friendsRoutes } from './modules/friends/friends.route.js'
@@ -20,6 +22,13 @@ export function buildApp(): FastifyInstance {
   app.register(fastifyMultipart, {
     limits: { fileSize: 5 * 1024 * 1024 }, //5MB max
   })
+  app.register(fastifyStatic, {
+    root: path.join('/app/uploads/avatars'),
+    prefix: '/avatars/',
+    // uploads located in /app/uploads/avatars/xxx.jpg
+    // use this sub directory with the prefix /avatars/
+  })
+
   // metrics route for prometheus
   app.register(metricsRoutes)
 

@@ -170,7 +170,7 @@ export async function uploadAvatarController(req: FastifyRequest, reply: Fastify
     await reply.code(400).send({ message: 'No file provided' })
     return
   }
-  const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image.webp']
+  const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
   if (!allowed.includes(data.mimetype)) {
     await reply.code(400).send({ message: 'Invalid file type' })
     return
@@ -178,7 +178,7 @@ export async function uploadAvatarController(req: FastifyRequest, reply: Fastify
   const filename = `${randomUUID()}${path.extname(data.filename)}`
   const filepath = path.join('/app/uploads/avatars', filename)
   await pipeline(data.file, createWriteStream(filepath))
-  const avatarUrl = '/avatars/${filename}'
+  const avatarUrl = `/avatars/${filename}`
   await updateAvatar(req.user.id, avatarUrl)
   return reply.send({ avatarUrl })
 }
