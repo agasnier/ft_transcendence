@@ -15,10 +15,11 @@ interface ChatProps {
 	onLogout: () => void
 	pseudo: string | null
 	userId: number | null
+	role: 'admin' | 'moderator' | 'user' | null
 	onUpdatePseudo: (newPseudo: string) => Promise<boolean>
 }
 
-function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
+function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 	const { channels, createChannel, deleteChannel, addChannel, markChannelRead, setChannelUnread, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole, removeMember, uploadChannelAvatar, deleteChannelAvatar } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
@@ -74,6 +75,7 @@ function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
 								onLogout={onLogout}
 								pseudo={pseudo}
 								userId={userId}
+								role={role}
 								onUpdatePseudo={onUpdatePseudo}
 								channels={channels}
 								selectedChannelId={selectedChannelId}

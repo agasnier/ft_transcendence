@@ -19,8 +19,8 @@ interface SearchViewProps {
 	selectedChannelId: number | null
 	onSelectChannel: (id: number) => void
 	onCreateChannel: (type: 'channel' | 'group' | 'discussion', memberIds: number[], name?: string, description?: string) => Promise<Channel | null>
-    activeTab: 'friends' | 'conversations'
-    setActiveTab: (tab: 'friends' | 'conversations') => void
+    activeTab: 'friends' | 'conversations' | 'admin'
+	setActiveTab: (tab: 'friends' | 'conversations' | 'admin') => void
 }
 
 function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, selectedChannelId, onSelectChannel, onCreateChannel, activeTab, setActiveTab }: SearchViewProps) {
