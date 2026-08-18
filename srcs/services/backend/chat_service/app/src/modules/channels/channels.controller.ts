@@ -46,11 +46,13 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
 
     if (type === 'group') {
       const message = await createMessage(channel.id, request.user!.id, ' a créé le groupe', 'system')
+      await markChannelRead(channel.id, request.user!.id)
       wsMessageCreated(message)
     }
 
     if (type === 'channel') {
       const message = await createMessage(channel.id, request.user!.id, 'Le canal a été créé', 'system')
+      await markChannelRead(channel.id, request.user!.id)
       wsMessageCreated(message)
     }
 

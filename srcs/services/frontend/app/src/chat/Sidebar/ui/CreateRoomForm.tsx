@@ -26,6 +26,7 @@ function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
 				value={name}
 				onChange={(e) => setName(e.target.value)}
 				required
+				autoComplete="off"
 			/>
 			{type !== 'group' && (
 				<TextAreaField

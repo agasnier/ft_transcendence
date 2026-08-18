@@ -110,33 +110,33 @@ export async function sessionController(request: FastifyRequest, reply: FastifyR
     if (accessToken) {
       const user = await validateAccessToken(accessToken)
       if (user && user.twofa !== 'pending') {
-        await reply.status(200).send({ id: user.id, pseudo: user.pseudo, role: user.role })
+        await reply.status(200).send({ authenticated: true, id: user.id, pseudo: user.pseudo, role: user.role })
         return
       }
     }
 
     const refreshToken = request.cookies.refresh_token
     if (!refreshToken) {
-      await reply.status(401).send({ message: 'Not authenticated' })
+      await reply.status(200).send({ authenticated: false })
       return
     }
 
     const stored = await validateRefreshToken(refreshToken)
     if (!stored) {
-      await reply.status(401).send({ message: 'Not authenticated' })
+      await reply.status(200).send({ authenticated: false })
       return
     }
 
     const user = await getUserById(stored.owner_id)
     if (!user) {
       await deleteRefreshTokensByUser(stored.owner_id)
-      await reply.status(401).send({ message: 'Not authenticated' })
+      await reply.status(200).send({ authenticated: false })
       return
     }
 
     await createCookie(reply, user)
 
-    await reply.status(200).send(user)
+    await reply.status(200).send({ authenticated: true, id: user.id, pseudo: user.pseudo, role: user.role })
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

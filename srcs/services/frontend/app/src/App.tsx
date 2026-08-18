@@ -12,10 +12,17 @@ function App() {
 		const res = await fetch('/auth/session')
 		if (res.ok) {
 			const user = await res.json()
-			setUserId(user.id)
-			setPseudo(user.pseudo)
-			setIsLoggedIn(true)
+			if (user.authenticated) {
+				setUserId(user.id)
+				setPseudo(user.pseudo)
+				setIsLoggedIn(true)
+				setIsCheckingSession(false)
+				return
+			}
 		}
+		setIsLoggedIn(false)
+		setUserId(null)
+		setPseudo(null)
 		setIsCheckingSession(false)
 	}
 

@@ -27,7 +27,12 @@ async function refreshSession(): Promise<boolean> {
 		return refreshInFlight
 
 	refreshInFlight = nativeFetch('/auth/session')
-		.then((res) => res.ok)
+		.then(async (res) => {
+			if (!res.ok)
+				return false
+			const user = await res.json()
+			return user.authenticated === true
+		})
 		.finally(() => {
 			refreshInFlight = null
 		})

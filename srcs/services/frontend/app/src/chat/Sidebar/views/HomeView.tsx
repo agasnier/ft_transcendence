@@ -38,6 +38,7 @@ function HomeView({ userId, channels, selectedChannelId, onSelectChannel, onCrea
 						placeholder="🔍︎ Rechercher"
 						onFocus={() => setView({ kind: 'search' })}
                         maxLength={255}
+						autoComplete="off"
 						className="search-input"
 					/>
                 </div>

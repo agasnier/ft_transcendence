@@ -6,9 +6,10 @@ interface TextFieldProps {
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 	required?: boolean
 	autoFocus?: boolean
+	autoComplete?: string
 }
 
-function TextField({ id, label, type, value, onChange, required, autoFocus }: TextFieldProps) {
+function TextField({ id, label, type, value, onChange, required, autoFocus, autoComplete }: TextFieldProps) {
 	return (
 		<div className="relative">
 			<input
@@ -19,6 +20,7 @@ function TextField({ id, label, type, value, onChange, required, autoFocus }: Te
 				onChange={onChange}
 				required={required}
 				autoFocus={autoFocus}
+				autoComplete={autoComplete}
 				maxLength={255}
 				className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-1 hover:border-blue-500 focus:outline-none focus:ring-2 ring-offset-2 focus:ring-blue-500"
 			/>

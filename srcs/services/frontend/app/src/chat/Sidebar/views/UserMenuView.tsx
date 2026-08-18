@@ -119,8 +119,7 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
             const data = await res.json()
             setProfile((prev) => (prev ? { ...prev, avatarUrl: data.avatarUrl } : prev))
         } else {
-            const err = await res.json().catch(() => null)
-            setAvatarError(err?.message ?? 'Échec de l\'upload')
+            setAvatarError('Échec de l\'upload')
         }
 
         setIsUploadingAvatar(false)
@@ -138,8 +137,7 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
         if (res.ok) {
             setProfile((prev) => (prev ? { ...prev, avatarUrl: null } : prev))
         } else {
-            const err = await res.json().catch(() => null)
-            setAvatarError(err?.message ?? 'Échec de la suppression')
+            setAvatarError('Échec de la suppression')
         }
 
         setIsUploadingAvatar(false)
@@ -201,6 +199,7 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                             value={pseudoDraft}
                             onChange={(e) => setPseudoDraft(e.target.value)}
                             autoFocus
+                            autoComplete="username"
                         />
                         {pseudoError && <p className="text-xs text-red-600 text-center">{pseudoError}</p>}
                         <div className="flex justify-center gap-2">
