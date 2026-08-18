@@ -196,6 +196,12 @@ export async function updateMemberRoleController(request: FastifyRequest, reply:
     const { id, userId } = request.params as { id: string; userId: string }
     const { role } = request.body as { role: 'moderator' | 'member' }
 
+    // user can't change their own role
+    if (Number(userId) === request.user!.id) {
+      await reply.status(403).send({ message: 'Cannot change your own role' })
+      return
+    }
+
     // moderator can't retrograde admin
     if (request.user!.role !== 'admin') {
       const targetRes = await fetch(`${env.usersServiceUrl}/users/${userId}/profile`)

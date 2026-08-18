@@ -58,6 +58,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [isSavingMemberRole, setIsSavingMemberRole] = useState(false)
 	const [isRemovingMember, setIsRemovingMember] = useState(false)
 	const [confirmRemove, setConfirmRemove] = useState(false)
+	const [myRole, setMyRole] = useState<'admin' | 'moderator' | 'user' | null>(null)
 
 	const isModerator = members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false
 	const friends = useFriends()
@@ -115,6 +116,17 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		}
 		loadOtherProfile()
 	}, [channel.type, channel.otherUserId])
+
+	useEffect(() => {
+		async function fetchMyRole() {
+			const res = await fetch('/users/profile')
+			if (res.ok) {
+				const data = await res.json()
+				setMyRole(data.role)
+			}
+		}
+		fetchMyRole()
+	}, [])
 
 	async function handleSelectMember(member: Member) {
 		setSelectedMember(member)
@@ -252,7 +264,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					<span className="text-xs text-gray-500">
 						{selectedMember.role === 'moderator' ? 'Modérateur' : 'Membre'}
 					</span>
-					{isModerator && selectedMember.userId !== userId && selectedMemberProfile?.role !== 'admin' && onUpdateMemberRole && (
+					{isModerator && selectedMember.userId !== userId && (myRole === 'admin' || selectedMemberProfile?.role !== 'admin') && onUpdateMemberRole && (
 						<button
 							type="button"
 							onClick={handleToggleMemberRole}
@@ -269,7 +281,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 							</p>
 						</div>
 					)}
-					{isModerator && selectedMember.userId !== userId && selectedMemberProfile?.role !== 'admin' && onRemoveMember && (
+					{isModerator && selectedMember.userId !== userId && (myRole === 'admin' || selectedMemberProfile?.role !== 'admin') && onRemoveMember && (
 						<div className="w-full mt-2">
 							{confirmRemove ? (
 								<div className="flex flex-col gap-2">
@@ -296,7 +308,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 									type="button"
 									onClick={() => setConfirmRemove(true)}
 									className="w-full text-left px-3 py-2 text-sm text-red-600 bg-white hover:bg-red-100 rounded-xl">
-									🗑️ Retirer du salon
+									Retirer du salon
 								</button>
 							)}
 						</div>
@@ -531,6 +543,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					onDeleteChannel(channel.id)
 				)}
 				className="mt-auto w-full text-left px-3 py-2 text-sm text-danger bg-white hover:bg-danger-bg rounded-xl">
+				Supprimer la conversation
 			</button>
 		</aside>
 	)
