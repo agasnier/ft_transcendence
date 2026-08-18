@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react'
 
+interface FileInfo {
+    id: number
+    originalName: string
+    mimeType: string
+    size: number
+}
+
 interface Message {
 	id: number
 	channelId: number
@@ -8,6 +15,8 @@ interface Message {
 	content: string
 	createdAt: string
 	type: 'user' | 'system'
+	fileId: number | null
+    file: FileInfo | null
 }
 
 export function useMessage(channelId: number | null) {
@@ -37,6 +46,17 @@ export function useMessage(channelId: number | null) {
 	})
 	}
 
+	async function uploadFile(file: File): Promise<boolean> {
+        if (channelId === null) return false
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await fetch(`/chat/files/${channelId}`, {
+            method: 'POST',
+            body: formData,
+        })
+        return res.ok
+    }
+
 	function addMessage(message: Message) {
 		if (channelId === null || message.channelId !== channelId) return
 		setMessages((prev) =>
@@ -49,6 +69,7 @@ export function useMessage(channelId: number | null) {
 	return {
 		messages,
 		createMessage,
+		uploadFile,
 		addMessage,
 	}
 }

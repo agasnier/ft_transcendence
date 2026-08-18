@@ -11,14 +11,23 @@ interface Channel {
 	hasUnread?: boolean
 }
 
+interface FileInfo {
+    id: number
+    originalName: string
+    mimeType: string
+    size: number
+}
+
 interface Message {
-	id: number
-	channelId: number
-	senderId: number
-	senderPseudo: string | null
-	content: string
-	createdAt: string
-	type: 'user' | 'system'
+    id: number
+    channelId: number
+    senderId: number
+    senderPseudo: string | null
+    content: string
+    createdAt: string
+    type: 'user' | 'system'
+    fileId: number | null
+    file: FileInfo | null
 }
 
 export function useChatSocket(

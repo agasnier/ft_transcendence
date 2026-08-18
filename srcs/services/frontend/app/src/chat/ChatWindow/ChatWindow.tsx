@@ -3,6 +3,13 @@ import MessageInput from './MessageInput'
 import MessagesList from './MessagesList'
 import ChatHeader from './ChatHeader'
 
+interface FileInfo {
+    id: number
+    originalName: string
+    mimeType: string
+    size: number
+}
+
 interface Message {
     id: number
     channelId: number
@@ -11,6 +18,8 @@ interface Message {
     content: string
     createdAt: string
     type: 'user' | 'system'
+    fileId: number | null
+    file: FileInfo | null
 }
 
 interface Channel {
@@ -27,10 +36,11 @@ interface ChatWindowProps {
     userId: number | null
     messages: Message[]
     onSendMessage: (content: string) => void
+    onSendFile: (file: File) => Promise<boolean>
     onOpenInfoPanel: () => void
 }
 
-function ChatWindow({ channel, userId, messages, onSendMessage, onOpenInfoPanel }: ChatWindowProps) {
+function ChatWindow({ channel, userId, messages, onSendMessage, onSendFile, onOpenInfoPanel }: ChatWindowProps) {
     const [canWrite, setCanWrite] = useState(true)
 
     useEffect(() => {
@@ -66,17 +76,17 @@ function ChatWindow({ channel, userId, messages, onSendMessage, onOpenInfoPanel 
 
     return (
         <main className="w-full h-full max-w-175 mx-auto flex flex-col bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
-            <ChatHeader
+             <ChatHeader
                 channel={channel}
                 UserId={userId}
-                onOpenInfoPanel={onOpenInfoPanel}
-            />
+                onOpenInfoPanel={onOpenInfoPanel} />
             <MessagesList
                 messages={messages}
                 userId={userId}
                 channelType={channel.type}/>
             <MessageInput
                 onSendMessage={onSendMessage}
+                onSendFile={onSendFile}
                 disabled={!canWrite}/>
         </main>
     )

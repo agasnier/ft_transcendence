@@ -23,7 +23,7 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 	const { channels, createChannel, deleteChannel, addChannel, markChannelRead, setChannelUnread, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole, removeMember, uploadChannelAvatar, deleteChannelAvatar } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
-	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
+	const { messages, createMessage, uploadFile, addMessage } = useMessage(selectedChannelId)
 	const [showInfoPanel, setShowInfoPanel] = useState(false)
 
 	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId)
@@ -90,6 +90,7 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 										userId={userId}
 										messages={messages}
 										onSendMessage={handleSendMessage}
+										onSendFile={uploadFile}
 										onOpenInfoPanel={() => setShowInfoPanel(true)}
 									/>
 									{showInfoPanel && (
