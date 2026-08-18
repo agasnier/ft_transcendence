@@ -36,9 +36,10 @@ interface InfoPanelProps {
 	onUpdateDescription?: (id: number, description: string) => Promise<boolean>
 	onAddMembers?: (channelId: number, memberIds: number[]) => Promise<boolean>
 	onUpdateWriteMode?: (id: number, writeMode: 'everyone' | 'moderators_only') => Promise<boolean>
+	onUpdateMemberRole?: (channelId: number, userId: number, role: 'moderator' | 'member') => Promise<boolean>
 }
 
-function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, onUpdateDescription, onAddMembers, onUpdateWriteMode }: InfoPanelProps) {
+function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, onUpdateDescription, onAddMembers, onUpdateWriteMode, onUpdateMemberRole }: InfoPanelProps) {
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState(channel.name ?? '')
 	const [isEditingDesc, setIsEditingDesc] = useState(false)
@@ -53,6 +54,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [selectedMember, setSelectedMember] = useState<Member | null>(null)
 	const [selectedMemberProfile, setSelectedMemberProfile] = useState<PublicProfile | null>(null)
 	const [isSavingWriteMode, setIsSavingWriteMode] = useState(false)
+	const [isSavingMemberRole, setIsSavingMemberRole] = useState(false)
 
 	const isModerator = members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false
 	const friends = useFriends()
@@ -196,6 +198,18 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		setIsSavingWriteMode(false)
 	}
 
+	async function handleToggleMemberRole() {
+		if (!selectedMember || !onUpdateMemberRole) return
+		const newRole = selectedMember.role === 'moderator' ? 'member' : 'moderator'
+		setIsSavingMemberRole(true)
+		const ok = await onUpdateMemberRole(channel.id, selectedMember.userId, newRole)
+		if (ok) {
+			setSelectedMember({ ...selectedMember, role: newRole })
+			await loadMembers()
+		}
+		setIsSavingMemberRole(false)
+	}
+
 	const existingMemberIds = new Set(members?.map((m) => m.userId) ?? [])
 	const availableFriends = friends.filter((f) => !existingMemberIds.has(f.id))
 	const selectableUsers = [
@@ -221,8 +235,17 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 							{selectedMemberProfile.isOnline ? 'En ligne' : 'Hors ligne'}
 						</span>
 					)}
-					{selectedMember.role === 'moderator' && (
-						<span className="text-xs text-gray-500">Modérateur</span>
+					<span className="text-xs text-gray-500">
+						{selectedMember.role === 'moderator' ? 'Modérateur' : 'Membre'}
+					</span>
+					{isModerator && selectedMember.userId !== userId && onUpdateMemberRole && (
+						<button
+							type="button"
+							onClick={handleToggleMemberRole}
+							disabled={isSavingMemberRole}
+							className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-50">
+							{isSavingMemberRole ? '...' : (selectedMember.role === 'moderator' ? 'Rétrograder' : 'Promouvoir modérateur')}
+						</button>
 					)}
 					{selectedMemberProfile && (
 						<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-2">

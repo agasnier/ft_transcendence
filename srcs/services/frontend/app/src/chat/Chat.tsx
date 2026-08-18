@@ -19,7 +19,7 @@ interface ChatProps {
 }
 
 function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
-	const { channels, createChannel, deleteChannel, addChannel, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode } = useChannel()
+	const { channels, createChannel, deleteChannel, addChannel, removeChannel, renameChannel, updateDescription, addMembers, updateChannel, updateWriteMode, updateMemberRole } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
 	const { messages, createMessage, addMessage } = useMessage(selectedChannelId)
@@ -89,6 +89,7 @@ function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
 											onUpdateDescription={updateDescription}
 											onAddMembers={addMembers}
 											onUpdateWriteMode={updateWriteMode}
+											onUpdateMemberRole={updateMemberRole}
 										/>
 									)}
 								</div>

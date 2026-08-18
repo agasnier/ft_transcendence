@@ -105,6 +105,15 @@ export function useChannel() {
         return true
     }
 
+	async function updateMemberRole(channelId: number, userId: number, role: 'moderator' | 'member'): Promise<boolean> {
+        const res = await fetch(`/chat/channels/${channelId}/members/${userId}/role`, {
+            method: 'PUT',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ role }),
+        })
+        return res.ok
+    }
+
 	return {
 		channels,
 		createChannel,
@@ -115,6 +124,7 @@ export function useChannel() {
 		updateDescription,
 		addMembers,
 		updateChannel,
-		updateWriteMode
+		updateWriteMode,
+		updateMemberRole
 	}
 }
