@@ -2,24 +2,31 @@ import { useState, useEffect } from 'react'
 import BackButton from '../ui/BackButton'
 import ApiKeySection from '../ui/ApiKeySection'
 import TwoFactorSection from '../ui/TwoFactorSection'
-import TextAreaField from '../../../components/TextAreaField' // adapte le chemin exact
+import TextField from '../../../components/TextField'
+import TextAreaField from '../../../components/TextAreaField'
 import type { SidebarView } from '../Sidebar'
 
 interface UserMenuViewProps {
     setView: (view: SidebarView) => void
     onLogout: () => void
     pseudo: string | null
+    onUpdatePseudo: (newPseudo: string) => Promise<boolean>
 }
 
 interface Profile {
     bio: string | null
 }
 
-function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
+function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuViewProps) {
     const [profile, setProfile] = useState<Profile | null>(null)
     const [isEditingBio, setIsEditingBio] = useState(false)
     const [bioDraft, setBioDraft] = useState('')
     const [isSaving, setIsSaving] = useState(false)
+
+    const [isEditingPseudo, setIsEditingPseudo] = useState(false)
+    const [pseudoDraft, setPseudoDraft] = useState('')
+    const [isSavingPseudo, setIsSavingPseudo] = useState(false)
+    const [pseudoError, setPseudoError] = useState<string | null>(null)
 
     useEffect(() => {
         async function fetchProfile() {
@@ -58,6 +65,35 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
         setIsEditingBio(false)
     }
 
+    function startEditingPseudo() {
+        setPseudoDraft(pseudo ?? '')
+        setPseudoError(null)
+        setIsEditingPseudo(true)
+    }
+
+    async function savePseudo() {
+        const trimmed = pseudoDraft.trim()
+        if (trimmed === '') {
+            setPseudoError('Le pseudo ne peut pas être vide')
+            return
+        }
+        setIsSavingPseudo(true)
+        setPseudoError(null)
+        const ok = await onUpdatePseudo(trimmed)
+        if (ok) {
+            setIsEditingPseudo(false)
+        } else {
+            setPseudoError('Ce pseudo est peut-être déjà pris')
+        }
+        setIsSavingPseudo(false)
+    }
+
+    function cancelEditingPseudo() {
+        setPseudoDraft(pseudo ?? '')
+        setPseudoError(null)
+        setIsEditingPseudo(false)
+    }
+
     return (
         <>
             <div className="flex items-center gap-2">
@@ -69,7 +105,44 @@ function UserMenuView({ setView, onLogout, pseudo }: UserMenuViewProps) {
                     className="avatar-circle bg-user w-30 h-30 text-6xl">
                     {pseudo?.charAt(0).toUpperCase() ?? '?'}
                 </span>
-                <span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
+
+                {isEditingPseudo ? (
+                    <div className="flex flex-col gap-2 w-full px-4">
+                        <TextField
+                            id="pseudo"
+                            label="Pseudo"
+                            type="text"
+                            value={pseudoDraft}
+                            onChange={(e) => setPseudoDraft(e.target.value)}
+                            autoFocus
+                        />
+                        {pseudoError && <p className="text-xs text-red-600 text-center">{pseudoError}</p>}
+                        <div className="flex justify-center gap-2">
+                            <button
+                                onClick={savePseudo}
+                                disabled={isSavingPseudo}
+                                className="text-sm px-3 py-1 rounded-lg bg-user text-white hover:bg-blue-600 disabled:opacity-50">
+                                {isSavingPseudo ? 'Sauvegarde...' : 'Enregistrer'}
+                            </button>
+                            <button
+                                onClick={cancelEditingPseudo}
+                                disabled={isSavingPseudo}
+                                className="text-sm px-3 py-1 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2">
+                        <span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
+                        <button
+                            onClick={startEditingPseudo}
+                            title="Modifier le pseudo"
+                            className="text-gray-400 hover:text-gray-700 text-sm">
+                            🖋
+                        </button>
+                    </div>
+                )}
 
                 <div className="w-full px-4">
                     {isEditingBio ? (

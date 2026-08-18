@@ -15,9 +15,10 @@ interface ChatProps {
 	onLogout: () => void
 	pseudo: string | null
 	userId: number | null
+	onUpdatePseudo: (newPseudo: string) => Promise<boolean>
 }
 
-function Chat({onLogout, pseudo, userId}: ChatProps) {
+function Chat({onLogout, pseudo, userId, onUpdatePseudo}: ChatProps) {
 	const { channels, createChannel, deleteChannel, addChannel, removeChannel, renameChannel, updateDescription, addMembers, updateChannel } = useChannel()
 	const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null)
 	const selectedChannel = channels.find((c) => c.id === selectedChannelId) ?? null
@@ -62,6 +63,7 @@ function Chat({onLogout, pseudo, userId}: ChatProps) {
 								onLogout={onLogout}
 								pseudo={pseudo}
 								userId={userId}
+								onUpdatePseudo={onUpdatePseudo}
 								channels={channels}
 								selectedChannelId={selectedChannelId}
 								onSelectChannel={setSelectedChannelId}

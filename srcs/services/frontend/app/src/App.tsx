@@ -29,13 +29,27 @@ function App() {
 		setUserId(null)
 	}
 
+	async function handleUpdatePseudo(newPseudo: string): Promise<boolean> {
+        if (userId === null) return false
+        const res = await fetch(`/users/${userId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pseudo: newPseudo }),
+        })
+        if (res.ok) {
+            setPseudo(newPseudo)
+            return true
+        }
+        return false
+    }
+
 	if (isCheckingSession)
 		return null // TODO add skeleton
 
 	if (!isLoggedIn)
 		return <Auth onAuthSuccess={checkSession} />
 
-	return <Chat onLogout={handleLogout} pseudo={pseudo} userId={userId}/>
+	return <Chat onLogout={handleLogout} pseudo={pseudo} userId={userId} onUpdatePseudo={handleUpdatePseudo} />
 }
 
 export default App
