@@ -170,18 +170,18 @@ Column lists: [users_service](srcs/services/backend/users_service/README.md), [c
 
 | Feature | What it does | Who |
 |---|---|---|
-| Sign up / log in | email or pseudo, hashed password, httpOnly cookies | `mgarnier`, `jodone` |
+| Sign up / log in | email or pseudo, hashed password, httpOnly cookies | `mgarnier`, `algasnie` , `jodone` |
 | Session refresh | `GET /auth/session` plus frontend retry on 401 | `algasnie` |
 | 2FA | TOTP setup, QR, pending login until verify | `algasnie` |
-| Profile | display name, bio, avatar | `mgarnier`, `jodone` |
+| Profile | display name, bio, avatar | `algasnie`, `jodone` |
 | Friends | request, accept, decline, list, search | `mgarnier`, `jodone` |
-| Chat | discussions, groups, channels, live WS | `mgarnier`, `jodone` |
-| Presence | online dots from open sockets | `mgarnier`, `jodone` |
+| Chat | discussions, groups, channels, live WS | `masenche` , `mgarnier`, `jodone` |
+| Presence | online dots from open sockets | `algasnie` |
 | Channel moderation | roles, write mode, members, avatars | `mgarnier`, `jodone` |
-| Files | upload in a channel (jpeg, png, webp, gif, pdf, txt, doc) | `mgarnier`, `jodone` |
+| Files | upload in a channel (jpeg, png, webp, gif, pdf, txt, doc) | `jodone` |
 | Public API | CRUD `/api/users` with `x-api-key`, rate limit, Scalar docs | `algasnie` |
-| Admin panel | list / edit / delete users, change roles | `mgarnier`, `jodone` |
-| Privacy and terms | pages on the auth card | `mgarnier`, `jodone` |
+| Admin panel | list / edit / delete users, change roles | `jodone` |
+| Privacy and terms | pages on the auth card | `mgarnier` |
 | WAF + HTTPS | Nginx TLS, OWASP CRS | `algasnie` |
 | Vault | dynamic SQL users, HMAC, JWT sign/verify | `algasnie` |
 | Monitoring | Prometheus + Grafana dashboards and alerts | `masenche` |
@@ -193,19 +193,21 @@ Major = 2 pts. Minor = 1 pt. Threshold is 14. Extra modules count as bonus (max 
 | Module | Type | Pts | How | Who |
 |---|---|---|---|---|
 | Framework frontend and backend | Major | 2 | React + Fastify | `mgarnier`, `jodone` |
-| Real-time (WebSockets) | Major | 2 | `GET /chat/ws`, presence and message events | `mgarnier`, `jodone` |
+| Real-time (WebSockets) | Major | 2 | `GET /chat/ws`, presence and message events | `masenche` , `mgarnier`, `jodone` |
 | User interaction | Major | 2 | chat, profiles, friends | `mgarnier`, `jodone` |
 | Public API | Major | 2 | `/api/users` CRUD, `x-api-key`, 5 req/min, `/api/docs` | `algasnie` |
 | Standard user management | Major | 2 | profile, avatar, friends, online status | `mgarnier`, `jodone` |
-| Advanced permissions | Major | 2 | roles `admin` / `moderator` / `user`, channel roles, admin panel | `mgarnier`, `jodone` |
+| Advanced permissions | Major | 2 | roles `admin` / `moderator` / `user`, channel roles, admin panel | `jodone` |
 | WAF + Vault | Major | 2 | ModSecurity CRS + Vault Transit / AppRole / DB engine | `algasnie` |
 | Prometheus + Grafana | Major | 2 | scrapes, 5 dashboards, alert rules | `masenche` |
-| Backend microservices | Major | 2 | `users_service`, `chat_service`, `api_service` | `mgarnier`, `jodone` |
-| ORM | Minor | 1 | Drizzle on all three backends | `mgarnier`, `jodone` |
+| Backend microservices | Major | 2 | `users_service`, `chat_service`, `api_service` | `jodone` |
+| Organization system | Major | 2 | `chat_service` | `jodone` |
+| ORM | Minor | 1 | Drizzle on all three backends | `algasnie` |
 | 2FA | Minor | 1 | TOTP (`otplib`) | `algasnie` |
-| File upload | Minor | 1 | chat attachments + avatars, type and size checks | `mgarnier`, `jodone` |
+| File upload | Minor | 1 | chat attachments + avatars, type and size checks | `jodone` |
+| Components | Minor | 1 | color palette + typographie + icon | `frontend` | `mgarnier` , `algasnie` |
 
-**Total: 21 pts** (14 required + bonus capped at 5).
+**Total: 24 pts** (14 required + bonus capped at 5).
 
 We picked modules that fit a chat product (interaction, realtime, files, API) plus the security and ops modules (Vault, WAF, microservices, Grafana).
 
