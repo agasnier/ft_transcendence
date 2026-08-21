@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { IconRenew, IconCheck, IconCopy } from '../../../icons'
 
 function ApiKeySection() {
 	const [statusMsg, setStatusMsg] = useState<string | null>(null)
@@ -166,9 +167,9 @@ function ApiKeySection() {
 							<button
 								type="button"
 								onClick={() => setConfirmRenew(true)}
-								className="icon-button w-12 h-10 text-2xl text-gray-500 leading-none"
+								className="icon-button w-12 h-10 text-gray-500"
 								title="Renouveler">
-								⟲
+								<IconRenew size={18}/>
 							</button>
 						)}
 					</div>
@@ -217,7 +218,7 @@ function ApiKeySection() {
 						onClick={handleCopyKey}
 						className="icon-button w-7 h-7 shrink-0 text-blue-600"
 						title={copied ? 'Copiée' : 'Copier'}>
-						{copied ? '✓' : '⎘'}
+						{copied ? <IconCheck size={16}/> : <IconCopy size={16}/>}
 					</button>
 				</div>
 			)}

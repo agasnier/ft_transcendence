@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { IconEdit, IconDelete } from '../../../icons'
 
 interface AdminUser {
     id: number
@@ -125,16 +126,16 @@ function AdminPanel({ currentUserId }: AdminPanelProps) {
                                             type="button"
                                             onClick={() => startEditing(user)}
                                             title="Modifier"
-                                            className="icon-button text-sm w-8 h-8 hover:bg-gray-200">
-                                            🖋
+                                            className="icon-button w-8 h-8 hover:bg-gray-200">
+                                            <IconEdit size={16} className="icon-hover-grow"/>
                                         </button>
                                         {user.id !== currentUserId && (
                                             <button
                                                 type="button"
                                                 onClick={() => setConfirmDeleteId(user.id === confirmDeleteId ? null : user.id)}
                                                 title="Supprimer"
-                                                className="icon-button text-sm w-8 h-8 hover:bg-red-100">
-                                                🗑️
+                                                className="icon-button w-8 h-8 hover:bg-red-100">
+                                                <IconDelete size={16} className="icon-hover-grow"/>
                                             </button>
                                         )}
                                     </div>

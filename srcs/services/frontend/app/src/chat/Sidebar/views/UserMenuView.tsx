@@ -7,6 +7,7 @@ import TextField from '../../../components/TextField'
 import TextAreaField from '../../../components/TextAreaField'
 import AvatarUploader from '../../../components/AvatarUploader'
 import type { SidebarView } from '../Sidebar'
+import { IconEdit } from '../../../icons'
 
 interface UserMenuViewProps {
     setView: (view: SidebarView) => void
@@ -165,8 +166,8 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                         <button
                             onClick={startEditingPseudo}
                             title="Modifier le pseudo"
-                            className="text-gray-400 hover:text-gray-700 text-sm">
-                            🖋
+                            className="text-gray-400 hover:text-gray-700">
+                            <IconEdit size={14} className="icon-hover-grow"/>
                         </button>
                     </div>
                 )}

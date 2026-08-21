@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { IconAttach } from '../../../icons'
 
 interface MessageInputProps {
     onSendMessage: (content: string) => void
@@ -83,8 +84,8 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
                     onClick={() => fileInputRef.current?.click()}
                     disabled={disabled || isUploading}
                     title="Joindre un fichier"
-                    className="icon-button text-xl w-10 h-10 shrink-0 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
-                    📎
+                    className="icon-button w-10 h-10 shrink-0 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <IconAttach size={22} className="text-gray-500"/>
                 </button>
                 <input
                     ref={fileInputRef}

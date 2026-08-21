@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, Fragment } from 'react'
+import { IconFile, IconEdit, IconDelete } from '../../../icons'
 
 interface FileInfo {
     id: number
@@ -54,7 +55,7 @@ function FileAttachment({ file }: { file: FileInfo }) {
         <a href={fileUrl}
             download={file.originalName}
             className="flex items-center gap-2 bg-white/60 rounded-xl px-3 py-2 border hover:bg-white transition-colors max-w-64">
-            <span className="text-2xl">📄</span>
+            <IconFile size={24} className="text-gray-500 shrink-0"/>
             <span className="flex flex-col min-w-0">
                 <span className="text-sm font-medium truncate">{file.originalName}</span>
                 <span className="text-xs text-gray-500">{formatFileSize(file.size)}</span>
@@ -176,14 +177,14 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                 )}
 
                                 {(canEdit || canDelete) && editingId !== msg.id && (
-                                    <div className="absolute -top-3 right-2 hidden group-hover:flex gap-1 bg-white rounded-lg shadow border px-1">
+                                    <div className="absolute -top-4 right-2 hidden group-hover:flex gap-1 bg-white rounded-lg shadow border px-1">
                                         {canEdit && (
                                             <button
                                                 type="button"
                                                 onClick={() => startEditing(msg)}
                                                 title="Modifier"
-                                                className="text-xs w-6 h-6 hover:bg-gray-100 rounded">
-                                                🖋
+                                                className="flex items-center justify-center w-6 h-6 rounded">
+                                                <IconEdit size={14} className="icon-hover-grow"/>
                                             </button>
                                         )}
                                         {canDelete && (
@@ -191,8 +192,8 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                                 type="button"
                                                 onClick={() => setConfirmDeleteId(msg.id)}
                                                 title="Supprimer"
-                                                className="text-xs w-6 h-6 hover:bg-red-100 rounded">
-                                                🗑️
+                                                className="flex items-center justify-center w-6 h-6 hover:text-red-500 rounded">
+                                                <IconDelete size={14} className="hover:text-red-500 icon-hover-grow"/>
                                             </button>
                                         )}
                                     </div>

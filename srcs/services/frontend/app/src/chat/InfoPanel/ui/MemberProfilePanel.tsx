@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { IconInfo } from '../../../icons'
 import BackButton from "../../Sidebar/ui/BackButton"
 
 interface Member {
@@ -115,7 +116,7 @@ function MemberProfilePanel({channelId, member, userId, isModerator, myRole, onB
 				)}
 				{profile && (
 					<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-2">
-						<h2 className="font-bold">ⓘ bio</h2>
+						<h2 className="font-bold flex items-center gap-1"><IconInfo size={14}/> bio</h2>
 						<p className="whitespace-pre-line wrap-break-word">
 							{profile.bio || <span className="text-gray-300 italic">Aucune bio</span>}
 						</p>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { IconEdit } from '../../../icons'
 
 interface Channel {
 	id: number
@@ -32,23 +33,6 @@ function DescriptionSection({ channel, isModerator, onUpdateDescription }: Descr
 
 	return (
 		<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-3 shadow-sm border border-gray-100">
-			<div className="flex items-center justify-between">
-				<h2 className="font-bold text-gray-700 flex items-center gap-1">
-				</h2>
-				{isModerator && (
-					<button
-						type="button"
-						onClick={() => {
-							setDescInput(channel.description ?? '')
-							setIsEditingDesc(true)
-						}}
-						title="modifier la description"
-						className="text-gray-400 hover:text-gray-700 text-sm">
-						🖋
-					</button>
-				)}
-			</div>
-
 			{isEditingDesc ? (
 				<form onSubmit={handleUpdateDescription} className="mt-1">
 					<input
@@ -62,9 +46,23 @@ function DescriptionSection({ channel, isModerator, onUpdateDescription }: Descr
 					/>
 				</form>
 			) : (
-				<p className="whitespace-pre-wrap wrap-break-word text-gray-600 mt-1">
-					{channel.description || <span className="italic text-gray-400">Aucune description</span>}
-				</p>
+				<div className="flex items-center justify-between gap-2">
+					<p className="whitespace-pre-wrap wrap-break-word text-gray-600 mt-1">
+						{channel.description || <span className="italic text-gray-400">Aucune description</span>}
+					</p>
+					{isModerator && (
+						<button
+							type="button"
+							onClick={() => {
+								setDescInput(channel.description ?? '')
+								setIsEditingDesc(true)
+							}}
+							title="modifier la description"
+							className="text-gray-500">
+							<IconEdit size={20} className="icon-hover-grow"/>
+						</button>
+					)}
+				</div>
 			)}
 		</div>
 	)

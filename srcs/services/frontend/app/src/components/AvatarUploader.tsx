@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { IconEdit, IconDelete } from '../icons'
 
 interface AvatarUploaderProps {
 	avatarUrl: string | null | undefined
@@ -67,8 +68,8 @@ function AvatarUploader({ avatarUrl, fallbackLabel, fallbackBgClass, editable, l
 							onClick={() => fileInputRef.current?.click()}
 							disabled={isUploadingAvatar}
 							title={`Changer ${label}`}
-							className="absolute bottom-0 right-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-gray-100 disabled:opacity-50">
-							{isUploadingAvatar ? '...' : '🖋'}
+							className="absolute bottom-0 right-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md disabled:opacity-50">
+							{isUploadingAvatar ? '...' : <IconEdit size={16} className="icon-hover-grow"/>}
 						</button>
 						{avatarUrl && (
 							<button
@@ -76,8 +77,8 @@ function AvatarUploader({ avatarUrl, fallbackLabel, fallbackBgClass, editable, l
 								onClick={handleDeleteAvatar}
 								disabled={isUploadingAvatar}
 								title={`Supprimer ${label}`}
-								className="absolute bottom-0 left-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-red-100 disabled:opacity-50">
-								🗑️
+								className="absolute bottom-0 left-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md disabled:opacity-50">
+								<IconDelete size={16} className="hover:text-red-500 icon-hover-grow"/>
 							</button>
 						)}
 						<input

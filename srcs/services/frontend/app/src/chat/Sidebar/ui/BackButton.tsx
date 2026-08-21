@@ -1,3 +1,5 @@
+import { IconBack } from '../../../icons'
+
 interface BackButtonProps {
 	onClick: () => void
 }
@@ -7,8 +9,8 @@ function BackButton({ onClick }: BackButtonProps) {
 		<button
 			type="button"
 			onClick={onClick}
-			className="icon-button w-12 h-12 text-2xl text-gray-500 leading-none">
-			❮
+			className="icon-button w-12 h-12 text-gray-500">
+			<IconBack size={30}/>
 		</button>
 	)
 }

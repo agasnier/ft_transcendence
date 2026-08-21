@@ -1,4 +1,5 @@
 import { useOnlineUsers } from '../../../hooks/presence'
+import { IconSend, IconMore } from '../../../icons'
 
 interface Friend {
     id: number
@@ -51,15 +52,15 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
                                     type="button"
                                     onClick={() => onMessagePrivate(friend.id)}
                                     title="Message privé"
-                                    className="icon-button text-black text-lg hover:bg-gray-300 w-7 h-7">
-                                    ➣
+                                    className="icon-button text-black hover:bg-gray-300 w-7 h-7">
+                                    <IconSend size={16}/>
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setConfirmRemoveId((confirmRemoveId === friend.id ? null : friend.id))}
                                     title="Plus"
-                                    className="icon-button text-black text-lg hover:bg-gray-300 w-7 h-7">
-                                    ⋮
+                                    className="icon-button text-black hover:bg-gray-300 w-7 h-7">
+                                    <IconMore size={16}/>
                                 </button>
                                 {confirmRemoveId === friend.id && (
                                     <div

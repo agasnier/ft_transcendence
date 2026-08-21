@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { IconInfo } from '../../../icons'
 
 interface Channel {
 	id: number
@@ -24,7 +25,7 @@ function WriteModeToggle({ channel, onUpdateWriteMode }: WriteModeToggleProps) {
 	return (
 		<div className="flex flex-col w-full text-sm font-normal rounded-2xl bg-white gap-1 p-3 shadow-sm border border-gray-100">
 			<div className="flex items-center justify-between">
-				<span className="font-bold text-gray-700">ⓘ Qui peut écrire</span>
+				<span className="flex items-center font-bold text-gray-700 gap-1"><IconInfo size={14}/> Qui peut écrire</span>
 			</div>
 			<div className="flex items-center justify-between mt-1">
 				<span className="text-gray-600 text-xs">

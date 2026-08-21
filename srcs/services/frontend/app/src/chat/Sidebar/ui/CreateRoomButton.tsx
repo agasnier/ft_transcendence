@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { SidebarView } from '../Sidebar'
 import { useClickOutside } from '../../../hooks/useClickOutside'
+import { IconChannel, IconGroup, IconUser, IconEdit } from '../../../icons'
 
 interface CreateRoomButtonProps {
 		setView: (view: SidebarView) => void
@@ -23,26 +24,26 @@ function CreateRoomButton({setView}: CreateRoomButtonProps) {
 				onClick={() => setConfirmSelection((prev) => (prev === true ? false : true))}
 				title="Créer un salon"
 				className="fab-button">
-				+
+				<IconEdit size={20}/>
 			</button>
 			{confirmSelection === true && (
 				<div
-					className="absolute bottom-full right-0 mb-2 w-55 bg-white rounded-2xl p-1 shadow flex flex-col">
+					className="absolute bottom-full right-0 mb-2 w-55 bg-white rounded-2xl p-2 shadow-2xl flex flex-col">
 						<>
 							<button 
 								onClick={() => setView({ kind: 'createChannel' })}
-								className="text-left px-1 py-2 font-bold rounded-2xl hover:bg-gray-100">
-								📢 Nouveau canal
+								className="flex items-center px-1 py-2 gap-4 text-left font-bold rounded-2xl hover:bg-gray-100">
+								<IconChannel size={18}/> Nouveau canal
 							</button>
 							<button 
 								onClick={() => setView({ kind: 'createGroup' })}
-								className="text-left px-1 py-2 font-bold rounded-2xl hover:bg-gray-100">
-								👥 Nouveau groupe
+								className="flex items-center gap-4 text-left px-1 py-2 font-bold rounded-2xl hover:bg-gray-100">
+								<IconGroup size={18}/> Nouveau groupe
 							</button>
 							<button 
 								onClick={() => setView({ kind: 'createDiscussion' })}
-								className="text-left px-1 py-2 font-bold rounded-2xl hover:bg-gray-100">
-								👤 Nouvelle discussion
+								className="flex items-center gap-4 text-left px-1 py-2 font-bold rounded-2xl hover:bg-gray-100">
+								<IconUser size={18}/> Nouvelle discussion
 							</button>
 						</>
 				</div>

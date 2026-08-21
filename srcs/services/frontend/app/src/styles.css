@@ -33,6 +33,9 @@
 	.icon-button {
 		@apply flex rounded-full items-center justify-center hover:bg-gray-200;
 	}
+	.icon-hover-grow {
+		@apply transition-transform hover:scale-125;
+	}
 	.fab-button {
 		@apply mt-auto self-end bg-primary text-white font-bold w-13 h-13 rounded-full hover:bg-blue-600 flex items-center justify-center text-4xl;
 	}

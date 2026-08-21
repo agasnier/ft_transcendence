@@ -2,6 +2,7 @@ import ConversationsPanel from '../ui/ConversationsPanel'
 import FriendsPanel from '../ui/FriendsPanel'
 import AdminPanel from '../ui/AdminPanel'
 import type { SidebarView } from '../Sidebar'
+import { IconMenu, IconSearch } from '../../../icons'
 
 interface Channel {
 	id: number
@@ -30,18 +31,19 @@ function HomeView({ userId, role, channels, selectedChannelId, onSelectChannel, 
             <div className="flex items-center gap-2">
                 <button
                     onClick={() => setView({ kind: 'userMenu' })}
-                    className="icon-button w-12 h-12  text-4xl"
+                    className="icon-button w-12 h-12"
                     title="Menu utilisateur">
-                    ≡
+                    <IconMenu size={24}/>
                 </button>
                 <div className="relative flex-1 min-w-0 px-1">
+                    <IconSearch size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
                     <input
                         type="text"
-                        placeholder="🔍︎ Rechercher"
+                        placeholder="Rechercher"
                         onFocus={() => setView({ kind: 'search' })}
                         maxLength={255}
                         autoComplete="off"
-                        className="search-input"
+                        className="search-input pl-10"
                     />
                 </div>
             </div>

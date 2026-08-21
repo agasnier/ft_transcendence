@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { IconEdit } from '../../../icons'
 
 interface Channel {
 	id: number
@@ -61,8 +62,8 @@ function ChannelNameSection({channel, isModerator, otherProfile, memberCount, on
 									setIsEditingName(true)
 								}}
 								title="renommer"
-								className="text-gray-400 hover:text-gray-700 text-sm">
-								🖋
+								className="text-gray-500">
+								<IconEdit size={14} className="icon-hover-grow"/>
 							</button>
 						)}
 					</>

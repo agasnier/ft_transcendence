@@ -4,6 +4,7 @@ import BackButton from '../ui/BackButton'
 import AvatarNameCard from '../ui/AvatarNameCard'
 import CreateRoomForm from '../ui/CreateRoomForm'
 import { useFriends } from '../../../hooks/useFriends'
+import { IconNext } from '../../../icons'
 
 interface CreateChannelViewProps {
 	setView: (view: SidebarView) => void
@@ -156,7 +157,7 @@ function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelVi
 					onClick={() => setStep('form')}
 					title="Créer un canal"
 					className="fab-button">
-					➡︎
+					<IconNext size={26}/>
 				</button>
 			</div>
 		</div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { IconCheck, IconCopy } from '../../../icons'
 import QRCode from 'qrcode'
 
 function TwoFactorSection() {
@@ -213,7 +214,7 @@ function TwoFactorSection() {
 						onClick={handleCopySecret}
 						className="icon-button w-7 h-7 shrink-0 text-blue-600"
 						title={copied ? 'Copiée' : 'Copier'}>
-						{copied ? '✓' : '⎘'}
+						{copied ? <IconCheck size={16}/> : <IconCopy size={16}/>}
 					</button>
 				</div>
 			)}
