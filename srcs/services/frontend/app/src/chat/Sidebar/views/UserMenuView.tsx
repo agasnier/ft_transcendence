@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import BackButton from '../ui/BackButton'
 import ApiKeySection from '../ui/ApiKeySection'
 import TwoFactorSection from '../ui/TwoFactorSection'
 import PasswordSection from '../ui/PasswordSection'
 import TextField from '../../../components/TextField'
 import TextAreaField from '../../../components/TextAreaField'
+import AvatarUploader from '../../../components/AvatarUploader'
 import type { SidebarView } from '../Sidebar'
 
 interface UserMenuViewProps {
@@ -29,10 +30,6 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
     const [pseudoDraft, setPseudoDraft] = useState('')
     const [isSavingPseudo, setIsSavingPseudo] = useState(false)
     const [pseudoError, setPseudoError] = useState<string | null>(null)
-
-    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
-    const [avatarError, setAvatarError] = useState<string | null>(null)
-    const fileInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         async function fetchProfile() {
@@ -100,47 +97,22 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
         setIsEditingPseudo(false)
     }
 
-     async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0]
-        if (!file) return
-
-        setAvatarError(null)
-        setIsUploadingAvatar(true)
-
+    async function handleUploadAvatar(file: File): Promise<boolean> {
         const formData = new FormData()
         formData.append('file', file)
-
-        const res = await fetch('/users/profile/avatar', {
-            method: 'POST',
-            body: formData,
-        })
-
+        const res = await fetch('/users/profile/avatar', { method: 'POST', body: formData })
         if (res.ok) {
             const data = await res.json()
             setProfile((prev) => (prev ? { ...prev, avatarUrl: data.avatarUrl } : prev))
-        } else {
-            setAvatarError('Échec de l\'upload')
         }
-
-        setIsUploadingAvatar(false)
-        if (fileInputRef.current) fileInputRef.current.value = ''
+        return res.ok
     }
 
-        async function handleDeleteAvatar() {
-        setAvatarError(null)
-        setIsUploadingAvatar(true)
-
-        const res = await fetch('/users/profile/avatar', {
-            method: 'DELETE',
-        })
-
-        if (res.ok) {
+    async function handleDeleteAvatar(): Promise<boolean> {
+        const res = await fetch('/users/profile/avatar', { method: 'DELETE' })
+        if (res.ok)
             setProfile((prev) => (prev ? { ...prev, avatarUrl: null } : prev))
-        } else {
-            setAvatarError('Échec de la suppression')
-        }
-
-        setIsUploadingAvatar(false)
+        return res.ok
     }
 
     return (
@@ -150,45 +122,15 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                 <h2 className="view-title">Paramètres</h2>
             </div>
             <div className="flex flex-col items-center gap-2 font-semibold text-gray-800 py-2">
-                                <div className="relative">
-                    {profile?.avatarUrl ? (
-                        <img
-                            src={profile.avatarUrl}
-                            alt="avatar"
-                            className="w-30 h-30 rounded-full object-cover"
-                        />
-                    ) : (
-                        <span className="avatar-circle bg-user w-30 h-30 text-6xl">
-                            {pseudo?.charAt(0).toUpperCase() ?? '?'}
-                        </span>
-                    )}
-                    <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploadingAvatar}
-                        title="Changer la photo de profil"
-                        className="absolute bottom-0 right-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-gray-100 disabled:opacity-50">
-                        {isUploadingAvatar ? '...' : '🖋'}
-                    </button>
-                    {profile?.avatarUrl && (
-                        <button
-                            type="button"
-                            onClick={handleDeleteAvatar}
-                            disabled={isUploadingAvatar}
-                            title="Supprimer la photo de profil"
-                            className="absolute bottom-0 left-0 bg-white rounded-full w-8 h-8 flex items-center justify-center shadow-md hover:bg-red-100 disabled:opacity-50">
-                            🗑️
-                        </button>
-                    )}
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={handleAvatarChange}
-                        className="hidden"
-                    />
-                </div>
-                {avatarError && <p className="text-xs text-red-600">{avatarError}</p>}
+                <AvatarUploader
+                    avatarUrl={profile?.avatarUrl}
+                    fallbackLabel={pseudo?.charAt(0).toUpperCase() ?? '?'}
+                    fallbackBgClass='bg-user'
+                    editable={true}
+                    label="la photo de profil"
+                    onUploadAvatar={handleUploadAvatar}
+                    onDeleteAvatar={handleDeleteAvatar}
+                />
 
                 {isEditingPseudo ? (
                     <div className="flex flex-col gap-2 w-full px-4">
@@ -256,7 +198,7 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-1">
-                            <p className="text-sm text-gray-500 text-center bg-gray-50 rounded-xl px-3 py-2 min-h-[2.5rem] w-full font-normal whitespace-pre-line break-words">
+                            <p className="text-sm text-gray-500 text-center bg-gray-50 rounded-xl px-3 py-2 min-h-10 w-full font-normal whitespace-pre-line wrap-break-word">
                                 {profile?.bio || <span className="text-gray-300 italic">Aucune bio</span>}
                             </p>
                             <button

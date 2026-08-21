@@ -4,12 +4,12 @@ import { Route } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Sidebar from './Sidebar/Sidebar'
 import ChatWindow from './ChatWindow/ChatWindow'
+import InfoPanel from './InfoPanel/InfoPanel'
 import bg from '../assets/site.webp'
 import { useChannel } from '../hooks/useChannel'
 import { useMessage } from '../hooks/useMessage'
 import { useChatSocket } from '../hooks/useChatSocket'
 import { OnlineUsersProvider } from '../hooks/presence'
-import InfoPanel from './ChatWindow/InfoPanel'
 
 interface ChatProps {
 	onLogout: () => void

@@ -51,7 +51,7 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
     }
 
     if (type === 'channel') {
-      const message = await createMessage(channel.id, request.user!.id, 'Le canal a été créé', 'system')
+      const message = await createMessage(channel.id, request.user!.id, ' a créé le canal', 'system')
       await markChannelRead(channel.id, request.user!.id)
       wsMessageCreated(message)
     }

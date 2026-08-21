@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import MessageInput from './MessageInput'
-import MessagesList from './MessagesList'
-import ChatHeader from './ChatHeader'
+import MessageInput from './ui/MessageInput'
+import MessagesList from './ui/MessagesList'
+import ChatHeader from './ui/ChatHeader'
 
 interface FileInfo {
     id: number

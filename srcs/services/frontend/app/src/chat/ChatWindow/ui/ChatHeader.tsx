@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useOnlineUsers } from '../../hooks/presence'
+import { useOnlineUsers } from '../../../hooks/presence'
 
 interface Channel {
 	id: number
