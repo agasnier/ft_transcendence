@@ -94,6 +94,7 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
                     onChange={handleFileChange}
                     className="hidden"
                 />
+                <div className="flex-1 min-w-0 overflow-hidden border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-blue-500 has-disabled:bg-gray-100">
                 <textarea
                     ref={textareaRef}
                     rows={1}
@@ -102,8 +103,9 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
                     onKeyDown={handleKeyDown}
                     placeholder={disabled ? "Seuls les modérateurs peuvent écrire ici" : "Écris un message..."}
                     disabled={disabled}
-                    className="flex-1 min-w-0 resize-none max-h-40 overflow-y-auto border border-gray-300 rounded-xl px-4 py-2 text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full block resize-none max-h-40 overflow-y-auto px-4 py-2 text-sm leading-5 focus:outline-none disabled:cursor-not-allowed"
                 />
+                </div>
                 <button
                     type="submit"
                     disabled={!inputText.trim() || disabled}
