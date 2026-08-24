@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { getAllUsers, getUserById, getUsersByIds, createUser, updateUser, deleteUser, listUsers, updateUserProfile, getUserProfile, updateAvatar, getPublicUserProfile, deleteAvatar } from './users.service.js'
+import { deleteRefreshTokensByUser } from '../auth/auth.service.js'
 import { pipeline } from 'stream/promises'
 import { createWriteStream } from 'fs'
 import { unlink } from 'fs/promises'
@@ -8,6 +9,7 @@ import { randomUUID } from 'crypto'
 import { eq } from 'drizzle-orm'
 import { db } from '../../db/index.js'
 import { users } from '../../db/schema.js'
+import { env } from '../../config/env.js'
 
 
 export async function listUsersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -125,11 +127,19 @@ export async function deleteUserController(
   request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
-    const deleted = await deleteUser(Number(id))
+    const userId = Number(id)
+    const deleted = await deleteUser(userId)
     if (!deleted) {
       await reply.status(404).send({ message: 'User not found' })
       return
     }
+
+    // Remove all refresh tokens : no more reconnection from /auth/session
+    await deleteRefreshTokensByUser(userId)
+
+    // Cut all active websocket connection (chat_service)
+    fetch(`${env.chatServiceUrl}/chat/internal/force-disconnect/${userId}`, { method: 'POST' }).catch(() => {})
+
     await reply.status(200).send({ message: 'User deleted' })
   } catch (err) {
     request.log.error(err)

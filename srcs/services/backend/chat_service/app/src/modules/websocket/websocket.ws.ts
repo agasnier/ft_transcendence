@@ -76,6 +76,16 @@ function wsSendToUser(userId: number, data: object): void {
 	}
 }
 
+export function wsForceDisconnect(userId: number): void {
+  const userSockets = socketsByUser.get(userId)
+  if (!userSockets) return
+
+  for (const socket of userSockets) {
+    wsSendToSocket(socket, { type: 'FORCE_LOGOUT' })
+    socket.close()
+  }
+}
+
 // messages
 export function wsPresenceSnapshot(socket: WebSocket): void {
 	const userIds: number[] = []

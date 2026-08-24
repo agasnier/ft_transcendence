@@ -80,6 +80,9 @@ export function useChatSocket(
 				return next
 			})
 		}
+		if (message.type === 'FORCE_LOGOUT') {
+			window.dispatchEvent(new Event('auth-lost'))
+		}		
 	})
 
 	return onlineUserIds
