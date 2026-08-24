@@ -269,7 +269,16 @@ export async function updateWriteModeController(request: FastifyRequest, reply: 
   try {
     const { id } = request.params as { id: string }
     const { writeMode } = request.body as { writeMode: 'everyone' | 'moderators_only' }
-    const channel = await updateWriteMode(Number(id), writeMode)
+    const channelId = Number(id)
+    const channel = await updateWriteMode(channelId, writeMode)
+
+    // Notify users that write mode changed
+    if (channel) {
+      const members = await listChannelMembers(channelId)
+      for (const { userId } of members)
+        wsChannelUpdatedTo(userId, channel)
+    }
+
     await reply.send(channel)
   } catch (err) {
     request.log.error(err)
