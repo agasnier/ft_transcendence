@@ -3,7 +3,7 @@ const userProperties = {
   id: { type: 'integer' },
   pseudo: { type: 'string' },
   mail: { type: 'string' },
-  role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
+  role: { type: 'string', enum: ['admin', 'user'] },
 }
 
 export const listUsersBatchSchema = {
@@ -23,7 +23,7 @@ export const listUsersBatchSchema = {
           id: { type: 'integer' },
           pseudo: { type: 'string' },
           avatarUrl: { type: ['string', 'null'] },
-          role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
+          role: { type: 'string', enum: ['admin', 'user'] },
         },
       },
     },
@@ -101,7 +101,7 @@ export const updateUserSchema = {
       mail: { type: 'string', format: 'email', maxLength: 255 },
       pseudo: { type: 'string', minLength: 1, maxLength: 255 },
       password: { type: 'string', minLength: 8, maxLength: 255 },
-      role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
+      role: { type: 'string', enum: ['admin', 'user'] },
     },
   },
   response: {
@@ -154,7 +154,7 @@ export const getUserProfileSchema = {
         displayName: { type: ['string', 'null'] },
         avatarUrl: { type: ['string', 'null'] },
         bio: { type: ['string', 'null'] },
-        role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
+        role: { type: 'string', enum: ['admin', 'user'] },
       },
     },
   },
@@ -199,7 +199,7 @@ export const getPublicUserProfileSchema = {
         avatarUrl: { type: ['string', 'null'] },
         bio: { type: ['string', 'null'] },
         isOnline: { type: 'boolean' },
-        role: { type: 'string', enum: ['admin', 'moderator', 'user'] },
+        role: { type: 'string', enum: ['admin', 'user'] },
       },
     },
   },

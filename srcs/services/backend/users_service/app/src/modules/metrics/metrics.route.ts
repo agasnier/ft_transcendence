@@ -28,11 +28,6 @@ const usersAdminsTotal = new client.Gauge({
   help: 'Total number of admin users',
 })
 
-const usersModeratorsTotal = new client.Gauge({
-  name: 'users_moderators_total',
-  help: 'Total number of moderator users',
-})
-
 const users2faEnabledTotal = new client.Gauge({
   name: 'users_2fa_enabled_total',
   help: 'Total number of users with 2FA enabled',
@@ -90,12 +85,6 @@ export async function metricsRoutes(app: FastifyInstance): Promise<void> {
         .from(users)
         .where(eq(users.role, 'admin'))
       usersAdminsTotal.set(adminsRes[0]?.value ?? 0)
-
-      const moderatorsRes = await db
-        .select({ value: count() })
-        .from(users)
-        .where(eq(users.role, 'moderator'))
-      usersModeratorsTotal.set(moderatorsRes[0]?.value ?? 0)
 
       const twoFaRes = await db
         .select({ value: count() })

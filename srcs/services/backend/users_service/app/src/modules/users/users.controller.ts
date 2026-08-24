@@ -22,7 +22,7 @@ export async function listUsersController(request: FastifyRequest, reply: Fastif
       columns: { role: true },
     })
 
-    const list = await listUsers(dbUser?.role as 'admin' | 'moderator' | 'user')
+    const list = await listUsers(dbUser?.role as 'admin' | 'user')
     await reply.send(list)
   }
   catch (err) {
@@ -94,7 +94,7 @@ export async function updateUserController(request: FastifyRequest, reply: Fasti
     }
 
     const { id } = request.params as { id: string }
-    const body = request.body as { mail?: string; pseudo?: string; password?: string; role?: 'admin' | 'moderator' | 'user' }
+    const body = request.body as { mail?: string; pseudo?: string; password?: string; role?: 'admin' | 'user' }
   
     // Only admin can change role.
     if (body.role) {

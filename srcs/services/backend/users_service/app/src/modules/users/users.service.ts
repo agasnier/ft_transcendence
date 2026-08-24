@@ -58,7 +58,7 @@ export async function createUser(mail: string, pseudo: string, password: string)
   return await getUserById(result.insertId)
 }
 
-type UserRole = 'admin' | 'moderator' | 'user'
+type UserRole = 'admin' | 'user'
 
 export async function changePassword(userId: number, currentPassword: string, newPassword: string): Promise<'ok' | 'not_found' | 'invalid'> {
   const rows = await db
@@ -100,8 +100,8 @@ export async function updateUser(id: number, data: { mail?: string; pseudo?: str
   return await getUserById(id)
 }
 
-export async function listUsers(requesterRole: 'admin' | 'moderator' | 'user') {
-  if (requesterRole === 'admin' || requesterRole === 'moderator') {
+export async function listUsers(requesterRole: 'admin' | 'user') {
+  if (requesterRole === 'admin') {
     return db.select({
       id: users.id,
       pseudo: users.pseudo,
