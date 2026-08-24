@@ -60,6 +60,14 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 		return () => document.removeEventListener('keydown', handleKeyDown)
 	}, [showInfoPanel])
 
+	// If channel displayed disappear (deleted, or removed by moderator/admin), unselect it
+	useEffect(() => {
+		if (selectedChannelId !== null && !channels.some((c) => c.id === selectedChannelId)) {
+			setSelectedChannelId(null)
+			setShowInfoPanel(false)
+		}
+	}, [channels, selectedChannelId])
+
 	return (
 		<OnlineUsersProvider value={onlineUserIds}>
 		<BrowserRouter>

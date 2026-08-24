@@ -186,6 +186,8 @@ export async function updateChannelController(request: FastifyRequest, reply: Fa
 export async function removeChannelMemberController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id, userId } = request.params as { id: string; userId: string }
+    const channelId = Number(id)
+    const targetUserId = Number(userId)
 
     if (request.user!.role !== 'admin') {
       const targetRes = await fetch(`${env.usersServiceUrl}/users/${userId}/profile`)
@@ -198,7 +200,11 @@ export async function removeChannelMemberController(request: FastifyRequest, rep
       }
     }
 
-    await removeChannelMember(Number(id), Number(userId))
+    await removeChannelMember(channelId, targetUserId)
+
+    // Notify the target to be removed instantaneously
+    wsChannelDeletedTo(targetUserId, channelId)
+
     await reply.send({ message: 'Member removed' })
   } catch (err) {
     request.log.error(err)
