@@ -18,7 +18,7 @@ function AddMembersForm({ channelId, members, onAddMembers, onAdded }: AddMember
 	const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set())
 	const [pseudoInput, setPseudoInput] = useState('')
 	const [searchError, setSearchError] = useState<string | null>(null)
-	const [extraUsers, setExtraUsers] = useState<{ id: number; pseudo: string }[]>([])
+	const [extraUsers, setExtraUsers] = useState<{ id: number; pseudo: string; avatarUrl: string | null }[]>([])
 	const existingMemberIds = new Set(members?.map((m) => m.userId) ?? [])
 	const availableFriends = friends.filter((f) => !existingMemberIds.has(f.id))
 	const selectableUsers = [
@@ -45,7 +45,7 @@ function AddMembersForm({ channelId, members, onAddMembers, onAdded }: AddMember
 			return
 		}
 
-		const allUsers: { id: number; pseudo: string }[] = await res.json()
+		const allUsers: { id: number; pseudo: string; avatarUrl: string | null }[] = await res.json()
 		const target = allUsers.find((u) => u.pseudo.toLowerCase() === pseudo.toLowerCase())
 		if (!target) {
 			setSearchError('Utilisateur introuvable')
@@ -113,6 +113,7 @@ function AddMembersForm({ channelId, members, onAddMembers, onAdded }: AddMember
 								key={`user-${user.id}`}
 								name={user.pseudo}
 								variant="user"
+								avatarUrl={user.avatarUrl}
 								selected={selectedMemberIds.has(user.id)}
 								onClick={() => toggleMemberSelect(user.id)}
 							/>

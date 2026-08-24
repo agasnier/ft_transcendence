@@ -15,6 +15,7 @@ interface CreateGroupViewProps {
 interface SelectedUser {
 	id: number
 	pseudo: string
+	avatarUrl?: string | null
 }
 
 function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewProps) {
@@ -48,7 +49,7 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 			return
 		}
 
-		const allUsers: { id: number; pseudo: string }[] = await res.json()
+		const allUsers: { id: number; pseudo: string; avatarUrl: string | null }[] = await res.json()
 		const target = allUsers.find((u) => u.pseudo === pseudo)
 		if (!target) {
 			setSearchError('Utilisateur introuvable')
@@ -146,6 +147,7 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 						key={`friend-${friend.id}`}
 						name={friend.pseudo}
 						variant="user"
+						avatarUrl={friend.avatarUrl}
 						selected={selectedUsers.some((u) => u.id === friend.id)}
 						onClick={() => toggleFriend(friend)}
 					/>

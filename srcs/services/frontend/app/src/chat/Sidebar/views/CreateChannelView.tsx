@@ -15,6 +15,7 @@ interface CreateChannelViewProps {
 interface SelectedUser {
 	id: number
 	pseudo: string
+	avatarUrl?: string | null
 }
 
 function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelViewProps) {
@@ -48,7 +49,7 @@ function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelVi
 			return
 		}
 
-		const allUsers: { id: number; pseudo: string }[] = await res.json()
+		const allUsers: { id: number; pseudo: string; avatarUrl: string | null }[] = await res.json()
 		const target = allUsers.find((u) => u.pseudo.toLowerCase() === pseudo.toLowerCase())
 		if (!target) {
 			setSearchError('Utilisateur introuvable')
@@ -146,6 +147,7 @@ function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelVi
 						key={`friend-${friend.id}`}
 						name={friend.pseudo}
 						variant="user"
+						avatarUrl={friend.avatarUrl}
 						selected={selectedUsers.some((u) => u.id === friend.id)}
 						onClick={() => toggleFriend(friend)}
 					/>

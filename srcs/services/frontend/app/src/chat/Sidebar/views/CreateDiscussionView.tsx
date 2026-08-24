@@ -13,6 +13,7 @@ interface CreateDiscussionViewProps {
 interface UserRow {
 	id: number
 	pseudo: string
+	avatarUrl?: string | null
 }
 
 function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscussionViewProps) {
@@ -54,6 +55,7 @@ function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscus
 						key={`friend-${friend.id}`}
 						name={friend.pseudo}
 						variant="user"
+						avatarUrl={friend.avatarUrl}
 						onClick={() => handleSelect(friend)}
 					/>
 				))}
