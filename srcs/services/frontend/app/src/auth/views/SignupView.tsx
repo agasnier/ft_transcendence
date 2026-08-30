@@ -2,6 +2,7 @@ import { useState } from 'react'
 import TextField from '../../components/TextField'
 import AuthCard from '../ui/AuthCard'
 import type { AuthView } from '../Auth'
+import { MIN_PASSWORD_LENGTH } from '../../limits'
 
 interface SignupViewProps {
 	setView: (view: AuthView) => void
@@ -82,7 +83,7 @@ function SignupView({ setView, onSignupSuccess }: SignupViewProps) {
 
 			<TextField
 				id="signup-password"
-				label="Mot de passe: 8 caractères min."
+				label={`Mot de passe: ${MIN_PASSWORD_LENGTH} caractères min.`}
 				type="password"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}

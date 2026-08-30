@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { IconEdit } from '../../../icons'
+import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
 interface Channel {
 	id: number
@@ -41,7 +42,7 @@ function DescriptionSection({ channel, isModerator, onUpdateDescription }: Descr
 						onChange={(e) => setDescInput(e.target.value)}
 						onBlur={() => setIsEditingDesc(false)}
 						placeholder="Ajouter une description..."
-						maxLength={255}
+						maxLength={MAX_SHORT_TEXT_LENGTH}
 						className="w-full text-gray-800 border-b border-blue-400 focus:outline-none bg-transparent text-sm py-1"
 					/>
 				</form>

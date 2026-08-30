@@ -3,6 +3,7 @@ import FriendsPanel from '../ui/FriendsPanel'
 import AdminPanel from '../ui/AdminPanel'
 import type { SidebarView } from '../Sidebar'
 import { IconMenu, IconSearch } from '../../../icons'
+import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
 interface Channel {
 	id: number
@@ -41,7 +42,7 @@ function HomeView({ userId, role, channels, selectedChannelId, onSelectChannel, 
                         type="text"
                         placeholder="Rechercher"
                         onFocus={() => setView({ kind: 'search' })}
-                        maxLength={255}
+                        maxLength={MAX_SHORT_TEXT_LENGTH}
                         autoComplete="off"
                         className="search-input pl-10"
                     />

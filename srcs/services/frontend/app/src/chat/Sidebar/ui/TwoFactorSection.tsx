@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IconCheck, IconCopy } from '../../../icons'
 import QRCode from 'qrcode'
+import { TWO_FACTOR_CODE_LENGTH } from '../../../limits'
 
 function TwoFactorSection() {
 	const [statusMsg, setStatusMsg] = useState<string | null>(null)
@@ -83,7 +84,7 @@ function TwoFactorSection() {
 	}
 
 	async function handleDisable() {
-		if (isDisabling || disableCode.length !== 6) return
+		if (isDisabling || disableCode.length !== TWO_FACTOR_CODE_LENGTH) return
 		setIsDisabling(true)
 		try {
 			const res = await fetch('/auth/2fa/disable', {
@@ -176,7 +177,7 @@ function TwoFactorSection() {
 						type="text"
 						inputMode="numeric"
 						autoComplete="one-time-code"
-						maxLength={6}
+						maxLength={TWO_FACTOR_CODE_LENGTH}
 						value={disableCode}
 						onChange={(e) => setDisableCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
 						placeholder="Code à 6 chiffres"
@@ -186,7 +187,7 @@ function TwoFactorSection() {
 					<div className="flex justify-center gap-2">
 						<button
 							type="submit"
-							disabled={isDisabling || disableCode.length !== 6}
+							disabled={isDisabling || disableCode.length !== TWO_FACTOR_CODE_LENGTH}
 							className="text-sm px-3 py-1 rounded-lg bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50">
 							{isDisabling ? '...' : 'Confirmer'}
 						</button>

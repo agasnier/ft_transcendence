@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import TextField from '../../../components/TextField'
+import { MIN_PASSWORD_LENGTH } from '../../../limits'
 
 function PasswordSection() {
 	const [isEditing, setIsEditing] = useState(false)
@@ -26,8 +27,8 @@ function PasswordSection() {
 		event.preventDefault()
 		if (isSaving) return
 
-		if (newPassword.length < 8) {
-			setError('Le mot de passe doit contenir au moins 8 caractères')
+		if (newPassword.length < MIN_PASSWORD_LENGTH) {
+			setError(`Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères`)
 			return
 		}
 		if (newPassword !== confirmPassword) {

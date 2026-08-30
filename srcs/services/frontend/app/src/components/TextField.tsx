@@ -1,3 +1,5 @@
+import { MAX_SHORT_TEXT_LENGTH } from '../limits'
+
 interface TextFieldProps {
 	id: string
 	label: string
@@ -21,7 +23,7 @@ function TextField({ id, label, type, value, onChange, required, autoFocus, auto
 				required={required}
 				autoFocus={autoFocus}
 				autoComplete={autoComplete}
-				maxLength={255}
+				maxLength={MAX_SHORT_TEXT_LENGTH}
 				className="peer w-full border border-gray-300 rounded-md px-3 pt-5 pb-1 hover:border-blue-500 focus:outline-none focus:ring-2 ring-offset-2 focus:ring-blue-500"
 			/>
 			<label

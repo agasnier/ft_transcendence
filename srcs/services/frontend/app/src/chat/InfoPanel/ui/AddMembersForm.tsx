@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import AvatarNameCard from '../../Sidebar/ui/AvatarNameCard'
 import { useFriends } from '../../../hooks/useFriends'
+import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
 interface Member {
 	userId: number
@@ -91,7 +92,7 @@ function AddMembersForm({ channelId, members, onAddMembers, onAdded }: AddMember
 						}
 					}}
 					placeholder="Rechercher par pseudo"
-					maxLength={255}
+					maxLength={MAX_SHORT_TEXT_LENGTH}
 					className="min-w-0 flex-1 border border-gray-300 rounded-2xl px-2.5 py-1 text-xs hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
 				/>
 				<button

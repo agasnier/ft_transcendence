@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { IconAttach } from '../../../icons'
+import { MAX_MESSAGE_LENGTH, MAX_CHAT_FILE_SIZE } from '../../../limits'
 
 interface MessageInputProps {
     onSendMessage: (content: string) => void
     onSendFile: (file: File, onProgress?: (percent: number) => void) => Promise<boolean>
     disabled?: boolean
 }
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024
 
 function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) {
     const [inputText, setInputText] = useState('')
@@ -16,6 +15,7 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
     const [fileError, setFileError] = useState<string | null>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const isTooLong = inputText.length > MAX_MESSAGE_LENGTH
 
     useEffect(() => {
         const el = textareaRef.current
@@ -25,7 +25,7 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
     }, [inputText])
 
     function handleSend() {
-        if (!inputText.trim() || disabled) return
+        if (!inputText.trim() || disabled || isTooLong) return
 
         onSendMessage(inputText.trim())
         setInputText('')
@@ -49,7 +49,7 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
 
         setFileError(null)
 
-        if (file.size > MAX_FILE_SIZE) {
+        if (file.size > MAX_CHAT_FILE_SIZE) {
             setFileError('Fichier trop volumineux (max 10 Mo)')
             if (fileInputRef.current) fileInputRef.current.value = ''
             return
@@ -103,16 +103,23 @@ function MessageInput({onSendMessage, onSendFile, disabled}: MessageInputProps) 
                     onKeyDown={handleKeyDown}
                     placeholder={disabled ? "Seuls les modérateurs peuvent écrire ici" : "Écris un message..."}
                     disabled={disabled}
+                    maxLength={MAX_MESSAGE_LENGTH * 2}
                     className="w-full block resize-none max-h-40 overflow-y-auto px-4 py-2 text-sm leading-5 focus:outline-none disabled:cursor-not-allowed"
                 />
                 </div>
                 <button
                     type="submit"
-                    disabled={!inputText.trim() || disabled}
+                    disabled={!inputText.trim() || disabled || isTooLong}
                     className="btn-primary px-5 rounded-xl text-sm disabled:bg-blue-300 disabled:scale-100 disabled:cursor-not-allowed">
                     Envoyer
                 </button>
+                
             </div>
+            {isTooLong && (
+                <p className="text-xs text-red-600 px-12">
+                    Message trop long ({inputText.length}/{MAX_MESSAGE_LENGTH} caractères)
+                </p>
+            )}
         </form>
     )
 }

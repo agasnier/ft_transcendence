@@ -3,6 +3,7 @@ import ConversationsPanel from '../ui/ConversationsPanel'
 import BackButton from '../ui/BackButton'
 import type { SidebarView } from '../Sidebar'
 import { IconSearch, IconClose } from '../../../icons'
+import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
 interface Channel {
 	id: number
@@ -43,7 +44,7 @@ function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, se
 						onChange={(e) => setSearchQuery(e.target.value)}
 						placeholder="Rechercher"
 						autoFocus
-						maxLength={255}
+						maxLength={MAX_SHORT_TEXT_LENGTH}
 						autoComplete="off"
 						className="search-input pl-10 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white"
 					/>

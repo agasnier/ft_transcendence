@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { IconEdit, IconDelete } from '../../../icons'
+import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
 interface AdminUser {
     id: number
@@ -83,7 +84,7 @@ function AdminPanel({ currentUserId }: AdminPanelProps) {
                                     <input
                                         value={pseudoDraft}
                                         onChange={(e) => setPseudoDraft(e.target.value)}
-                                        maxLength={255}
+                                        maxLength={MAX_SHORT_TEXT_LENGTH}
                                         className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
                                     />
                                     {user.id !== currentUserId && (

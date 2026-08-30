@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { IconEdit } from '../../../icons'
+import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
 interface Channel {
 	id: number
@@ -47,7 +48,7 @@ function ChannelNameSection({channel, isModerator, otherProfile, memberCount, on
 							value={nameInput}
 							onChange={(e) => setNameInput(e.target.value)}
 							onBlur={() => setIsEditingName(false)}
-							maxLength={255}
+							maxLength={MAX_SHORT_TEXT_LENGTH}
 							className="font-bold text-gray-800 text-lg border-b border-blue-400 focus:outline-none bg-transparent text-center"
 						/>
 					</form>

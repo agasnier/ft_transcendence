@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, Fragment } from 'react'
 import { IconFile, IconEdit, IconDelete } from '../../../icons'
 import { useClickOutside } from '../../../hooks/useClickOutside'
+import { MAX_MESSAGE_LENGTH } from '../../../limits'
 
 interface FileInfo {
     id: number
@@ -157,7 +158,7 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                         <textarea
                                             value={editDraft}
                                             onChange={(e) => setEditDraft(e.target.value)}
-                                            maxLength={2000}
+                                            maxLength={MAX_MESSAGE_LENGTH}
                                             rows={2}
                                             className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1 resize-none"
                                         />

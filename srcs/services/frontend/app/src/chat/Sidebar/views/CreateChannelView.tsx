@@ -5,6 +5,7 @@ import AvatarNameCard from '../ui/AvatarNameCard'
 import CreateRoomForm from '../ui/CreateRoomForm'
 import { useFriends } from '../../../hooks/useFriends'
 import { IconNext } from '../../../icons'
+import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
 interface CreateChannelViewProps {
 	setView: (view: SidebarView) => void
@@ -114,7 +115,7 @@ function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelVi
 						}
 					}}
 					placeholder="Rechercher par pseudo"
-					maxLength={255}
+					maxLength={MAX_SHORT_TEXT_LENGTH}
 					className="peer min-w-0 flex-1 border border-gray-300 rounded-3xl px-3 py-2 hover:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white"
 				/>
 				<button
