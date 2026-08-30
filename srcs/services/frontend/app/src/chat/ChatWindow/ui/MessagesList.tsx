@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, Fragment } from 'react'
 import { IconFile, IconEdit, IconDelete } from '../../../icons'
+import { useClickOutside } from '../../../hooks/useClickOutside'
 
 interface FileInfo {
     id: number
@@ -70,6 +71,11 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
     const [editDraft, setEditDraft] = useState('')
     const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
+    useClickOutside(editingId !== null || confirmDeleteId !== null, '[data-message-popover]', () => {
+        setEditingId(null)
+        setConfirmDeleteId(null)
+    })
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
@@ -134,7 +140,7 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                         </div>
                     ) : (
                         <div key={msg.id} className={`group flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`flex flex-col min-w-0 p-3 rounded-2xl max-w-md shadow-sm relative
+                            <div data-message-popover className={`flex flex-col min-w-0 p-3 rounded-2xl max-w-md shadow-sm relative
                                 ${isOwn
                                 ? 'items-end bg-blue-200'
                                 : 'items-start bg-white border-blue-100'}
@@ -200,7 +206,7 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                 )}
 
                                 {confirmDeleteId === msg.id && (
-                                    <div className="absolute top-full right-0 mt-1 z-10 bg-white border rounded-xl shadow-lg p-2 flex flex-col gap-2 w-48">
+                                    <div className="absolute -top-4 right-0 z-20 bg-white border rounded-xl shadow-lg p-2 flex flex-col gap-2 w-48">
                                         <span className="text-xs text-gray-600">Supprimer ce message ?</span>
                                         <div className="flex gap-2 justify-end">
                                             <button

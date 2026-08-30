@@ -9,15 +9,17 @@ export function useClickOutside(active: boolean, selector: string, onClose: () =
 				onClose()
 		}
 		function handleKeyDown(event: KeyboardEvent) {
-			if (event.key === 'Escape')
+			if (event.key === 'Escape') {
+				event.stopPropagation()
 				onClose()
+			}
 		}
 
 		document.addEventListener('mousedown', handleClickOutside)
-		document.addEventListener('keydown', handleKeyDown)
+		document.addEventListener('keydown', handleKeyDown, true)
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside)
-			document.removeEventListener('keydown', handleKeyDown)
+			document.removeEventListener('keydown', handleKeyDown, true)
 		}
 	}, [active, selector, onClose])
 }
