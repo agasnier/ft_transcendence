@@ -9,7 +9,7 @@ import bg from '../assets/site.webp'
 import { useChannel } from '../hooks/useChannel'
 import { useMessage } from '../hooks/useMessage'
 import { useChatSocket } from '../hooks/useChatSocket'
-import { OnlineUsersProvider } from '../hooks/presence'
+import { OnlineUsersProvider, UserAvatarsProvider } from '../hooks/presence'
 
 interface ChatProps {
 	onLogout: () => void
@@ -26,7 +26,7 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 	const { messages, createMessage, uploadFile, addMessage, editMessage, deleteMessage, updateMessage, removeMessage } = useMessage(selectedChannelId)
 	const [showInfoPanel, setShowInfoPanel] = useState(false)
 
-	const onlineUserIds = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId, updateMessage, removeMessage)
+	const { onlineUserIds, userAvatars } = useChatSocket(addChannel, removeChannel, updateChannel, addMessage, setChannelUnread, userId, selectedChannelId, updateMessage, removeMessage)
 
 	function handleSelectChannel(id: number) {
 		setSelectedChannelId(id)
@@ -69,6 +69,7 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 	}, [channels, selectedChannelId])
 
 	return (
+		<UserAvatarsProvider value={userAvatars}>
 		<OnlineUsersProvider value={onlineUserIds}>
 		<BrowserRouter>
 			<Routes>
@@ -128,6 +129,7 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 			</Routes>
 		</BrowserRouter>
 		</OnlineUsersProvider>
+		</UserAvatarsProvider>
 	)
 }
 

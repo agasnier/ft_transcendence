@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useOnlineUsers } from '../../../hooks/presence'
+import { useOnlineUsers, useUserAvatars } from '../../../hooks/presence'
 
 interface Channel {
 	id: number
@@ -7,18 +7,18 @@ interface Channel {
 	description: string | null
 	type: 'channel' | 'group' | 'discussion'
 	avatarUrl?: string | null
+	otherUserId?: number
 }
 
 interface ChatHeaderProps {
 	channel: Channel
-	UserId: number | null
 	onOpenInfoPanel: () => void
 }
 
-function ChatHeader({channel, UserId, onOpenInfoPanel}: ChatHeaderProps) {
+function ChatHeader({channel, onOpenInfoPanel}: ChatHeaderProps) {
 	const [memberCount, setMemberCount] = useState<number | null>(null)
-	const [otherUserId, setOtherUserId] = useState<number | null>(null)
 	const onlineUserIds = useOnlineUsers()
+	const userAvatars = useUserAvatars()
 
 	useEffect(() => {
 		if (channel.type === 'discussion')
@@ -32,46 +32,20 @@ function ChatHeader({channel, UserId, onOpenInfoPanel}: ChatHeaderProps) {
 		loadCount()
 	}, [channel.id, channel.type])
 
-	useEffect(() => {
-		if (channel.type !== 'discussion') {
-			setOtherUserId(null)
-			return
-		}
-
-		let cancelled = false
-		async function resolveOther() {
-			const membersRes = await fetch(`/chat/channels/${channel.id}/members`)
-			if (membersRes.ok) {
-				const members = await membersRes.json() as { userId: number }[]
-				const other = members.find((m) => m.userId !== UserId)
-				if (other) {
-					if (!cancelled)
-						setOtherUserId(other.userId)
-					return
-				}
-			}
-
-			const friendsRes = await fetch('/friends')
-			if (!friendsRes.ok)
-				return
-			const friends = await friendsRes.json() as { id: number; pseudo: string }[]
-			const match = friends.find((f) => f.pseudo === channel.name)
-			if (!cancelled)
-				setOtherUserId(match?.id ?? null)
-		}
-		resolveOther()
-		return () => { cancelled = true }
-	}, [channel.id, channel.type, channel.name, UserId])
-
+	const otherUserId = channel.type === 'discussion' ? (channel.otherUserId ?? null) : null
 	const isOnline = otherUserId !== null ? onlineUserIds.has(otherUserId) : null
+
+	const displayAvatar = otherUserId !== null && userAvatars.has(otherUserId)
+		? userAvatars.get(otherUserId)
+		: channel.avatarUrl
 
 	return (
 		<div
 			onClick={onOpenInfoPanel}
 			className="flex p-1 border-b bg-white items-center gap-4 min-w-0 cursor-pointer">
-			{channel.avatarUrl ? (
+			{displayAvatar ? (
 				<img
-					src={channel.avatarUrl}
+					src={displayAvatar}
 					alt="logo"
 					className="w-10 h-10 rounded-full object-cover shrink-0"
 				/>

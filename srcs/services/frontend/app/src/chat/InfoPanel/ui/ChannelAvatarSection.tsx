@@ -1,10 +1,12 @@
 import AvatarUploader from "../../../components/AvatarUploader"
+import { useUserAvatars } from "../../../hooks/presence"
 
 interface Channel {
 	id: number
 	name: string | null
 	type: 'channel' | 'group' | 'discussion'
 	avatarUrl?: string | null
+	otherUserId?: number
 }
 
 interface PublicProfile {
@@ -39,7 +41,16 @@ function ChannelAvatarSection({channel, isModerator, otherProfile, onUploadAvata
 		return res.ok
 	}
 
-	const avatarUrl = channel.type === 'discussion' ? (otherProfile?.avatarUrl ?? channel.avatarUrl) : channel.avatarUrl
+	const userAvatars = useUserAvatars()
+
+	const liveAvatar = channel.otherUserId !== undefined &&
+						userAvatars.has(channel.otherUserId)
+						? userAvatars.get(channel.otherUserId)
+						: undefined
+	const avatarUrl = channel.type === 'discussion'
+						? (liveAvatar !== undefined ? liveAvatar : (otherProfile?.avatarUrl ?? channel.avatarUrl))
+						: channel.avatarUrl
+
 	return (
 		<AvatarUploader
 			avatarUrl={avatarUrl}

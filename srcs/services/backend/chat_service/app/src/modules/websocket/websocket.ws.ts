@@ -102,6 +102,10 @@ export function wsUserOffline(userId: number): void {
 	wsSendAll({ type: 'USER_OFFLINE', payload: { userId } })
 }
 
+export function wsUserAvatarChanged(userId: number, avatarUrl: string | null): void {
+	wsSendAll({type: 'USER_AVATAR_CHANGED', payload: { userId, avatarUrl } })
+}
+
 export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, avatarUrl?: string | null, createdAt: Date | string }): void {
 	wsSendToUser(userId, { type: 'CHANNEL_CREATED', payload: channel })
 }

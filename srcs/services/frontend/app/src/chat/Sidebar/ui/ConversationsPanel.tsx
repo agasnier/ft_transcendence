@@ -1,5 +1,5 @@
 import AvatarNameCard from './AvatarNameCard'
-import { useOnlineUsers } from '../../../hooks/presence'
+import { useOnlineUsers, useUserAvatars } from '../../../hooks/presence'
 
 interface ConversationsPanelProps {
 	isSearching: boolean
@@ -24,6 +24,7 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 	const filteredChannels = channels.filter((c) =>
 		(c.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
 	)
+	const userAvatars = useUserAvatars()
 
 	if (filteredChannels.length === 0) {
 		return (
@@ -39,7 +40,11 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 				<AvatarNameCard
 					key={channel.id}
 					name={channel.name ?? 'username a gerer'}
-					avatarUrl={channel.avatarUrl}
+					avatarUrl={channel.type === 'discussion'
+						&& channel.otherUserId !== undefined
+						&& userAvatars.has(channel.otherUserId)
+						? userAvatars.get(channel.otherUserId)
+						: channel.avatarUrl}
 					variant={channel.type === 'discussion' ? 'user' : 'conversation'}
 					selected={selectedChannelId === channel.id}
 					onClick={() => onSelectChannel(channel.id)}

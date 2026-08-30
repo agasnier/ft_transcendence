@@ -199,6 +199,11 @@ export async function uploadAvatarController(req: FastifyRequest, reply: Fastify
   await pipeline(data.file, createWriteStream(filepath))
   const avatarUrl = `/avatars/${filename}`
   await updateAvatar(req.user.id, avatarUrl)
+  fetch(`${env.chatServiceUrl}/chat/internal/user-avatar-updated/${req.user.id}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ avatarUrl }),
+  }).catch(() => {})
   return reply.send({ avatarUrl })
 }
 
@@ -208,6 +213,11 @@ export async function deleteAvatarController(req: FastifyRequest, reply: Fastify
     return
   }
   await deleteAvatar(req.user.id)
+  fetch(`${env.chatServiceUrl}/chat/internal/user-avatar-updated/${req.user.id}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ avatarUrl: null }),
+  }).catch(() => {})
   return reply.send({ message: 'Avatar removed' })
 }
 
