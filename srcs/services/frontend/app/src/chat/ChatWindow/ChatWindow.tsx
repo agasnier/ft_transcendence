@@ -41,9 +41,10 @@ interface ChatWindowProps {
     onEditMessage: (messageId: number, content: string) => Promise<boolean>
     onDeleteMessage: (messageId: number) => Promise<boolean>
     onOpenInfoPanel: () => void
+    onBack?: () => void
 }
 
-function ChatWindow({ channel, userId, role, messages, onSendMessage, onSendFile, onEditMessage, onDeleteMessage, onOpenInfoPanel }: ChatWindowProps) {
+function ChatWindow({ channel, userId, role, messages, onSendMessage, onSendFile, onEditMessage, onDeleteMessage, onOpenInfoPanel, onBack }: ChatWindowProps) {
     const [canWrite, setCanWrite] = useState(true)
     const [myChannelRole, setMyChannelRole] = useState<'moderator' | 'member' | null>(null)
 
@@ -80,7 +81,8 @@ function ChatWindow({ channel, userId, role, messages, onSendMessage, onSendFile
         <main className="w-full h-full max-w-175 mx-auto flex flex-col bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
              <ChatHeader
                 channel={channel}
-                onOpenInfoPanel={onOpenInfoPanel} />
+                onOpenInfoPanel={onOpenInfoPanel}
+                onBack={onBack}/>
             <MessagesList
                 messages={messages}
                 userId={userId}

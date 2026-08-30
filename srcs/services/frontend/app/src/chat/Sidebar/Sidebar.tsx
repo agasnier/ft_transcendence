@@ -133,7 +133,7 @@ function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, 
 	}
 
 	return (
-		<aside className="w-90 shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 bg-white">
+		<aside className="w-90 h-full shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 bg-white">
 			<div className="flex-1 relative overflow-hidden">
 				{(view.kind === 'search' || prevKindRef.current === 'search') ? (
 					<div className="absolute inset-0 overflow-y-auto flex flex-col gap-2">

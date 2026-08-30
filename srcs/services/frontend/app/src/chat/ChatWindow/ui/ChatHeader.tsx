@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useOnlineUsers, useUserAvatars } from '../../../hooks/presence'
+import BackButton from '../../Sidebar/ui/BackButton'
 
 interface Channel {
 	id: number
@@ -13,9 +14,10 @@ interface Channel {
 interface ChatHeaderProps {
 	channel: Channel
 	onOpenInfoPanel: () => void
+	onBack?: () => void
 }
 
-function ChatHeader({channel, onOpenInfoPanel}: ChatHeaderProps) {
+function ChatHeader({channel, onOpenInfoPanel, onBack}: ChatHeaderProps) {
 	const [memberCount, setMemberCount] = useState<number | null>(null)
 	const onlineUserIds = useOnlineUsers()
 	const userAvatars = useUserAvatars()
@@ -43,6 +45,11 @@ function ChatHeader({channel, onOpenInfoPanel}: ChatHeaderProps) {
 		<div
 			onClick={onOpenInfoPanel}
 			className="flex p-1 border-b bg-white items-center gap-4 min-w-0 cursor-pointer">
+			{onBack && (
+				<span onClick={(e) => e.stopPropagation()}>
+					<BackButton onClick={onBack}/>
+				</span>
+			)}
 			{displayAvatar ? (
 				<img
 					src={displayAvatar}
