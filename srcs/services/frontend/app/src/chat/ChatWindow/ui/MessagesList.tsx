@@ -3,6 +3,8 @@ import { IconFile, IconEdit, IconDelete } from '../../../icons'
 import { useClickOutside } from '../../../hooks/useClickOutside'
 import { MAX_MESSAGE_LENGTH } from '../../../limits'
 
+const CHARS_PER_LINE = 84
+
 interface FileInfo {
     id: number
     originalName: string
@@ -113,6 +115,8 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
         return { canEdit: false, canDelete: false }
     }
 
+    const editRows = Math.max(2, editDraft.split('\n').length, Math.ceil(editDraft.length / CHARS_PER_LINE))
+
     return (
         <div className="flex-1 p-4 overflow-y-auto space-y-3">
             {messages.length === 0 ? (
@@ -145,6 +149,7 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                 ${isOwn
                                 ? 'items-end bg-blue-200'
                                 : 'items-start bg-white border-blue-100'}
+                                ${editingId === msg.id ? 'w-full' : '' }
                             `}>
                                 <div className="flex justify-between w-full text-sm font-semibold text-blue-700 mb-1 gap-4">
                                     <span>{msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}</span>
@@ -159,8 +164,8 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                             value={editDraft}
                                             onChange={(e) => setEditDraft(e.target.value)}
                                             maxLength={MAX_MESSAGE_LENGTH}
-                                            rows={2}
-                                            className="w-full text-sm border border-gray-300 rounded-lg px-2 py-1 resize-none"
+                                            rows={editRows}
+                                            className="w-full text-sm border border-blue-500 bg-white rounded-lg px-2 py-1 resize-none"
                                         />
                                         <div className="flex gap-2 justify-end">
                                             <button
