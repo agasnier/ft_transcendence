@@ -70,7 +70,8 @@ export async function listUserChannelsController(request: FastifyRequest, reply:
     for (const channel of userChannels) {
       const lastMessageId = await getLastMessageId(channel.id) ?? 0
       const lastReadId = await getLastReadMessageId(channel.id, request.user!.id) ?? 0
-      result.push({ ...channel, hasUnread: lastMessageId > lastReadId })
+      const memberCount = channel.type !== 'discussion' ? await countChannelMembers(channel.id) : undefined
+      result.push({ ...channel, hasUnread: lastMessageId > lastReadId, memberCount })
     }
     await reply.send(result)
   } catch (err) {

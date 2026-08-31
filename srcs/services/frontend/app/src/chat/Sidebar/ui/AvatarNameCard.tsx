@@ -37,7 +37,7 @@ function AvatarNameCard({ name, subtitle, selected = false, variant, avatarUrl, 
                     />
                 )}
             </span>
-            <span className="flex flex-col text-lg min-w-0 flex-1 px-3">
+            <span className="flex flex-col text-lg min-w-0 flex-1 px-3 gap-2">
                 <span className={`truncate ${selected ? 'text-white' : ''}`}>
                     {name}
                 </span>

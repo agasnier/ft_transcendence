@@ -10,6 +10,7 @@ interface Channel {
 	otherUserId?: number
     writeMode?: 'everyone' | 'moderators_only'
 	hasUnread?: boolean
+	memberCount?: number
 }
 
 export function useChannel() {

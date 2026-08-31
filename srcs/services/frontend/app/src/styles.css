@@ -19,7 +19,7 @@
 		@apply flex bg-gray-100 rounded-full p-1 gap-1;
 	}
 	.tab-button {
-		@apply flex-1 text-lg font-medium py-2 rounded-full transition-colors hover:text-blue-500;
+		@apply flex-1 text-lg font-medium px-1 py-2 rounded-full transition-colors hover:text-blue-500;
 	}
 	.bg-image {
 		@apply fixed inset-0 -z-10 w-full h-full object-cover object-right;

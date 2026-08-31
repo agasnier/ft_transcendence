@@ -17,6 +17,7 @@ interface Channel {
 	avatarUrl?: string | null
 	otherUserId?: number
 	hasUnread?: boolean
+	memberCount?: number
 }
 
 function ConversationsPanel({ isSearching, searchQuery, channels, selectedChannelId, onSelectChannel }: ConversationsPanelProps) {
@@ -54,6 +55,9 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 							: undefined
 					}
 					hasUnread={channel.hasUnread}
+					subtitle={channel.type !== 'discussion' && channel.memberCount !== undefined
+								? `${channel.memberCount} ${channel.type === 'group' ? 'membre' : 'abonné'}${channel.memberCount > 1 ? 's' : ''}`
+								: undefined}
 				/>
 			))}
 		</div>

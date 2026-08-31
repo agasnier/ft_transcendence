@@ -14,6 +14,7 @@ export const listUserChannelsSchema = {
           otherUserId: { type: 'integer' },
           writeMode: { type: 'string', enum: ['everyone', 'moderators_only'] },
           hasUnread: { type: 'boolean' },
+          memberCount: { type: 'integer'}
         },
       },
     },
