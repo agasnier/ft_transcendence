@@ -1,3 +1,6 @@
+// The response here is a full message object (not just file metadata), since
+// uploading a file also creates a message that references it — the two are
+// returned together so the frontend can render it directly in the conversation.
 export const uploadFileSchema = {
   params: {
     type: 'object',

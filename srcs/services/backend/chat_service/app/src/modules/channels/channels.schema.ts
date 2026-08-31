@@ -1,3 +1,6 @@
+// Response shape for "my channels" (the current user's conversation list).
+// Includes computed fields (hasUnread, memberCount) that aren't stored directly
+// in the channels table but derived from other data at request time.
 export const listUserChannelsSchema = {
   response: {
     200: {
@@ -21,6 +24,8 @@ export const listUserChannelsSchema = {
   },
 }
 
+// Body for creating a new channel. "name" is optional here because discussions
+// don't need one (it's resolved from the other participant's pseudo instead).
 export const createChannelSchema = {
   body: {
     type: 'object',
@@ -59,6 +64,8 @@ export const deleteChannelSchema = {
   },
 }
 
+// Response shape for the "discover channels" list (every channel, not just the
+// caller's own). "isMember" lets the frontend show "Join" vs "Already a member".
 export const listAllChannelsSchema = {
   response: {
     200: {
@@ -76,6 +83,8 @@ export const listAllChannelsSchema = {
   },
 }
 
+// Shared params shape (just a channel id), reused by most routes below to avoid
+// repeating the same object literal everywhere.
 export const channelIdParamSchema = {
   params: {
     type: 'object',
@@ -127,6 +136,8 @@ export const updateChannelSchema = {
   },
 }
 
+// File is sent as multipart/form-data, not validated by this JSON schema (handled
+// separately in the controller via request.file() ).
 export const uploadChannelAvatarSchema = {
   params: channelIdParamSchema.params,
   response: {
@@ -151,6 +162,8 @@ export const deleteChannelAvatarSchema = {
   },
 }
 
+// Distinct from channelIdParamSchema: this one also needs the target member's id
+// in the URL (e.g. DELETE /:id/members/:userId).
 export const removeMemberParamSchema = {
   params: {
     type: 'object',

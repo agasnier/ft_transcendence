@@ -1,9 +1,12 @@
 import type { FastifyInstance } from 'fastify'
 import { requireChannelModeratorOrAdmin } from './permissions.js'
-
 import { createChannelController, deleteChannelController, listChannelMembersController, listUserChannelsController, markChannelReadController, userAuthHook, listAllChannelsController, updateChannelController, removeChannelMemberController, addChannelMembersController, updateMemberRoleController, updateWriteModeController, uploadChannelAvatarController, deleteChannelAvatarController } from './channels.controller.js'
 import { createChannelSchema, deleteChannelSchema, listChannelMembersSchema, listUserChannelsSchema, markChannelReadSchema, listAllChannelsSchema, updateChannelSchema, removeMemberParamSchema, addMemberSchema, updateMemberRoleSchema, updateWriteModeSchema, uploadChannelAvatarSchema, deleteChannelAvatarSchema } from './channels.schema.js'
 
+// Routes for channel management: creation, membership, roles, and settings.
+// All routes require authentication (userAuthHook); moderation actions additionally
+// require being a moderator of the specific channel or a global admin
+// (requireChannelModeratorOrAdmin).
 export async function channelsRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { schema: listUserChannelsSchema, preHandler: [userAuthHook] }, listUserChannelsController)
   app.post('/', { schema: createChannelSchema, preHandler: [userAuthHook] }, createChannelController)

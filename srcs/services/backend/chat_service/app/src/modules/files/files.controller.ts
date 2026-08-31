@@ -11,6 +11,10 @@ import { isChannelMember } from '../channels/channels.service.js'
 import { createMessage } from '../messages/messages.service.js'
 import { wsMessageCreated } from '../websocket/websocket.ws.js'
 
+// Uploads a file to a channel. The file itself is stored on disk under a randomized
+// name (to avoid collisions and guessable paths); its metadata goes in the files table.
+// A regular message is also created and linked via fileId, so the upload shows up in
+// the conversation like any other message (broadcast over WebSocket the same way).
 export async function uploadFileController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { channelId } = request.params as { channelId: string }
@@ -34,6 +38,9 @@ export async function uploadFileController(request: FastifyRequest, reply: Fasti
       return
     }
 
+    // Buffer the whole file in memory to check its real size/type before writing
+    // anything to disk (the size limit is also enforced by @fastify/multipart, but
+    // this gives a clearer error message).
     const storedName = `${randomUUID()}${path.extname(data.filename)}`
     const filepath = path.join(env.uploadsDir, storedName)
     await pipeline(Readable.from(buffer), createWriteStream(filepath))
@@ -58,6 +65,8 @@ export async function uploadFileController(request: FastifyRequest, reply: Fasti
   }
 }
 
+// Streams a file back to the client. Requires channel membership, so files can't be
+// accessed just by guessing/leaking an id — you have to be part of the conversation.
 export async function downloadFileController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
@@ -82,6 +91,7 @@ export async function downloadFileController(request: FastifyRequest, reply: Fas
   }
 }
 
+// Deletes a file: only the person who uploaded it, or a global admin, can do this.
 export async function deleteFileController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
@@ -96,6 +106,8 @@ export async function deleteFileController(request: FastifyRequest, reply: Fasti
       return
     }
 
+    // Remove the file from disk first; .catch() ignores a missing file rather than
+    // failing the whole request (e.g. if it was already deleted manually).
     await unlink(path.join(env.uploadsDir, file.storedName)).catch(() => {})
     await deleteFileRecord(file.id)
     await reply.send({ message: 'File deleted' })

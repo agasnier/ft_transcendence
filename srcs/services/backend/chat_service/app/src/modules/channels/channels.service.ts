@@ -1,7 +1,6 @@
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { unlink } from 'fs/promises'
 import path from 'path'
-
 import { db } from '../../db/index.js'
 import { channels, channelMembers, discussionPairs, messages } from '../../db/schema.js'
 import { env } from '../../config/env.js'
@@ -17,6 +16,9 @@ type ChannelRow = {
   otherUserId?: number
 }
 
+// For discussion-type channels, fills in the display name/avatar with the other
+// participant's pseudo/avatar (fetched from users_service), since a discussion
+// has no name/avatar of its own. Non-discussion channels pass through unchanged
 export async function resolveDiscussionNames(rows: ChannelRow[], userId: number): Promise<ChannelRow[]> {
   const discussionIds = rows.filter((c) => c.type === 'discussion').map((c) => c.id)
   if (discussionIds.length === 0)
@@ -29,6 +31,7 @@ export async function resolveDiscussionNames(rows: ChannelRow[], userId: number)
     .from(discussionPairs)
     .where(inArray(discussionPairs.channelId, discussionIds))
 
+  // For each discussion, figure out who the "other" person is relative to the caller.
   const otherUserIdByChannel = new Map(
     pairs.map((p) => [p.channelId, p.userMinId === userId ? p.userMaxId : p.userMinId]),
   )
@@ -62,6 +65,7 @@ export async function resolveDiscussionNames(rows: ChannelRow[], userId: number)
   })
 }
 
+// Lists every channel the given user currently belongs to (their conversation list).
 export async function listUserChannels(userId: number) {
   // membership itself is the visibility rule: a discussion is only listed while
   // the caller has a channel_members row for it (see leaveChannel/ensureMembership)
@@ -82,6 +86,7 @@ export async function listUserChannels(userId: number) {
   return resolveDiscussionNames(rows, userId)
 }
 
+// Returns the id of the most recent message in a channel (used to compute unread state).
 export async function getLastMessageId(channelId: number): Promise<number | null> {
   const [row] = await db
     .select({ id: messages.id })
@@ -92,6 +97,7 @@ export async function getLastMessageId(channelId: number): Promise<number | null
   return row?.id ?? null
 }
 
+// Returns the last message id this specific user has read in this channel.
 export async function getLastReadMessageId(channelId: number, userId: number): Promise<number | null> {
   const [row] = await db
     .select({ lastReadMessageId: channelMembers.lastReadMessageId })
@@ -101,6 +107,8 @@ export async function getLastReadMessageId(channelId: number, userId: number): P
   return row?.lastReadMessageId ?? null
 }
 
+// Marks a channel as read for a user by setting lastReadMessageId to the current
+// latest message. Returns false if the user isn't a member (nothing to mark).
 export async function markChannelRead(channelId: number, userId: number): Promise<boolean> {
   if (!(await isChannelMember(channelId, userId)))
     return false
@@ -112,12 +120,17 @@ export async function markChannelRead(channelId: number, userId: number): Promis
   return true
 }
 
+// Removes a user's membership row for a channel (used both for "leave" and as part
+// of the kick flow). Does not delete the channel itself.
 export async function leaveChannel(channelId: number, userId: number): Promise<void> {
   await db
     .delete(channelMembers)
     .where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
 }
 
+// Adds a membership row for a user if they don't already have one. Used to re-add
+// a discussion participant once they receive a message, after having left it before.
+// Returns true if a row was actually created, false if they were already a member.
 export async function ensureMembership(channelId: number, userId: number): Promise<boolean> {
   if (await isChannelMember(channelId, userId))
     return false
@@ -126,6 +139,7 @@ export async function ensureMembership(channelId: number, userId: number): Promi
   return true
 }
 
+// For a discussion channel, returns the id of the participant who isn't userId.
 export async function getOtherDiscussionParticipant(channelId: number, userId: number): Promise<number | null> {
   const [pair] = await db
     .select({ userMinId: discussionPairs.userMinId, userMaxId: discussionPairs.userMaxId })
@@ -138,6 +152,7 @@ export async function getOtherDiscussionParticipant(channelId: number, userId: n
   return pair.userMinId === userId ? pair.userMaxId : pair.userMinId
 }
 
+// Fetches a single channel's raw data (no discussion name/avatar resolution).
 export async function channelInfo(channelId: number) {
   const [row] = await db
     .select({
@@ -168,6 +183,7 @@ export async function isChannelMember(channelId: number, userId: number): Promis
   return true
 }
 
+// Returns each member's id and their local role in the channel (moderator/member).
 export async function listChannelMembers(channelId: number) {
   const rows = await db
     .select({ userId: channelMembers.userId, role: channelMembers.role })
@@ -177,6 +193,7 @@ export async function listChannelMembers(channelId: number) {
   return rows
 }
 
+// Bulk-inserts membership rows for a list of users, all with the same role.
 export async function addChannelMembers(channelId: number, userIds: number[], role: 'moderator' | 'member'): Promise<void> {
   if (userIds.length === 0)
     return
@@ -186,6 +203,13 @@ export async function addChannelMembers(channelId: number, userIds: number[], ro
   )
 }
 
+// Creates a new channel. Behavior differs by type:
+// group/channel: creator becomes 'moderator', everyone else becomes 'member'.
+//   'channel' type additionally defaults to moderators-only write mode.
+// discussion: only the creator gets a membership row up front (the other participant
+//   is added later, once they actually receive a message — see messages.controller.ts).
+//   Uses a transaction because it writes to two tables (channels + discussionPairs)
+//   that must stay consistent.
 export async function createChannel(name: string | undefined, memberIds: number[], type: string, description: string | undefined, creatorId: number): Promise<{ channel: ChannelRow; reused: boolean }> {
   if (type !== 'discussion') {
     const writeMode = type === 'channel' ? 'moderators_only' : 'everyone'
@@ -236,6 +260,8 @@ export async function createChannel(name: string | undefined, memberIds: number[
   }
 }
 
+// Permanently deletes a channel, including its avatar file on disk (if any),
+// to avoid leaving orphaned files behind.
 export async function deleteChannel(channelId: number): Promise<void> {
   const channel = await channelInfo(channelId)
   if (channel?.avatarUrl) {
@@ -251,6 +277,7 @@ export async function updateChannelAvatar(channelId: number, avatarUrl: string) 
   return channelInfo(channelId)
 }
 
+// Clears a channel's avatar and deletes the old file from disk, if one was set.
 export async function deleteChannelAvatar(channelId: number) {
   const channel = await channelInfo(channelId)
   if (channel?.avatarUrl) {
@@ -266,6 +293,7 @@ export async function removeChannelMember(channelId: number, userId: number): Pr
   await db.delete(channelMembers).where(and(eq(channelMembers.channelId, channelId), eq(channelMembers.userId, userId)))
 }
 
+// Updates name and/or description; only touches the fields that were actually provided.
 export async function updateChannel(channelId: number, data: { name?: string; description?: string }) {
   const toUpdate: Partial<{ name: string; description: string }> = {}
   if (data.name !== undefined) toUpdate.name = data.name
@@ -276,6 +304,8 @@ export async function updateChannel(channelId: number, data: { name?: string; de
   return channelInfo(channelId)
 }
 
+// Lists every channel in the system (for the "discover" view), flagging which ones
+// the given user is already a member of.
 export async function listAllChannels(userId: number) {
   const allChannels = await db
     .select({
@@ -306,6 +336,7 @@ export async function updateWriteMode(channelId: number, writeMode: 'everyone' |
   return channelInfo(channelId)
 }
 
+// Returns a user's local role in a channel, or null if they aren't a member.
 export async function getMemberRole(channelId: number, userId: number): Promise<'moderator' | 'member' | null> {
   const [row] = await db
     .select({ role: channelMembers.role })
