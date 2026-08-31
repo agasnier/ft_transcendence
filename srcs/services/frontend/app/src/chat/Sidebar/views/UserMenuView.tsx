@@ -8,6 +8,7 @@ import TextAreaField from '../../../components/TextAreaField'
 import AvatarUploader from '../../../components/AvatarUploader'
 import type { SidebarView } from '../Sidebar'
 import { IconEdit } from '../../../icons'
+import { MAX_NAME_LENGTH } from '../../../limits'
 
 interface UserMenuViewProps {
     setView: (view: SidebarView) => void
@@ -143,6 +144,7 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                             onChange={(e) => setPseudoDraft(e.target.value)}
                             autoFocus
                             autoComplete="username"
+                            maxLength={MAX_NAME_LENGTH}
                         />
                         {pseudoError && <p className="text-xs text-red-600 text-center">{pseudoError}</p>}
                         <div className="flex justify-center gap-2">

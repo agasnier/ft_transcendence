@@ -11,7 +11,6 @@ import { createMessage } from '../messages/messages.service.js'
 import { env } from '../../config/env.js'
 
 // hooks
-
 export async function userAuthHook(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const accessToken = request.cookies.access_token
   if (!accessToken) {
@@ -29,6 +28,9 @@ export async function userAuthHook(request: FastifyRequest, reply: FastifyReply)
 }
 
 // controllers
+
+// Creates a new channel (discussion, group, or channel) and notifies the right people
+// over WebSocket so the conversation appears live in their client without a refresh.
 export async function createChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { name, memberIds, type, description } = request.body as { name?: string; memberIds: number[]; type: string; description?: string }
@@ -44,6 +46,8 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
         wsChannelCreatedTo(memberId, channel)
     }
 
+    // For groups/channels, post a system message announcing the creation and mark it
+    // as read for the creator so it doesn't show up as unread for them.
     if (type === 'group') {
       const message = await createMessage(channel.id, request.user!.id, ' a créé le groupe', 'system')
       await markChannelRead(channel.id, request.user!.id)
@@ -63,6 +67,8 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
   }
 }
 
+// Lists all channels the current user belongs to, enriched with unread status
+// (comparing the last message id to what this user has last read) and member count
 export async function listUserChannelsController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const userChannels = await listUserChannels(request.user!.id)
@@ -96,6 +102,10 @@ export async function markChannelReadController(request: FastifyRequest, reply: 
   }
 }
 
+// Removes the current user from a channel. Behavior depends on the channel type:
+// discussion/group: the user just leaves (the channel keeps existing for others);
+// if they were the last member, the channel is deleted entirely.
+// channel: deleted outright (channels currently have no "leave, keep for others" case).
 export async function deleteChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
@@ -132,6 +142,7 @@ export async function deleteChannelController(request: FastifyRequest, reply: Fa
   }
 }
 
+// Lists the members of a channel (id + local role). Requires the caller to be a member.
 export async function listChannelMembersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
@@ -150,6 +161,9 @@ export async function listChannelMembersController(request: FastifyRequest, repl
   }
 }
 
+// Lists every channel that exists (not just the ones the user belongs to), so users
+// can discover and join public groups/channels. Each entry indicates whether the
+// caller is already a member.
 export async function listAllChannelsController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const allChannels = await listAllChannels(request.user!.id)
@@ -160,6 +174,8 @@ export async function listAllChannelsController(request: FastifyRequest, reply: 
   }
 }
 
+// Updates a channel's name and/or description, notifies all members over WebSocket,
+// and posts a system message when the name changes so the rename is visible in the chat log.
 export async function updateChannelController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
@@ -184,6 +200,10 @@ export async function updateChannelController(request: FastifyRequest, reply: Fa
   }
 }
 
+// Removes a member from a channel (moderator/admin action). A non-admin caller cannot
+// remove a global admin, even if they're a moderator of this channel (checked by
+// fetching the target's profile from users_service). The removed user is notified
+// instantly over WebSocket so their client drops the conversation without a refresh.
 export async function removeChannelMemberController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id, userId } = request.params as { id: string; userId: string }
@@ -213,6 +233,8 @@ export async function removeChannelMemberController(request: FastifyRequest, rep
   }
 }
 
+// Adds one or more members to a channel (always as 'member', never 'moderator').
+// Notifies each new member over WebSocket so the conversation shows up instantly.
 export async function addChannelMembersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
@@ -235,6 +257,9 @@ export async function addChannelMembersController(request: FastifyRequest, reply
   }
 }
 
+// Promotes/demotes a member's local role in the channel (moderator <-> member).
+// Two safeguards: a user can never change their own role, and a non-admin caller
+// can't touch a global admin's role even if they're a moderator of this channel.
 export async function updateMemberRoleController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id, userId } = request.params as { id: string; userId: string }
@@ -266,6 +291,9 @@ export async function updateMemberRoleController(request: FastifyRequest, reply:
   }
 }
 
+// Switches a channel between "everyone can write" and "moderators only" mode.
+// Notifies all members over WebSocket so the message input locks/unlocks live,
+// without requiring a page refresh.
 export async function updateWriteModeController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
@@ -287,6 +315,9 @@ export async function updateWriteModeController(request: FastifyRequest, reply: 
   }
 }
 
+// Uploads a new avatar/logo for a channel. Validates the file type, deletes the
+// previous avatar from disk (if any) to avoid orphaned files, stores the new one
+// under a randomized filename, and notifies all members over WebSocket.
 export async function uploadChannelAvatarController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }
@@ -332,6 +363,8 @@ export async function uploadChannelAvatarController(request: FastifyRequest, rep
   }
 }
 
+// Removes a channel's avatar/logo (reverts to the default fallback letter avatar
+// on the frontend) and notifies all members over WebSocket.
 export async function deleteChannelAvatarController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }

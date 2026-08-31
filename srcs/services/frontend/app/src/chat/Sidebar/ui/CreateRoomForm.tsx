@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import TextField from '../../../components/TextField'
 import TextAreaField from '../../../components/TextAreaField'
+import { MAX_NAME_LENGTH } from '../../../limits'
 
 interface CreateRoomFormProps {
 	type: 'channel' | 'group' | 'discussion'
@@ -27,6 +28,7 @@ function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
 				onChange={(e) => setName(e.target.value)}
 				required
 				autoComplete="off"
+				maxLength={MAX_NAME_LENGTH}
 			/>
 			{type !== 'group' && (
 				<TextAreaField

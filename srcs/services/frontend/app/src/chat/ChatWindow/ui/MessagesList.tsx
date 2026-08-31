@@ -152,8 +152,8 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                 ${editingId === msg.id ? 'w-full' : '' }
                             `}>
                                 <div className="flex justify-between w-full text-sm font-semibold text-blue-700 mb-1 gap-4">
-                                    <span>{msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}</span>
-                                    <span className="text-blue-500 font-normal">
+                                    <span className="truncate min-w-0">{msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}</span>
+                                    <span className="text-blue-500 font-normal shrink-0">
                                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
