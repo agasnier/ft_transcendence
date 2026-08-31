@@ -3,6 +3,13 @@ import { db } from '../../db/index.js'
 import { friends } from '../../db/schema.js'
 import { users } from '../../db/schema.js'
 
+// Sends a friend request from requesterId to addresseeId. A friendship is stored
+// as a single row (never duplicated in both directions), so this checks for an
+// existing relation in either direction before inserting:
+// - already friends -> reject
+// - requester already sent a pending request -> reject (no duplicates)
+// - the addressee had already sent a request the other way -> auto-accept instead
+//   of creating a second, crossed pending request
 export async function sendFriendRequest(requesterId: number, addresseeId: number) {
   // looking for existing relation
   const existing = await db
@@ -35,12 +42,16 @@ export async function sendFriendRequest(requesterId: number, addresseeId: number
   return { autoAccepted: false }
 }
 
+// Accepts a pending request: requesterId is the original sender, addresseeId is
+// whoever is calling this (the one who received the request).
 export async function acceptFriendRequest(requesterId: number, addresseeId: number) {
 	await db.update(friends)
 		.set({ status: 'accepted' })
 		.where(and(eq(friends.requesterId, requesterId), eq(friends.addresseeId, addresseeId)))
 }
 
+// Declines a pending request. Only affects rows still in 'pending' status, so this
+// can't accidentally delete an already-accepted friendship.
 export async function declineFriendRequest(requesterId: number, addresseeId: number) {
 	await db
 		.delete(friends)
@@ -53,6 +64,10 @@ export async function declineFriendRequest(requesterId: number, addresseeId: num
 		)
 }
 
+// Lists a user's accepted friends, optionally filtered by displayName.
+// Since a friendship is a single row that could have userId in either the
+// requester or addressee column, this first finds all accepted relations
+// involving userId, then resolves the "other side" of each one.
 export async function listFriends(userId: number, search?: string) {
 	// take all accepted relations using userId
 	const relations = await db
@@ -89,6 +104,8 @@ export async function listFriends(userId: number, search?: string) {
 			.where(conditions)
 }
 
+// Removes an existing friendship. Checks both directions since either user could
+// be stored as requester or addressee for this relation.
 export async function removeFriend(userId: number, friendId: number) {
 	await db
 		.delete(friends)
@@ -103,6 +120,7 @@ export async function removeFriend(userId: number, friendId: number) {
 		)
 }
 
+// Lists pending requests sent TO userId (people waiting for userId to respond).
 export async function listIncomingRequests(userId: number) {
   const relations = await db
     .select()
@@ -124,6 +142,7 @@ export async function listIncomingRequests(userId: number) {
     .where(inArray(users.id, requesterIds))
 }
 
+// Lists pending requests userId has sent, still waiting on the other person.
 export async function listOutgoingRequests(userId: number) {
   const relations = await db
     .select()

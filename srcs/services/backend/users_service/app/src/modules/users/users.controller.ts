@@ -12,10 +12,14 @@ import { users } from '../../db/schema.js'
 import { env } from '../../config/env.js'
 
 
+// Lists all registered users. A non-admin caller only ever sees the public fields
+// (id, pseudo, displayName, avatarUrl) — the sanitize step here is a deliberate
+// second layer of protection on top of listUsers' own role check, so a future bug
+// in the service can't leak mail/role to a non-admin.
 export async function listUsersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     if (!request.user) {
-      await reply.status(401).send({ message: 'Not authenticated'})
+      await reply.status(401).send({ message: 'Not authenticated' })
       return
     }
 
@@ -24,10 +28,23 @@ export async function listUsersController(request: FastifyRequest, reply: Fastif
       columns: { role: true },
     })
 
-    const list = await listUsers(dbUser?.role as 'admin' | 'user')
+    const requesterRole = dbUser?.role as 'admin' | 'user'
+    const list = await listUsers(requesterRole)
+
+    // One more security : even if listUsers let some data, it can't be otu if non-admin user
+    if (requesterRole !== 'admin') {
+      const sanitized = list.map((u: any) => ({
+        id: u.id,
+        pseudo: u.pseudo,
+        displayName: u.displayName,
+        avatarUrl: u.avatarUrl,
+      }))
+      await reply.send(sanitized)
+      return
+    }
+
     await reply.send(list)
-  }
-  catch (err) {
+  } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })
   }
@@ -35,6 +52,8 @@ export async function listUsersController(request: FastifyRequest, reply: Fastif
 
 const MAX_BATCH_IDS = 100
 
+// Batch lookup used to resolve pseudo/avatar for a list of user ids at once (e.g.
+// when rendering a channel's member list), avoiding one request per user.
 export async function listUsersBatchController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { ids } = request.query as { ids: string }
@@ -75,6 +94,8 @@ export async function getUserController(request: FastifyRequest, reply: FastifyR
   }
 }
 
+// Public registration endpoint. Note the body type only allows mail/pseudo/password —
+// role can never be set here, so nobody can self-promote to admin at signup.
 export async function createUserController(
   request: FastifyRequest<{ Body: { mail: string; pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
   try {
@@ -88,6 +109,9 @@ export async function createUserController(
   }
 }
 
+// Updates a user's account fields. Anyone can update their own account (checked
+// upstream by requireSelfOrRole), but changing "role" specifically always requires
+// the caller to be an admin, regardless of whose account is being edited.
 export async function updateUserController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     if (!request.user) {
@@ -123,6 +147,11 @@ export async function updateUserController(request: FastifyRequest, reply: Fasti
   }
 }
 
+// Deletes a user account (admin only, enforced upstream). On top of removing the
+// row, this also revokes the session immediately: refresh tokens are deleted so
+// /auth/session can't issue a new access token, and chat_service is asked to force-
+// close any active WebSocket connection, so the deleted user can't keep chatting
+// until their current token naturally expires.
 export async function deleteUserController(
   request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
@@ -147,6 +176,8 @@ export async function deleteUserController(
   }
 }
 
+// Updates the current user's own profile (displayName/bio). Distinct from
+// updateUserController: this is self-service only, no admin path, no role field.
 export async function updateProfileController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
 		await reply.code(401).send({ message: 'Not authenticated' })
@@ -157,6 +188,8 @@ export async function updateProfileController(req: FastifyRequest, reply: Fastif
   return reply.send(updated);
 }
 
+// Returns the current user's own full profile (including private fields not shown
+// on the public profile endpoint).
 export async function getUserProfileController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
     await reply.code(401).send({ message: 'Not authenticated' })
@@ -171,6 +204,10 @@ export async function getUserProfileController(req: FastifyRequest, reply: Fasti
   return reply.send(user)
 }
 
+// Uploads/replaces the current user's avatar. Deletes the previous file from disk
+// first to avoid orphaned files, then notifies chat_service so any channel member
+// lists showing this user's avatar can update live (avatars are cached/displayed
+// independently in chat_service, so it needs to know when one changes).
 export async function uploadAvatarController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
 		await reply.code(401).send({ message: 'Not authenticated' })
@@ -207,6 +244,8 @@ export async function uploadAvatarController(req: FastifyRequest, reply: Fastify
   return reply.send({ avatarUrl })
 }
 
+// Removes the current user's avatar (reverts to the fallback letter avatar on the
+// frontend), and notifies chat_service the same way as an upload.
 export async function deleteAvatarController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
     await reply.code(401).send({ message: 'Not authenticated' })
@@ -221,6 +260,9 @@ export async function deleteAvatarController(req: FastifyRequest, reply: Fastify
   return reply.send({ message: 'Avatar removed' })
 }
 
+// Returns another user's public profile (displayName, avatarUrl, bio, role) — used
+// when viewing someone else's profile, e.g. from a channel member list. Deliberately
+// excludes mail (see getPublicUserProfile in the service for the exact field set).
 export async function getPublicUserProfileController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const { id } = request.params as { id: string }

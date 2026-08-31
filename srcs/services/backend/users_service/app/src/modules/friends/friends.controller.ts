@@ -1,6 +1,10 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
 import { sendFriendRequest, acceptFriendRequest, listFriends, declineFriendRequest, removeFriend, listIncomingRequests, listOutgoingRequests } from './friends.service.js'
 
+// Sends a friend request. Handles a few edge cases via specific error messages thrown
+// by the service: if the other person already sent a request to us, it gets
+// auto-accepted instead of creating a duplicate/crossed pending request (see
+// sendFriendRequest in the service for the full logic).
 export async function sendFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
 		await reply.code(401).send({ message: 'Not authenticated' })
@@ -30,6 +34,7 @@ export async function sendFriendRequestController(req: FastifyRequest, reply: Fa
     }
 }
 
+// Accepts a pending request sent to the current user by :userId.
 export async function acceptFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
 		await reply.code(401).send({ message: 'Not authenticated' })
@@ -40,6 +45,7 @@ export async function acceptFriendRequestController(req: FastifyRequest, reply: 
 	return reply.send({ message: 'Friend request accepted' })
 }
 
+// Declines/deletes a pending request sent to the current user by :userId.
 export async function declineFriendRequestController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
 		await reply.code(401).send({ message: 'Not authenticated' })
@@ -50,6 +56,7 @@ export async function declineFriendRequestController(req: FastifyRequest, reply:
 	return reply.send({ message: 'Friend request declined' })
 }
 
+// Lists the current user's accepted friends, optionally filtered by a search string.
 export async function listFriendsController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
 		await reply.code(401).send({ message: 'Not authenticated' })
@@ -60,6 +67,8 @@ export async function listFriendsController(req: FastifyRequest, reply: FastifyR
 	return reply.send(friendsList)
 }
 
+// Removes an existing friendship between the current user and :userId (either side
+// can trigger this; the service handles both directions of the relationship).
 export async function removeFriendController(req: FastifyRequest, reply: FastifyReply) {
 	if (!req.user) {
 		await reply.code(401).send({ message: 'Not authenticated' })
@@ -70,6 +79,7 @@ export async function removeFriendController(req: FastifyRequest, reply: Fastify
 	return reply.send({ message: 'Friend removed' })
 }
 
+// Lists pending friend requests sent to the current user (waiting for their response).
 export async function listIncomingRequestsController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
     	await reply.code(401).send({ message: 'Not authenticated' })
@@ -79,6 +89,7 @@ export async function listIncomingRequestsController(req: FastifyRequest, reply:
   return reply.send(requests)
 }
 
+// Lists pending friend requests the current user has sent, still awaiting a response.
 export async function listOutgoingRequestsController(req: FastifyRequest, reply: FastifyReply) {
   if (!req.user) {
 		await reply.code(401).send({ message: 'Not authenticated' })

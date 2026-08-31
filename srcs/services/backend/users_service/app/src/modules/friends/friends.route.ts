@@ -3,6 +3,9 @@ import { sendFriendRequestController, acceptFriendRequestController, declineFrie
 import { sendFriendRequestSchema, acceptFriendRequestSchema, declineFriendRequestSchema, listFriendsSchema, removeFriendSchema, listFriendRequestsSchema } from './friends.schema.js'
 import { userAuthHook } from '../auth/auth.controller.js'
 
+
+// Routes for the friends system: sending/accepting/declining requests, listing
+// friends, and removing an existing friendship. All routes require authentication.
 export async function friendsRoutes(app: FastifyInstance) {
 	app.post('/:userId', { schema: sendFriendRequestSchema, preHandler: [userAuthHook] }, sendFriendRequestController)
 	app.patch('/:userId/accept', { schema: acceptFriendRequestSchema, preHandler: [userAuthHook] }, acceptFriendRequestController)

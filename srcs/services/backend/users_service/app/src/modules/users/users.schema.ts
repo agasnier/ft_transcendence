@@ -30,22 +30,37 @@ export const listUsersBatchSchema = {
   },
 }
 
+export const listUsersPublicSchema = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: {
+      id: { type: 'integer' },
+      pseudo: { type: 'string' },
+      displayName: { type: ['string', 'null'] },
+      avatarUrl: { type: 'string' },
+    },
+  },
+}
+
+export const listUsersAdminSchema = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: {
+      id: { type: 'integer' },
+      pseudo: { type: 'string' },
+      displayName: { type: ['string', 'null'] },
+      avatarUrl: { type: 'string' },
+      mail: { type: 'string' },
+      role: { type: 'string' },
+    },
+  },
+}
+
 export const listUsersSchema = {
   response: {
-    200: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'integer' },
-          pseudo: { type: 'string' },
-          displayName: { type: ['string', 'null'] },
-          avatarUrl: { type: ['string', 'null'] },
-          mail: { type: 'string' },
-          role: { type: 'string' },
-        },
-      },
-    },
+    200: listUsersAdminSchema,
   },
 }
 

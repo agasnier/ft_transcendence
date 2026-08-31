@@ -1,5 +1,4 @@
-import { kMaxLength } from "node:buffer"
-
+// Shared params shape (just a target user id), reused by the three request-response routes.
 export const sendFriendRequestSchema = {
   params: {
     type: 'object',
@@ -30,6 +29,7 @@ export const declineFriendRequestSchema = {
   },
 }
 
+// "search" is optional: with no query, returns the full friends list.
 export const listFriendsSchema = {
   querystring: {
     type: 'object',
@@ -63,6 +63,8 @@ export const removeFriendSchema = {
   },
 }
 
+// Shared response item shape for both incoming and outgoing pending requests
+// (same public user fields as a friend, no request-specific metadata needed).
 const friendRequestUserSchema = {
   type: 'object',
   properties: {

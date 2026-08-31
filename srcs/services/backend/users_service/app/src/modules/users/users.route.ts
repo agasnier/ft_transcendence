@@ -4,7 +4,7 @@ import { listUsersSchema, listUsersBatchSchema, getUserSchema, createUserSchema,
 import { userAuthHook } from '../auth/auth.controller.js'
 import { requireSelfOrRole } from '../auth/permissions.js'
 
-
+// Routes for user accounts: CRUD, own profile management, and avatars.
 export async function usersRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { schema: listUsersSchema, preHandler: [userAuthHook] }, listUsersController)
   app.get('/batch', { schema: listUsersBatchSchema }, listUsersBatchController)
