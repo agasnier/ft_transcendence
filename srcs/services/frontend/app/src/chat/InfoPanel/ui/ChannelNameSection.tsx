@@ -40,21 +40,21 @@ function ChannelNameSection({channel, isModerator, otherProfile, memberCount, on
 
 	return (
 		<>
-			<div className="flex items-center justify-center gap-2 max-w-full px-2">
+			<div className="relative flex items-center justify-center max-w-full px-8">
 				{isEditingName ? (
-					<form onSubmit={handleRename}>
+					<form onSubmit={handleRename} className="w-full">
 						<input
 							autoFocus
 							value={nameInput}
 							onChange={(e) => setNameInput(e.target.value)}
 							onBlur={() => setIsEditingName(false)}
 							maxLength={MAX_SHORT_TEXT_LENGTH}
-							className="font-bold text-gray-800 text-lg border-b border-blue-400 focus:outline-none bg-transparent text-center"
+							className="font-bold text-gray-800 text-lg border-b border-blue-400 focus:outline-none bg-transparent text-center w-full"
 						/>
 					</form>
 				) : (
 					<>
-						<h1 className="font-bold text-gray-800 text-lg truncate">{channel.name}</h1>
+						<h1 className="font-bold text-gray-800 text-lg truncate text-center">{channel.name}</h1>
 						{channel.type !== 'discussion' && isModerator && (
 							<button
 								type="button"
@@ -63,7 +63,7 @@ function ChannelNameSection({channel, isModerator, otherProfile, memberCount, on
 									setIsEditingName(true)
 								}}
 								title="renommer"
-								className="text-gray-500">
+								className="absolute right-0 text-gray-500">
 								<IconEdit size={14} className="icon-hover-grow"/>
 							</button>
 						)}

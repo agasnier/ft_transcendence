@@ -23,7 +23,7 @@ function AvatarNameCard({ name, subtitle, selected = false, variant, avatarUrl, 
                     />
                 ) : (
                     <span
-                        className={`avatar-circle text-2xl border font-thin w-15 h-15 ${variant === 'user' ? 'bg-user' : 'bg-conversation'}`}>
+                        className={`avatar-circle text-2xl border w-15 h-15 ${variant === 'user' ? 'bg-user' : 'bg-conversation'}`}>
                         {name.charAt(0).toUpperCase()}
                     </span>
                 )}
