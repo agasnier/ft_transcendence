@@ -6,7 +6,7 @@ interface AdminUser {
     id: number
     pseudo: string
     mail: string
-    role: 'admin' | 'moderator' | 'user'
+    role: 'admin' | 'user'
 }
 
 interface AdminPanelProps {
@@ -17,7 +17,7 @@ function AdminPanel({ currentUserId }: AdminPanelProps) {
     const [users, setUsers] = useState<AdminUser[]>([])
     const [editingId, setEditingId] = useState<number | null>(null)
     const [pseudoDraft, setPseudoDraft] = useState('')
-    const [roleDraft, setRoleDraft] = useState<'admin' | 'moderator' | 'user'>('user')
+    const [roleDraft, setRoleDraft] = useState<'admin' | 'user'>('user')
     const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
     const [error, setError] = useState<string | null>(null)
 
@@ -45,7 +45,7 @@ function AdminPanel({ currentUserId }: AdminPanelProps) {
 
     async function saveUser(id: number) {
         const isSelf = id === currentUserId
-        const body: { pseudo?: string; role?: 'admin' | 'moderator' | 'user' } = { pseudo: pseudoDraft }
+        const body: { pseudo?: string; role?: 'admin' | 'user' } = { pseudo: pseudoDraft }
         if (!isSelf) body.role = roleDraft
 
         const res = await fetch(`/users/${id}`, {
@@ -90,10 +90,9 @@ function AdminPanel({ currentUserId }: AdminPanelProps) {
                                     {user.id !== currentUserId && (
                                         <select
                                             value={roleDraft}
-                                            onChange={(e) => setRoleDraft(e.target.value as 'admin' | 'moderator' | 'user')}
+                                            onChange={(e) => setRoleDraft(e.target.value as 'admin' | 'user')}
                                             className="border border-gray-300 rounded-lg px-2 py-1 text-sm">
                                             <option value="user">User</option>
-                                            <option value="moderator">Moderator</option>
                                             <option value="admin">Admin</option>
                                         </select>
                                     )}

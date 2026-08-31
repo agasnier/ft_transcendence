@@ -161,14 +161,16 @@ function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuVie
                         </div>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-2">
-                        <span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
-                        <button
-                            onClick={startEditingPseudo}
-                            title="Modifier le pseudo"
-                            className="text-gray-400 hover:text-gray-700">
-                            <IconEdit size={14} className="icon-hover-grow"/>
-                        </button>
+                    <div className="flex justify-center w-full px-8">
+                        <div className="relative inline-flex items-center max-w-full">
+                            <span className="truncate text-2xl">{pseudo ?? 'Utilisateur'}</span>
+                            <button
+                                onClick={startEditingPseudo}
+                                title="Modifier le pseudo"
+                                className="absolute left-full ml-2 text-gray-400 hover:text-gray-700">
+                                <IconEdit size={14} className="icon-hover-grow"/>
+                            </button>
+                        </div>
                     </div>
                 )}
 
