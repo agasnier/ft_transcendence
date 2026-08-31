@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { IconEdit, IconDelete } from '../icons'
+import { MAX_AVATAR_FILE_SIZE } from '../limits'
 
 interface AvatarUploaderProps {
 	avatarUrl: string | null | undefined
@@ -18,7 +19,15 @@ function AvatarUploader({ avatarUrl, fallbackLabel, fallbackBgClass, editable, l
 
 	async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const file = e.target.files?.[0]
-		if (!file) return
+		if (!file)
+			return
+
+		if (file.size > MAX_AVATAR_FILE_SIZE) {
+			setAvatarError('Fichier trop volumineux (max 5 Mo)')
+			if (fileInputRef.current)
+				fileInputRef.current.value = ''
+			return
+		}
 
 		setAvatarError(null)
 		setIsUploadingAvatar(true)

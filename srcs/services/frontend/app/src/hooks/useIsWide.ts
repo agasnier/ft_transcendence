@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 export function useIsWide(breakpoint = 1024): boolean {
-	const [isWide, setIsWide] = useState(() => window.innerWidth > breakpoint)
+	const [isWide, setIsWide] = useState(() => window.matchMedia(`(min-width: ${breakpoint}px)`).matches)
 
 	useEffect(() => {
 		const mq = window.matchMedia(`(min-width: ${breakpoint}px)`)

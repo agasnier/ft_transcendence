@@ -38,7 +38,7 @@ export const listUsersPublicSchema = {
       id: { type: 'integer' },
       pseudo: { type: 'string' },
       displayName: { type: ['string', 'null'] },
-      avatarUrl: { type: 'string' },
+      avatarUrl: { type: ['string', 'null'] },
     },
   },
 }
@@ -51,7 +51,7 @@ export const listUsersAdminSchema = {
       id: { type: 'integer' },
       pseudo: { type: 'string' },
       displayName: { type: ['string', 'null'] },
-      avatarUrl: { type: 'string' },
+      avatarUrl: { type: ['string', 'null'] },
       mail: { type: 'string' },
       role: { type: 'string' },
     },
@@ -88,7 +88,7 @@ export const createUserSchema = {
     additionalProperties: false,
     properties: {
       mail: { type: 'string', format: 'email', maxLength: 255 },
-      pseudo: { type: 'string', minLength: 1, maxLength: 255 },
+      pseudo: { type: 'string', minLength: 1, maxLength: 30 },
       password: { type: 'string', minLength: 8, maxLength: 255 },
     },
   },
@@ -114,7 +114,7 @@ export const updateUserSchema = {
     minProperties: 1,
     properties: {
       mail: { type: 'string', format: 'email', maxLength: 255 },
-      pseudo: { type: 'string', minLength: 1, maxLength: 255 },
+      pseudo: { type: 'string', minLength: 1, maxLength: 30 },
       password: { type: 'string', minLength: 8, maxLength: 255 },
       role: { type: 'string', enum: ['admin', 'user'] },
     },

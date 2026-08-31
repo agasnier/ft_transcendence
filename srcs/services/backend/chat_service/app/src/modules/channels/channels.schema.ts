@@ -32,7 +32,7 @@ export const createChannelSchema = {
     required: ['memberIds', 'type'],
     additionalProperties: false,
     properties: {
-      name: { type: 'string', minLength: 1, maxLength: 255 },
+      name: { type: 'string', minLength: 1, maxLength: 30 },
       type: { type: 'string', enum: ['channel', 'group', 'discussion'] },
       description: { type: 'string', maxLength: 255 },
       memberIds: {
@@ -117,7 +117,7 @@ export const updateChannelSchema = {
     type: 'object',
     additionalProperties: false,
     properties: {
-      name: { type: 'string', minLength: 1, maxLength: 255 },
+      name: { type: 'string', minLength: 1, maxLength: 30 },
       description: { type: 'string', maxLength: 255 },
     },
   },

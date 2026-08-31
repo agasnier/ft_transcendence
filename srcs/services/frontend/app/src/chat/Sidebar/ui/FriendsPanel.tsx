@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { usePolling } from '../../../hooks/usePolling'
 import { useClickOutside } from '../../../hooks/useClickOutside'
+import RequestsList from './RequestsList'
 import AddFriendForm from './AddFriendForm'
-import PendingRequestsList from './PendingRequestsList'
 import FriendsList from './FriendsList'
-import OutgoingRequestList from './OutgoingRequestsList'
 
 interface FriendsPanelProps {
 	searchQuery: string
@@ -82,8 +81,35 @@ function FriendsPanel({ searchQuery, isSearching, userId, onCreateChannel, onSel
 	return (
 		<>
 			{!isSearching && (<AddFriendForm/>)}
-			{!isSearching && (<PendingRequestsList pending={pending} onAccept={handleAccept} onDecline={handleDecline}/>)}
-			{!isSearching && (<OutgoingRequestList outgoing={outgoing}/>)}
+			{!isSearching && (
+				<RequestsList
+					title="Demandes reçues"
+					emptyText="Aucune demande"
+					requests={pending}
+					renderAction={(request) => (
+						<span className="flex gap-1">
+							<button
+								type="button"
+								onClick={() => handleAccept(request.id)}
+								className="text-xs bg-user text-white rounded-full px-2 py-1 hover:bg-blue-600">
+								Accepter
+							</button>
+							<button
+								type="button"
+								onClick={() => handleDecline(request.id)}
+								className="text-xs bg-gray-300 text-gray-700 rounded-full px-2 py-1 hover:bg-gray-400">
+								Refuser
+							</button>
+						</span>
+					)}
+				/>)}
+			{!isSearching && (
+				<RequestsList
+					title="Demandes envoyées"
+					emptyText='Aucune demande envoyée'
+					requests={outgoing}
+					renderAction={() => <span className="text-xs text-gray-400">En attente</span>}
+				/>)}
 			<FriendsList
 				friends={filteredFriends}
 				isSearching={isSearching}

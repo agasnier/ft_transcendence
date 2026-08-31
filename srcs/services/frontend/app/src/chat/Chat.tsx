@@ -89,6 +89,7 @@ function Chat({onLogout, pseudo, userId, role, onUpdatePseudo}: ChatProps) {
 		if (selectedChannelId !== null && !channels.some((c) => c.id === selectedChannelId)) {
 			setSelectedChannelId(null)
 			setShowInfoPanel(false)
+			setMobileView('sidebar')
 		}
 	}, [channels, selectedChannelId])
 

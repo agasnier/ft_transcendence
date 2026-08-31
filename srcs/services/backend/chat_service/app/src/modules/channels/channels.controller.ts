@@ -72,13 +72,12 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
 export async function listUserChannelsController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     const userChannels = await listUserChannels(request.user!.id)
-    const result = []
-    for (const channel of userChannels) {
+    const result = await Promise.all(userChannels.map(async (channel) => {
       const lastMessageId = await getLastMessageId(channel.id) ?? 0
       const lastReadId = await getLastReadMessageId(channel.id, request.user!.id) ?? 0
       const memberCount = channel.type !== 'discussion' ? await countChannelMembers(channel.id) : undefined
-      result.push({ ...channel, hasUnread: lastMessageId > lastReadId, memberCount })
-    }
+      return { ...channel, hasUnread: lastMessageId > lastReadId, memberCount }
+    }))
     await reply.send(result)
   } catch (err) {
     request.log.error(err)
