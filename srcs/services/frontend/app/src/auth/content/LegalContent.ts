@@ -19,7 +19,7 @@ export const privacyContent: LegalContent = {
     },
     {
       heading: "Données collectées",
-      body: "Lors de l'inscription et de l'utilisation du service, nous collectons : votre adresse email, votre pseudo, votre mot de passe (haché, jamais stocké en clair), votre nom affiché, votre avatar, votre bio, votre statut en ligne, votre liste d'amis, ainsi que les messages que vous échangez dans les discussions et les groupes.",
+      body: "Lors de l'inscription et de l'utilisation du service, nous collectons : votre adresse email, votre pseudo, votre mot de passe (haché, jamais stocké en clair), votre nom affiché, votre avatar, votre bio, votre statut en ligne, votre liste d'amis, ainsi que les messages et fichiers que vous échangez dans les discussions et les groupes.",
     },
     {
       heading: "Authentification et sécurité",
@@ -78,7 +78,7 @@ export const termsContent: LegalContent = {
     },
     {
       heading: "Modération et suspension",
-      body: "Un compte ne respectant pas ces règles peut être suspendu ou supprimé par un modérateur ou un administrateur du service.",
+      body: "Un compte ne respectant pas ces règles peut être supprimé par un administrateur du service.",
     },
     {
       heading: "Disponibilité du service",

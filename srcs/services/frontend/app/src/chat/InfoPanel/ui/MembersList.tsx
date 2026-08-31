@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useOnlineUsers } from '../../../hooks/presence'
 import AvatarNameCard from '../../Sidebar/ui/AvatarNameCard'
 import AddMembersForm from './AddMembersForm'
 
@@ -21,6 +22,7 @@ interface MembersListProps {
 
 function MembersList({ channelId, members, isModerator, onSelectMember, onAddMembers, onMembersChanged }: MembersListProps) {
 	const [isAddingMembers, setIsAddingMembers] = useState(false)
+	const onlineUserIds = useOnlineUsers()
 
 	return (
 		<div className="flex flex-1 flex-col self-stretch gap-1 mt-2 bg-white rounded-2xl p-2 min-h-0 overflow-y-auto shadow-sm border border-gray-100">
@@ -59,6 +61,7 @@ function MembersList({ channelId, members, isModerator, onSelectMember, onAddMem
 							variant="user"
 							avatarUrl={m.avatarUrl}
 							subtitle={m.globalRole === 'admin' ? 'Admin' : m.role === 'moderator' ? 'Modérateur' : undefined}
+							isOnline={onlineUserIds.has(m.userId)}
 							onClick={() => onSelectMember(m)}
 						/>
 					))}
