@@ -4,6 +4,7 @@ import { useClickOutside } from '../../../hooks/useClickOutside'
 import AddFriendForm from './AddFriendForm'
 import PendingRequestsList from './PendingRequestsList'
 import FriendsList from './FriendsList'
+import OutgoingRequestList from './OutgoingRequestsList'
 
 interface FriendsPanelProps {
 	searchQuery: string
@@ -29,18 +30,22 @@ function FriendsPanel({ searchQuery, isSearching, userId, onCreateChannel, onSel
 	const [friends, setFriends] = useState<Friend[]>([])
 	const [pending, setPending] = useState<PendingRequest[]>([])
 	const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null)
+	const [outgoing, setOutgoing] = useState<PendingRequest[]>([])
 
 	useClickOutside(confirmRemoveId !== null, '[data-remove-popover]', () => setConfirmRemoveId(null))
 
 	usePolling(async () => {
-		const [friendsRes, pendingRes] = await Promise.all([
+		const [friendsRes, pendingRes, outgoingRes] = await Promise.all([
 			fetch('/friends'),
 			fetch('/friends/requests/incoming'),
+			fetch('/friends/requests/outgoing'),
 		])
 		if (friendsRes.ok)
 			setFriends(await friendsRes.json())
 		if (pendingRes.ok)
 			setPending(await pendingRes.json())
+		if (outgoingRes.ok)
+			setOutgoing(await outgoingRes.json())
 	}, 5000)
 
 	async function handleAccept(id: number) {
@@ -78,6 +83,7 @@ function FriendsPanel({ searchQuery, isSearching, userId, onCreateChannel, onSel
 		<>
 			{!isSearching && (<AddFriendForm/>)}
 			{!isSearching && (<PendingRequestsList pending={pending} onAccept={handleAccept} onDecline={handleDecline}/>)}
+			{!isSearching && (<OutgoingRequestList outgoing={outgoing}/>)}
 			<FriendsList
 				friends={filteredFriends}
 				isSearching={isSearching}
