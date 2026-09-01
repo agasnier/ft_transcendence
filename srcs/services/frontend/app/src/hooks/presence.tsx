@@ -1,5 +1,7 @@
 import { createContext, useContext } from 'react'
 
+// Values live in useChatSocket, provided here via context so deeply nested components
+// can read them without prop-drilling through Chat.tsx
 const OnlineUsersContext = createContext<Set<number>>(new Set())
 const UserAvatarsContext = createContext<Map<number, string | null>>(new Map())
 

@@ -31,6 +31,8 @@ interface Message {
     file: FileInfo | null
 }
 
+// Wires incoming websocket events into the setters passed in, owned by useChannel/useMessage elsewhere
+// Also owns its own local state here for presence (onlineUserIds) and avatars (userAvatars)
 export function useChatSocket(
 	addChannel: (channel: Channel) => void,
 	removeChannel: (id: number) => void,
@@ -82,6 +84,8 @@ export function useChatSocket(
 				return next
 			})
 		}
+		// No logout callback is threaded this deep, so a global DOM event is dispatched instead
+		// App.tsx listens for 'auth-lost' to actually log the user out
 		if (message.type === 'FORCE_LOGOUT') {
 			window.dispatchEvent(new Event('auth-lost'))
 		}

@@ -1,8 +1,12 @@
 import { useEffect } from "react";
 
-export function useClickOutside(active: boolean, selector: string, onClose: () => void) {
+// Closes the popover when the user clicks outside the element `selector` or presses Escape
+// Escape is caught on the capture phase (`true` + stopPropagation)
+// It takes priority over other Escape handlers elsewhere in the app
+export function useClickOutside(isOpen: boolean, selector: string, onClose: () => void) {
 	useEffect(() => {
-		if (!active) return
+		if (!isOpen)
+			return
 
 		function handleClickOutside(event: MouseEvent) {
 			if (!(event.target as HTMLElement).closest(selector))
@@ -21,5 +25,5 @@ export function useClickOutside(active: boolean, selector: string, onClose: () =
 			document.removeEventListener('mousedown', handleClickOutside)
 			document.removeEventListener('keydown', handleKeyDown, true)
 		}
-	}, [active, selector, onClose])
+	}, [isOpen, selector, onClose])
 }

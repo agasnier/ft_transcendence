@@ -10,7 +10,7 @@ export function useFriends() {
 	const [friends, setFriends] = useState<UserRow[]>([])
 
 	useEffect(() => {
-		async function load() {
+		async function loadFriends() {
 			const res = await fetch('/friends')
 			if (res.ok) {
 				const data = await res.json()
@@ -21,7 +21,7 @@ export function useFriends() {
 				})))
 			}
 		}
-		load()
+		loadFriends()
 	}, [])
 	return friends
 }

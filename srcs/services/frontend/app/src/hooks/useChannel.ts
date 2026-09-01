@@ -27,6 +27,8 @@ export function useChannel() {
 		loadChannels()
 	}, [])
 
+	// Sends a new channel to the server
+	// Adds it to local state immediately, without waiting for the CHANNEL_CREATED websocket event
 	async function createChannel(
 		type: Channel['type'],
 		memberIds: number[],
@@ -44,20 +46,8 @@ export function useChannel() {
 		return channel
 	}
 
-	async function deleteChannel(id: number): Promise<boolean> {
-		const res = await fetch(`/chat/channels/${id}`, { method: 'DELETE' })
-		return res.ok
-	}
-
-	async function markChannelRead(id: number): Promise<void> {
-		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, hasUnread: false } : c)))
-		await fetch(`/chat/channels/${id}/read`, { method: 'PATCH' })
-	}
-
-	function setChannelUnread(id: number, hasUnread: boolean) {
-		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, hasUnread } : c)))
-	}
-
+	// Local state only, no backend call
+	// Used both by createChannel above and to apply CHANNEL_CREATED events pushed over the websocket
 	function addChannel(channel: Channel) {
 		setChannels((prev) =>
 			prev.some((c) => c.id === channel.id)
@@ -66,12 +56,20 @@ export function useChannel() {
 		)
 	}
 
+	async function deleteChannel(id: number): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${id}`, { method: 'DELETE' })
+		return res.ok
+	}
+
 	function removeChannel(id: number) {
 		setChannels((prev) => prev.filter((c) => c.id !== id))
 	}
 
+	// Local state only, no backend call
+	// Applies a CHANNEL_UPDATED event pushed over the websocket
+	// renameChannel, updateDescription and updateWriteMode below are the ones that call the server
 	function updateChannel(channel: Channel) {
-		setChannels((prev) => 
+		setChannels((prev) =>
 			prev.map((c) => (c.id === channel.id ? { ...c, ...channel } : c)))
 	}
 
@@ -97,15 +95,6 @@ export function useChannel() {
 		return true
 	}
 
-	async function addMembers(channelId: number, memberIds: number[]): Promise<boolean> {
-		const res = await fetch(`/chat/channels/${channelId}/members`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ memberIds }),
-		})
-		return res.ok
-	}
-
 	async function updateWriteMode(id: number, writeMode: 'everyone' | 'moderators_only'): Promise<boolean> {
         const res = await fetch(`/chat/channels/${id}/write-mode`, {
             method: 'PUT',
@@ -116,6 +105,26 @@ export function useChannel() {
         setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, writeMode } : c)))
         return true
     }
+
+	// Updates local state before the request resolves
+	// Assumes the PATCH succeeds, no rollback if it fails
+	async function markChannelRead(id: number): Promise<void> {
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, hasUnread: false } : c)))
+		await fetch(`/chat/channels/${id}/read`, { method: 'PATCH' })
+	}
+
+	function setChannelUnread(id: number, hasUnread: boolean) {
+		setChannels((prev) => prev.map((c) => (c.id === id ? { ...c, hasUnread } : c)))
+	}
+
+	async function addMembers(channelId: number, memberIds: number[]): Promise<boolean> {
+		const res = await fetch(`/chat/channels/${channelId}/members`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ memberIds }),
+		})
+		return res.ok
+	}
 
 	async function updateMemberRole(channelId: number, userId: number, role: 'moderator' | 'member'): Promise<boolean> {
         const res = await fetch(`/chat/channels/${channelId}/members/${userId}/role`, {

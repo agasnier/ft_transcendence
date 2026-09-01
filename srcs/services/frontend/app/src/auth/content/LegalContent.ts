@@ -11,7 +11,7 @@ export interface LegalContent {
 
 export const privacyContent: LegalContent = {
   title: "Politique de confidentialité",
-  lastUpdated: "10 août 2026",
+  lastUpdated: "31 août 2026",
   sections: [
     {
       heading: "Contexte",
@@ -54,7 +54,7 @@ export const privacyContent: LegalContent = {
 
 export const termsContent: LegalContent = {
   title: "Conditions d'utilisation",
-  lastUpdated: "10 août 2026",
+  lastUpdated: "31 août 2026",
   sections: [
     {
       heading: "Objet",
