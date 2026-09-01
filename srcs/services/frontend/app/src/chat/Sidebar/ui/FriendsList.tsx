@@ -28,7 +28,7 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
                 <ul className="flex flex-col gap-1">
                     {friends.map((friend) => (
                         <li key={friend.id} className="group flex items-center justify-between gap-2 px-2 py-1 rounded-2xl hover:bg-gray-200">
-                            <span className="flex items-center gap-2">
+                            <span className="truncate flex items-center gap-2">
                                 <span className="relative shrink-0">
                                     {friend.avatarUrl ? (
                                         <img
