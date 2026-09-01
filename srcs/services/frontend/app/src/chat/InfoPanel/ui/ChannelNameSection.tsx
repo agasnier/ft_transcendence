@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { IconEdit } from '../../../icons'
-import { MAX_NAME_LENGTH, MAX_SHORT_TEXT_LENGTH } from '../../../limits'
+import { MAX_NAME_LENGTH } from '../../../limits'
 
 interface Channel {
 	id: number
