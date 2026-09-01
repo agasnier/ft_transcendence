@@ -199,7 +199,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 					onDeleteChannel(channel.id)
 				)}
 				className="mt-auto w-full text-left px-3 py-2 text-sm text-danger bg-white hover:bg-danger-bg rounded-xl">
-				Supprimer la conversation
+				{isModerator && channel.type === 'channel' ? 'Supprimer la conversation' : 'Quitter la conversation'}
 			</button>
 		</aside>
 	)

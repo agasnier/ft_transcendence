@@ -5,7 +5,7 @@ import { pipeline } from 'stream/promises'
 import { createWriteStream } from 'fs'
 import { unlink } from 'fs/promises'
 import { validateAccessToken } from '../vault/jwt.js'
-import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers, getLastMessageId, getLastReadMessageId, markChannelRead, updateChannelAvatar, deleteChannelAvatar } from './channels.service.js'
+import { channelInfo, createChannel, deleteChannel, isChannelMember, leaveChannel, listAllChannels, listChannelMembers, getMemberRole, listUserChannels, resolveDiscussionNames, updateChannel, removeChannelMember, addChannelMembers, updateMemberRole, updateWriteMode, countChannelMembers, getLastMessageId, getLastReadMessageId, markChannelRead, updateChannelAvatar, deleteChannelAvatar } from './channels.service.js'
 import { wsChannelCreatedTo, wsChannelDeleted, wsChannelDeletedTo, wsChannelUpdatedTo, wsMessageCreated } from '../websocket/websocket.ws.js'
 import { createMessage } from '../messages/messages.service.js'
 import { env } from '../../config/env.js'
@@ -132,8 +132,14 @@ export async function deleteChannelController(request: FastifyRequest, reply: Fa
       }
       
     } else {
-      await deleteChannel(channelId)
-      wsChannelDeleted(channelId)
+      if (request.user!.role !== 'admin' && (await getMemberRole(channelId, request.user!.id) !== 'moderator')) {
+        await leaveChannel(channelId, request.user!.id)
+        wsChannelDeletedTo(request.user!.id, channelId)
+      }
+      else {
+        await deleteChannel(channelId)
+        wsChannelDeleted(channelId)
+      }
     }
 
     await reply.status(200).send()
