@@ -27,7 +27,7 @@ interface Message {
 interface MessagesListProps {
     messages: Message[]
     userId: number | null
-    role: 'admin' | 'moderator' | 'user' | null
+    role: 'admin' | 'user' | null
     myChannelRole: 'moderator' | 'member' | null
     channelType: 'channel' | 'group' | 'discussion'
     onEditMessage: (messageId: number, content: string) => Promise<boolean>

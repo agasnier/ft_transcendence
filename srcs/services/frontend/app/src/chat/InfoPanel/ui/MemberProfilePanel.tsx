@@ -16,7 +16,7 @@ interface PublicProfile {
 	avatarUrl: string
 	bio: string | null
 	isOnline: boolean
-	role: 'admin' | 'moderator' | 'user'
+	role: 'admin' | 'user'
 }
 
 interface MemberProfilePanelProps {
@@ -24,7 +24,7 @@ interface MemberProfilePanelProps {
 	member: Member
 	userId: number | null
 	isModerator: boolean
-	myRole: 'admin' | 'moderator' | 'user' | null
+	myRole: 'admin' | 'user' | null
 	onBack: () => void
 	onUpdateMemberRole?: (channelId: number, userId: number, role: 'moderator' | 'member') => Promise<boolean>
 	onRemoveMember?: (channelId: number, userId: number) => Promise<boolean>

@@ -7,7 +7,7 @@ function App() {
     const [isCheckingSession, setIsCheckingSession] = useState(true)
     const [userId, setUserId] = useState<number | null>(null)
     const [pseudo, setPseudo] = useState<string | null>(null)
-    const [role, setRole] = useState<'admin' | 'moderator' | 'user' | null>(null)
+    const [role, setRole] = useState<'admin' | 'user' | null>(null)
 
     async function checkSession() {
         const res = await fetch('/auth/session')

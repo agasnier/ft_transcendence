@@ -13,7 +13,7 @@ interface Member {
 	role: 'moderator' | 'member'
 	pseudo: string
 	avatarUrl?: string | null
-	globalRole?: 'admin' | 'moderator' | 'user'
+	globalRole?: 'admin' | 'user'
 }
 
 interface Channel {
@@ -32,7 +32,7 @@ interface PublicProfile {
 	avatarUrl: string
 	bio: string | null
 	isOnline: boolean
-	role: 'admin' | 'moderator' | 'user'
+	role: 'admin' | 'user'
 }
 
 interface InfoPanelProps {
@@ -54,7 +54,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 	const [members, setMembers] = useState<Member[] | null>(null)
 	const [otherProfile, setOtherProfile] = useState<PublicProfile | null>(null)
 	const [selectedMember, setSelectedMember] = useState<Member | null>(null)
-	const [myRole, setMyRole] = useState<'admin' | 'moderator' | 'user' | null>(null)
+	const [myRole, setMyRole] = useState<'admin' | 'user' | null>(null)
 
 	const isModerator = myRole === 'admin' || (members?.some((m) => m.userId === userId && m.role === 'moderator') ?? false)
 
@@ -73,7 +73,7 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 		const usersRes = await fetch(`/users/batch?ids=${rows.map((r) => r.userId).join(',')}`)
 		if (!usersRes.ok)
 			return
-		const users: { id: number; pseudo: string; avatarUrl: string | null; role?: 'admin' | 'moderator' | 'user' }[] = await usersRes.json()
+		const users: { id: number; pseudo: string; avatarUrl: string | null; role?: 'admin' | 'user' }[] = await usersRes.json()
 		const infoById = new Map(users.map((u) => [u.id, u]))
 		const membersList: Member[] = rows.map((r) => ({
 			...r,

@@ -34,7 +34,7 @@ interface Channel {
 interface ChatWindowProps {
     channel: Channel
     userId: number | null
-    role: 'admin' | 'moderator' | 'user' | null
+    role: 'admin' | 'user' | null
     messages: Message[]
     onSendMessage: (content: string) => void
     onSendFile: (file: File, onProgress?: (percent: number) => void) => Promise<boolean>
