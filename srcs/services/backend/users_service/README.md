@@ -67,7 +67,7 @@ Accounts and profiles. Table: `users`.
 | `mail` | `varchar(255)` | unique |
 | `pseudo` | `varchar(255)` | unique, can be used as login |
 | `password` | `varchar(255)` | Vault HMAC then Argon2 |
-| `role` | `enum('admin','moderator','user')` | default `user` |
+| `role` | `enum('admin', 'user')` | default `user` |
 | `display_name` | `varchar(50)` | optional |
 | `avatar_url` | `varchar(255)` | `/avatars/<uuid>.png`, nullable |
 | `bio` | `text` | max 500 characters |

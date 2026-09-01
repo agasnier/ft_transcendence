@@ -7,7 +7,7 @@ interface Member {
 	role: 'moderator' | 'member'
 	pseudo: string
 	avatarUrl?: string | null
-	globalRole?: 'admin' | 'moderator' | 'user'
+	globalRole?: 'admin' | 'user'
 }
 
 interface PublicProfile {

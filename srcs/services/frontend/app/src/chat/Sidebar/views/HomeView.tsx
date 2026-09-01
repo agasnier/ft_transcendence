@@ -14,7 +14,7 @@ interface Channel {
 
 interface HomeViewProps {
     userId: number | null
-    role: 'admin' | 'moderator' | 'user' | null
+    role: 'admin' | 'user' | null
     channels: Channel[]
     selectedChannelId: number | null
     onSelectChannel: (id: number) => void

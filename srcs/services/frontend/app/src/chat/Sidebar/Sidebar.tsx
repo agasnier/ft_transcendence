@@ -13,7 +13,7 @@ interface SidebarProp {
 	onLogout: () => void
 	pseudo: string | null
 	userId: number | null
-	role: 'admin' | 'moderator' | 'user' | null
+	role: 'admin' | 'user' | null
 	onUpdatePseudo: (newPseudo: string) => Promise<boolean>
 	channels: Channel[]
 	selectedChannelId: number | null
