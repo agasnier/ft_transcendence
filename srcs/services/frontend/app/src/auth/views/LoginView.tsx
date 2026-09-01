@@ -2,6 +2,7 @@ import { useState } from 'react'
 import TextField from '../../components/TextField'
 import AuthCard from '../ui/AuthCard'
 import type { AuthView } from '../Auth'
+import { MAX_NAME_LENGTH, MAX_SHORT_TEXT_LENGTH } from '../../limits'
 
 interface LoginViewProps {
 	setView: (view: AuthView) => void
@@ -63,6 +64,7 @@ function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
 				label="E-mail ou pseudo"
 				type="text"
 				value={login}
+				maxLength={MAX_NAME_LENGTH}
 				onChange={(e) => setLogin(e.target.value)}
 				required
 				autoFocus
@@ -74,6 +76,7 @@ function LoginView({ setView, onLoginSuccess }: LoginViewProps) {
 				label="Mot de passe"
 				type="password"
 				value={password}
+				maxLength={MAX_SHORT_TEXT_LENGTH}
 				onChange={(e) => setPassword(e.target.value)}
 				required
 				autoComplete="current-password"
