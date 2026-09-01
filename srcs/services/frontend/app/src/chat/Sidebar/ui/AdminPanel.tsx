@@ -56,10 +56,8 @@ function AdminPanel({ currentUserId }: AdminPanelProps) {
         if (res.ok) {
             await loadUsers()
             setEditingId(null)
-        } else {
-            const err = await res.json().catch(() => null)
-            setError(err?.message ?? 'Échec de la mise à jour')
-        }
+        } else
+            setError('Échec de la mise à jour')
     }
 
     async function deleteUser(id: number) {
