@@ -35,6 +35,8 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
   try {
     const { name, memberIds, type, description } = request.body as { name?: string; memberIds: number[]; type: string; description?: string }
     const { channel } = await createChannel(name, memberIds, type, description, request.user!.id)
+    const memberCount = type !== 'discussion' ? await countChannelMembers(channel.id) : undefined
+    const channelWithCount = { ...channel, memberCount }
 
     // websocket: a discussion only appears for its creator until the other member gets a message (see messages.controller.ts);
     // channels/groups notify every member immediately like before.
@@ -43,7 +45,7 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
       wsChannelCreatedTo(request.user!.id, resolvedChannel)
     } else {
       for (const memberId of memberIds)
-        wsChannelCreatedTo(memberId, channel)
+        wsChannelCreatedTo(memberId, channelWithCount)
     }
 
     // For groups/channels, post a system message announcing the creation and mark it
@@ -60,7 +62,7 @@ export async function createChannelController(request: FastifyRequest, reply: Fa
       wsMessageCreated(message)
     }
 
-    await reply.status(201).send(channel)
+    await reply.status(201).send(channelWithCount)
   } catch (err) {
     request.log.error(err)
     await reply.status(500).send({ message: 'Internal error' })

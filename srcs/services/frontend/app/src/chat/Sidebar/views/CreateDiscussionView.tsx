@@ -8,6 +8,7 @@ interface CreateDiscussionViewProps {
 	setView: (view: SidebarView) => void
 	userId: number | null
 	onCreateChannel: (type: 'discussion', memberIds: number[], name?: string, description?: string) => Promise<{ id: number } | null>
+	onSelectChannel: (id: number) => void
 }
 
 interface UserRow {
@@ -16,7 +17,7 @@ interface UserRow {
 	avatarUrl?: string | null
 }
 
-function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscussionViewProps) {
+function CreateDiscussionView({ setView, userId, onCreateChannel, onSelectChannel }: CreateDiscussionViewProps) {
 	const friends = useFriends()
 	const [others, setOthers] = useState<UserRow[]>([])
 	const [error, setError] = useState<string | null>(null)
@@ -36,10 +37,15 @@ function CreateDiscussionView({ setView, userId, onCreateChannel }: CreateDiscus
 	}, [userId])
 
 	async function handleSelect(user: UserRow) {
-		if (userId === null) return
+		if (userId === null)
+			return
 		const channel = await onCreateChannel('discussion', [userId, user.id])
-		if (channel) setView({ kind: 'home' })
-		else setError('Impossible de démarrer la discussion')
+		if (channel) {
+			setView({ kind: 'home' })
+			onSelectChannel(channel.id)
+		}
+		else
+			setError('Impossible de démarrer la discussion')
 	}
 
 	return (

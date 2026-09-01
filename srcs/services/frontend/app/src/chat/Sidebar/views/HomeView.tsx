@@ -23,9 +23,10 @@ interface HomeViewProps {
     setView: (view: SidebarView) => void
     activeTab: 'friends' | 'conversations' | 'admin'
     setActiveTab: (tab: 'friends' | 'conversations' | 'admin') => void
+    hasPendingFriendRequests: boolean
 }
 
-function HomeView({ userId, role, channels, selectedChannelId, onSelectChannel, onCreateChannel, searchQuery, setView, activeTab, setActiveTab }: HomeViewProps) {
+function HomeView({ userId, role, channels, selectedChannelId, onSelectChannel, onCreateChannel, searchQuery, setView, activeTab, setActiveTab, hasPendingFriendRequests }: HomeViewProps) {
 
     return (
         <div className="flex flex-col gap-2 h-full min-h-0">
@@ -58,8 +59,11 @@ function HomeView({ userId, role, channels, selectedChannelId, onSelectChannel, 
                 <button
                     type="button"
                     onClick={() => setActiveTab('friends')}
-                    className={`tab-button ${activeTab === 'friends' ? 'bg-blue-100 text-blue-500 hover:none' : ''}`}>
+                    className={`tab-button flex items-center justify-center gap-1.5 ${activeTab === 'friends' ? 'bg-blue-100 text-blue-500 hover:none' : ''}`}>
                     Amis
+                    {hasPendingFriendRequests && (
+                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"/>
+                    )}
                 </button>
                 {role === 'admin' && (
                     <button

@@ -11,6 +11,7 @@ interface CreateChannelViewProps {
 	setView: (view: SidebarView) => void
 	userId: number | null
 	onCreateChannel: (type: 'channel', memberIds: number[], name?: string, description?: string) => Promise<{ id: number } | null>
+	onSelectChannel: (id: number) => void
 }
 
 interface SelectedUser {
@@ -19,7 +20,7 @@ interface SelectedUser {
 	avatarUrl?: string | null
 }
 
-function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelViewProps) {
+function CreateChannelView({ setView, userId, onCreateChannel, onSelectChannel }: CreateChannelViewProps) {
 	const friends = useFriends()
 	const [step, setStep] = useState<'pick' | 'form'>('pick')
 	const [error, setError] = useState<string | null>(null)
@@ -82,9 +83,13 @@ function CreateChannelView({ setView, userId, onCreateChannel }: CreateChannelVi
 						type="channel"
 						onCancel={() => setView({ kind: 'home' })}
 						onCreate={async (name, description) => {
-							if (userId === null) return
+							if (userId === null)
+								return
 							const channel = await onCreateChannel('channel', [userId, ...selectedUsers.map((u) => u.id)], name, description)
-							if (channel) setView({ kind: 'home' })
+							if (channel) {
+								setView({ kind: 'home' })
+								onSelectChannel(channel.id)
+							}
 							else setError('Impossible de créer le canal')
 						}}
 					/>

@@ -7,6 +7,7 @@ import CreateChannelView from './views/CreateChannelView'
 import CreateGroupView from './views/CreateGroupView'
 import CreateDiscussionView from './views/CreateDiscussionView'
 import UserMenuView from './views/UserMenuView'
+import { usePolling } from '../../hooks/usePolling'
 
 interface SidebarProp {
 	onLogout: () => void
@@ -46,7 +47,16 @@ function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, 
 	const [activeTab, setActiveTab] = useState<'friends' | 'conversations' | 'admin'>('conversations')
 	const [searchQuery, setSearchQuery] = useState('')
 	const [direction, setDirection] = useState(1)
+	const [hasPendingFriendRequests, setHasPendingFriendRequests] = useState(false)
 	const prevKindRef = useRef<SidebarView['kind']>('home')
+
+	usePolling(async () => {
+		const res = await fetch('/friends/requests/incoming')
+		if (res.ok) {
+			const incoming = await res.json()
+			setHasPendingFriendRequests(incoming.length > 0)
+		}
+	}, 5000)
 
 	useEffect (() => {
 		function handleKeyDown(event: KeyboardEvent) {
@@ -79,6 +89,7 @@ function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, 
 						setView={navigate}
 						activeTab={activeTab}
 						setActiveTab={setActiveTab}
+						hasPendingFriendRequests={hasPendingFriendRequests}
 					/>
 				)
 			case 'search':
@@ -102,6 +113,7 @@ function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, 
 						setView={navigate}
 						userId={userId}
 						onCreateChannel={onCreateChannel}
+						onSelectChannel={onSelectChannel}
 					/>
 				)
 			case 'createGroup':
@@ -110,6 +122,7 @@ function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, 
 						setView={navigate}
 						userId={userId}
 						onCreateChannel={onCreateChannel}
+						onSelectChannel={onSelectChannel}
 					/>
 				)
 			case 'createDiscussion':
@@ -118,6 +131,7 @@ function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, 
 						setView={navigate}
 						userId={userId}
 						onCreateChannel={onCreateChannel}
+						onSelectChannel={onSelectChannel}
 					/>
 				)
 			case 'userMenu':

@@ -106,7 +106,7 @@ export function wsUserAvatarChanged(userId: number, avatarUrl: string | null): v
 	wsSendAll({type: 'USER_AVATAR_CHANGED', payload: { userId, avatarUrl } })
 }
 
-export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, avatarUrl?: string | null, createdAt: Date | string }): void {
+export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, avatarUrl?: string | null, createdAt: Date | string, memberCount?: number }): void {
 	wsSendToUser(userId, { type: 'CHANNEL_CREATED', payload: channel })
 }
 

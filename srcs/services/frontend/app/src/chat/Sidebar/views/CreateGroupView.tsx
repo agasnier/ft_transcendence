@@ -11,6 +11,7 @@ interface CreateGroupViewProps {
 	setView: (view: SidebarView) => void
 	userId: number | null
 	onCreateChannel: (type: 'group', memberIds: number[], name?: string, description?: string) => Promise<{ id: number } | null>
+	onSelectChannel: (id: number) => void
 }
 
 interface SelectedUser {
@@ -19,7 +20,7 @@ interface SelectedUser {
 	avatarUrl?: string | null
 }
 
-function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewProps) {
+function CreateGroupView({ setView, userId, onCreateChannel, onSelectChannel }: CreateGroupViewProps) {
 	const friends = useFriends()
 	const [step, setStep] = useState< 'pick' | 'form' >('pick')
 	const [error, setError] = useState<string | null>(null)
@@ -83,10 +84,15 @@ function CreateGroupView({ setView, userId, onCreateChannel }: CreateGroupViewPr
 						type="group"
 						onCancel={() => setView({kind: 'home'})}
 						onCreate={async (name, description) => {
-							if (userId === null) return
+							if (userId === null)
+								return
 							const channel = await onCreateChannel('group', [userId, ...selectedUsers.map((u) => u.id)], name, description)
-							if (channel) setView({kind: 'home'})
-							else setError('Impossible de créer le groupe')
+							if (channel) {
+								setView({kind: 'home'})
+								onSelectChannel(channel.id)
+							}
+							else
+								setError('Impossible de créer le groupe')
 						}}
 					/>
 					{error && <p className="form-error">{error}</p>}

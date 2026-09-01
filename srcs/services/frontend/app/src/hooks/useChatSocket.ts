@@ -9,6 +9,7 @@ interface Channel {
 	avatarUrl?: string | null
 	memberIds?: number[]
 	hasUnread?: boolean
+	memberCount?: number
 }
 
 interface FileInfo {
