@@ -4,14 +4,25 @@ import { listUsersSchema, listUsersBatchSchema, getUserSchema, createUserSchema,
 import { userAuthHook } from '../auth/auth.controller.js'
 import { requireSelfOrRole } from '../auth/permissions.js'
 
-// Routes for user accounts: CRUD, own profile management, and avatars.
+function registerUserCrud(app: FastifyInstance, withCookie: boolean): void {
+  const read = withCookie ? { preHandler: [userAuthHook] } : {}
+  const write = withCookie ? { preHandler: [userAuthHook, requireSelfOrRole('admin')] } : {}
+
+  app.get('/', { schema: listUsersSchema, ...read }, listUsersController)
+  app.get('/:id', { schema: getUserSchema, ...read }, getUserController)
+  app.post('/', { schema: createUserSchema, ...read }, createUserController)
+  app.put('/:id', { schema: updateUserSchema, ...write }, updateUserController)
+  app.delete('/:id', { schema: deleteUserSchema, ...write }, deleteUserController)
+}
+
+// Docker-only: nginx denies /users/internal. Same controllers, no cookie.
+export async function usersInternalRoutes(app: FastifyInstance): Promise<void> {
+  registerUserCrud(app, false)
+}
+
 export async function usersRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/', { schema: listUsersSchema, preHandler: [userAuthHook] }, listUsersController)
+  registerUserCrud(app, true)
   app.get('/batch', { schema: listUsersBatchSchema }, listUsersBatchController)
-  app.get('/:id', { schema: getUserSchema, preHandler: [userAuthHook] }, getUserController)
-  app.post('/', { schema: createUserSchema }, createUserController)
-  app.put('/:id', { schema: updateUserSchema, preHandler: [userAuthHook, requireSelfOrRole('admin')] }, updateUserController)
-  app.delete('/:id', { schema: deleteUserSchema, preHandler: [userAuthHook, requireSelfOrRole('admin')] }, deleteUserController)
   app.patch('/profile', { schema: updateProfileSchema, preHandler: [userAuthHook] }, updateProfileController)
   app.get('/profile', { schema: getUserProfileSchema, preHandler: [userAuthHook] }, getUserProfileController)
   app.post('/profile/avatar', { schema: uploadAvatarSchema, preHandler: [userAuthHook] }, uploadAvatarController)

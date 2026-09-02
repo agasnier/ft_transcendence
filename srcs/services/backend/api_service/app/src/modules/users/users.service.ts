@@ -1,6 +1,6 @@
 import { env } from '../../config/env.js'
 
-const BASE = env.usersServiceUrl
+const BASE = `${env.usersServiceUrl}/users/internal`
 
 function fail(res: Response): never {
   const err: any = new Error(`users_service -> ${res.status}`)
@@ -9,7 +9,7 @@ function fail(res: Response): never {
 }
 
 export async function getAllUsers() {
-  const res = await fetch(`${BASE}/users`)
+  const res = await fetch(BASE)
 
   if (!res.ok)
     fail(res)
@@ -18,7 +18,7 @@ export async function getAllUsers() {
 }
 
 export async function getUserById(id: number) {
-  const res = await fetch(`${BASE}/users/${id}`)
+  const res = await fetch(`${BASE}/${id}`)
 
   if (!res.ok)
     fail(res)
@@ -27,7 +27,7 @@ export async function getUserById(id: number) {
 }
 
 export async function createUser(body: unknown) {
-  const res = await fetch(`${BASE}/users`, {
+  const res = await fetch(BASE, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
@@ -40,7 +40,7 @@ export async function createUser(body: unknown) {
 }
 
 export async function updateUser(id: number, body: unknown) {
-  const res = await fetch(`${BASE}/users/${id}`, {
+  const res = await fetch(`${BASE}/${id}`, {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
@@ -53,7 +53,7 @@ export async function updateUser(id: number, body: unknown) {
 }
 
 export async function deleteUser(id: number) {
-  const res = await fetch(`${BASE}/users/${id}`, { method: 'DELETE' })
+  const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' })
   
   if (!res.ok)
     fail(res)

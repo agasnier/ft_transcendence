@@ -4,7 +4,7 @@ import fastifyStatic from '@fastify/static'
 import cookie from '@fastify/cookie'
 import path from 'path'
 
-import { usersRoutes } from './modules/users/users.route.js'
+import { usersInternalRoutes, usersRoutes } from './modules/users/users.route.js'
 import { friendsRoutes } from './modules/friends/friends.route.js'
 import { authRoutes } from './modules/auth/auth.route.js'
 import { twofaRoutes } from './modules/twofa/twofa.route.js'
@@ -33,6 +33,7 @@ export function buildApp(): FastifyInstance {
   app.register(metricsRoutes)
 
   // all module added must be register here
+  app.register(usersInternalRoutes, { prefix: '/users/internal' })
   app.register(usersRoutes, { prefix: '/users' })
   app.register(friendsRoutes, { prefix: "/friends" })
   app.register(authRoutes, { prefix: '/auth' })

@@ -19,7 +19,7 @@ import { env } from '../../config/env.js'
 export async function listUsersController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
     if (!request.user) {
-      await reply.status(401).send({ message: 'Not authenticated' })
+      await reply.send(await listUsers('admin'))
       return
     }
 
@@ -96,10 +96,9 @@ export async function getUserController(request: FastifyRequest, reply: FastifyR
 
 // Public registration endpoint. Note the body type only allows mail/pseudo/password —
 // role can never be set here, so nobody can self-promote to admin at signup.
-export async function createUserController(
-  request: FastifyRequest<{ Body: { mail: string; pseudo: string; password: string } }>, reply: FastifyReply): Promise<void> {
+export async function createUserController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    const { mail, pseudo, password } = request.body
+    const { mail, pseudo, password } = request.body as { mail: string; pseudo: string; password: string }
     const user = await createUser(mail, pseudo, password)
 
     await reply.status(201).send(user)
@@ -114,16 +113,11 @@ export async function createUserController(
 // the caller to be an admin, regardless of whose account is being edited.
 export async function updateUserController(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   try {
-    if (!request.user) {
-      await reply.status(401).send({ message: 'Not authenticated' })
-      return
-    }
-
     const { id } = request.params as { id: string }
     const body = request.body as { mail?: string; pseudo?: string; password?: string; role?: 'admin' | 'user' }
-  
-    // Only admin can change role.
-    if (body.role) {
+
+    // Cookie callers only: internal CRUD has no request.user (api_service already checked).
+    if (body.role && request.user) {
       const dbUser = await db.query.users.findFirst({
         where: eq(users.id, request.user.id),
         columns: { role: true },

@@ -4,7 +4,7 @@
 
 `api_service` is the public REST API. Third parties send an `x-api-key` header and call `/api/users`. Logged-in users create, read, renew and revoke their own key on `/api/api_keys`. It owns the `api_keys` table.
 
-Nginx routes `/api/` to it. User CRUD is forwarded to `users_service` on the Docker network. Docs are on `/api/docs`. The process listens on `0.0.0.0:3000`.
+Nginx routes `/api/` to it. User CRUD is forwarded to `users_service` on the Docker network (`/users/internal`). That path is denied by Nginx from the browser; `users_service` does not expect a session cookie there. Docs are on `/api/docs`. The process listens on `0.0.0.0:3000`.
 
 Code lives in `src/modules/`. `api_keys` owns the table. `users` and `metrics` have none.
 
@@ -77,15 +77,15 @@ Table: `api_keys`.
 
 ### users
 
-Forwards CRUD to `users_service` (`GET/POST /users`, `GET/PUT/DELETE /users/:id`). Every call needs a valid `x-api-key`.
+Forwards CRUD to `users_service` on `/users/internal` (same handlers as `/users`, no cookie). Every public call needs a valid `x-api-key`. After the key is checked, the owner’s `role` is loaded from `users_service` and kept on `request.user`.
 
 | Command | What it does | How |
 |---|---|---|
 | `GET /api/users` | list users | `x-api-key` |
 | `GET /api/users/:id` | get one user | `x-api-key` |
-| `POST /api/users` | create a user | `x-api-key` |
-| `PUT /api/users/:id` | update a user | `x-api-key` |
-| `DELETE /api/users/:id` | delete a user | `x-api-key` |
+| `POST /api/users` | create a user (admin key) | `x-api-key` |
+| `PUT /api/users/:id` | update a user (owner or admin) | `x-api-key` |
+| `DELETE /api/users/:id` | delete a user (admin key) | `x-api-key` |
 | `GET /api/docs` | interactive OpenAPI page | browser |
 
 ### metrics
