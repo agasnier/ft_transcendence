@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import AvatarNameCard from '../../Sidebar/ui/AvatarNameCard'
 import { useFriends } from '../../../hooks/useFriends'
+import { useUserAvatars } from '../../../hooks/presence'
 import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
 interface Member {
@@ -16,6 +17,7 @@ interface AddMembersFormProps {
 
 function AddMembersForm({ channelId, members, onAddMembers, onAdded }: AddMembersFormProps) {
 	const friends = useFriends()
+	const userAvatars = useUserAvatars()
 	const [selectedMemberIds, setSelectedMemberIds] = useState<Set<number>>(new Set())
 	const [pseudoInput, setPseudoInput] = useState('')
 	const [searchError, setSearchError] = useState<string | null>(null)
@@ -112,9 +114,11 @@ function AddMembersForm({ channelId, members, onAddMembers, onAdded }: AddMember
 						{selectableUsers.map((user) => (
 							<AvatarNameCard
 								key={`user-${user.id}`}
-								name={user.pseudo}
+								name={userAvatars.get(user.id)?.pseudo ?? user.pseudo}
 								variant="user"
-								avatarUrl={user.avatarUrl}
+								avatarUrl={userAvatars.get(user.id)?.avatarUrl !== undefined
+									? userAvatars.get(user.id)?.avatarUrl
+									: user.avatarUrl}
 								selected={selectedMemberIds.has(user.id)}
 								onClick={() => toggleMemberSelect(user.id)}
 							/>

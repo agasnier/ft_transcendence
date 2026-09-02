@@ -4,6 +4,7 @@ import BackButton from '../ui/BackButton'
 import AvatarNameCard from '../ui/AvatarNameCard'
 import CreateRoomForm from '../ui/CreateRoomForm'
 import { useFriends } from '../../../hooks/useFriends'
+import { useUserAvatars } from '../../../hooks/presence'
 import { IconNext } from '../../../icons'
 import { MAX_SHORT_TEXT_LENGTH } from '../../../limits'
 
@@ -22,6 +23,7 @@ interface SelectedUser {
 
 function CreateGroupView({ setView, userId, onCreateChannel, onSelectChannel }: CreateGroupViewProps) {
 	const friends = useFriends()
+	const userAvatars = useUserAvatars()
 	const [step, setStep] = useState< 'pick' | 'form' >('pick')
 	const [error, setError] = useState<string | null>(null)
 	const [selectedUsers, setSelectedUsers] = useState<SelectedUser[]>([])
@@ -142,7 +144,7 @@ function CreateGroupView({ setView, userId, onCreateChannel, onSelectChannel }: 
 							title="Retirer"
 							className="flex items-center gap-2 text-sm px-3 py-1 bg-gray-100 rounded-full hover:bg-danger-bg">
 							<span className="text-danger font-bold">x</span>
-							<span>{u.pseudo}</span>
+							<span>{userAvatars.get(u.id)?.pseudo ?? u.pseudo}</span>
 						</button>
 					))}
 				</div>
@@ -152,9 +154,11 @@ function CreateGroupView({ setView, userId, onCreateChannel, onSelectChannel }: 
 				{friends.map((friend) => (
 					<AvatarNameCard
 						key={`friend-${friend.id}`}
-						name={friend.pseudo}
+						name={userAvatars.get(friend.id)?.pseudo ?? friend.pseudo}
 						variant="user"
-						avatarUrl={friend.avatarUrl}
+						avatarUrl={userAvatars.get(friend.id)?.avatarUrl !== undefined
+							? userAvatars.get(friend.id)?.avatarUrl
+							: friend.avatarUrl}
 						selected={selectedUsers.some((u) => u.id === friend.id)}
 						onClick={() => toggleFriend(friend)}
 					/>

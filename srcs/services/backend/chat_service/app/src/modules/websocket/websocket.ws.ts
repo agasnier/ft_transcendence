@@ -106,6 +106,10 @@ export function wsUserAvatarChanged(userId: number, avatarUrl: string | null): v
 	wsSendAll({type: 'USER_AVATAR_CHANGED', payload: { userId, avatarUrl } })
 }
 
+export function wsUserPseudoChanged(userId: number, pseudo: string): void {
+	wsSendAll({ type: 'USER_PSEUDO_CHANGED', payload: { userId, pseudo } })
+}
+
 export function wsChannelCreatedTo(userId: number, channel: { id: number, name: string | null, type: string, description: string | null, avatarUrl?: string | null, createdAt: Date | string, memberCount?: number }): void {
 	wsSendToUser(userId, { type: 'CHANNEL_CREATED', payload: channel })
 }

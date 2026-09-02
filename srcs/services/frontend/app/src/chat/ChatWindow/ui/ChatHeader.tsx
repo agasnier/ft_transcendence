@@ -37,8 +37,9 @@ function ChatHeader({channel, onOpenInfoPanel, onBack}: ChatHeaderProps) {
 	const otherUserId = channel.type === 'discussion' ? (channel.otherUserId ?? null) : null
 	const isOnline = otherUserId !== null ? onlineUserIds.has(otherUserId) : null
 
-	const liveIdentity = otherUserId !== null ? userAvatars.get(otherUserId) : undefined
-	const displayAvatar = liveIdentity !== undefined ? liveIdentity.avatarUrl : channel.avatarUrl
+	const live = otherUserId !== null ? userAvatars.get(otherUserId) : undefined
+	const displayAvatar = live?.avatarUrl !== undefined ? live.avatarUrl : channel.avatarUrl
+	const displayName = live?.pseudo ?? channel.name
 
 	return (
 		<div
@@ -58,11 +59,11 @@ function ChatHeader({channel, onOpenInfoPanel, onBack}: ChatHeaderProps) {
 			) : (
 				<span
 					className={`avatar-circle font-thin w-10 h-10 shrink-0 ${channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}`}>
-					{channel.name?.charAt(0).toUpperCase()}
+					{displayName?.charAt(0).toUpperCase()}
 				</span>
 			)}
 			<div className="flex flex-col min-w-0">
-				<h1 className="font-bold text-gray-800 text-lg truncate">{channel.name}</h1>
+				<h1 className="font-bold text-gray-800 text-lg truncate">{displayName}</h1>
 				<span className="text-black/50 truncate min-h-6 block">
 					{channel.type === 'discussion' && isOnline !== null && (
 						<span className={`${isOnline ? 'text-green-500' : 'text-red-600'}`}>{isOnline ? 'En ligne' : 'Hors ligne'}</span>

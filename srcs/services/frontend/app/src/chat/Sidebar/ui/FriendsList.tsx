@@ -1,4 +1,4 @@
-import { useOnlineUsers } from '../../../hooks/presence'
+import { useOnlineUsers, useUserAvatars } from '../../../hooks/presence'
 import { IconSend, IconMore } from '../../../icons'
 
 interface Friend {
@@ -18,6 +18,7 @@ interface FriendsListProps {
 
 function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId, onRemove, onMessagePrivate }: FriendsListProps) {
     const onlineUserIds = useOnlineUsers()
+    const userAvatars = useUserAvatars()
 
     return (
         <div className={`${isSearching ? 'bg-white' : 'bg-gray-100'} rounded-3xl p-4`}>
@@ -26,26 +27,30 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
                 <p className="text-sm text-gray-400">Aucun ami</p>
             ) : (
                 <ul className="flex flex-col gap-1">
-                    {friends.map((friend) => (
+                    {friends.map((friend) => {
+                        const live = userAvatars.get(friend.id)
+                        const pseudo = live?.pseudo ?? friend.pseudo
+                        const avatarUrl = live?.avatarUrl !== undefined ? live.avatarUrl : friend.avatarUrl
+                        return (
                         <li key={friend.id} className="group flex items-center justify-between gap-2 px-2 py-1 rounded-2xl hover:bg-gray-200">
                             <span className="truncate flex items-center gap-2">
                                 <span className="relative shrink-0">
-                                    {friend.avatarUrl ? (
+                                    {avatarUrl ? (
                                         <img
-                                            src={friend.avatarUrl}
-                                            alt={friend.pseudo}
+                                            src={avatarUrl}
+                                            alt={pseudo}
                                             className="w-8 h-8 rounded-full object-cover"
                                         />
                                     ) : (
                                         <span className="avatar-circle bg-user w-8 h-8 text-sm font-semibold">
-                                            {friend.pseudo?.charAt(0).toUpperCase() ?? '?'}
+                                            {pseudo?.charAt(0).toUpperCase() ?? '?'}
                                         </span>
                                     )}
                                     <span
                                         className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-gray-100 ${onlineUserIds.has(friend.id) ? 'bg-green-500' : 'bg-gray-400'}`}
                                     />
                                 </span>
-                                <span className="text-sm text-gray-700">{friend.pseudo}</span>
+                                <span className="text-sm text-gray-700">{pseudo}</span>
                             </span>
                             <span data-remove-popover className="relative flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button
@@ -78,7 +83,8 @@ function FriendsList({ friends, isSearching, confirmRemoveId, setConfirmRemoveId
                                 )}
                             </span>
                         </li>
-                    ))}
+                        )
+                    })}
                 </ul>
             )}
         </div>

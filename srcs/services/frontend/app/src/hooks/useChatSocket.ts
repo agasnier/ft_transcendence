@@ -93,10 +93,19 @@ export function useChatSocket(
 		if (message.type === 'USER_AVATAR_CHANGED') {
 			setUserAvatars((prev) => {
 				const next = new Map(prev)
-				const current = next.get(message.payload.userId)
 				next.set(message.payload.userId, {
+					...next.get(message.payload.userId),
 					avatarUrl: message.payload.avatarUrl,
-					pseudo: current?.pseudo ?? null,
+				})
+				return next
+			})
+		}
+		if (message.type === 'USER_PSEUDO_CHANGED') {
+			setUserAvatars((prev) => {
+				const next = new Map(prev)
+				next.set(message.payload.userId, {
+					...next.get(message.payload.userId),
+					pseudo: message.payload.pseudo,
 				})
 				return next
 			})

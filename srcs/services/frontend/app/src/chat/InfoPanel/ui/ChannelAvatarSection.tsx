@@ -42,18 +42,16 @@ function ChannelAvatarSection({channel, isModerator, otherProfile, onUploadAvata
 	}
 
 	const userAvatars = useUserAvatars()
-
-	const liveIdentity = channel.otherUserId !== undefined
-		? userAvatars.get(channel.otherUserId)
-		: undefined
+	const live = channel.otherUserId !== undefined ? userAvatars.get(channel.otherUserId) : undefined
 	const avatarUrl = channel.type === 'discussion'
-		? (liveIdentity !== undefined ? liveIdentity.avatarUrl : (otherProfile?.avatarUrl ?? channel.avatarUrl))
+		? (live?.avatarUrl !== undefined ? live.avatarUrl : (otherProfile?.avatarUrl ?? channel.avatarUrl))
 		: channel.avatarUrl
+	const displayName = live?.pseudo ?? channel.name
 
 	return (
 		<AvatarUploader
 			avatarUrl={avatarUrl}
-			fallbackLabel={channel.name?.charAt(0).toUpperCase() ?? '?'}
+			fallbackLabel={displayName?.charAt(0).toUpperCase() ?? '?'}
 			fallbackBgClass={channel.type === 'discussion' ? 'bg-user' : 'bg-conversation'}
 			editable={channel.type !== 'discussion' && isModerator}
 			label="le logo du salon"

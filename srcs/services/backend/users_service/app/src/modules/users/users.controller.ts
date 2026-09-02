@@ -140,6 +140,13 @@ export async function updateUserController(request: FastifyRequest, reply: Fasti
       await reply.status(404).send({ message: 'User not found' })
       return
     }
+    if (body.pseudo !== undefined) {
+      fetch(`${env.chatServiceUrl}/chat/internal/user-pseudo-updated/${user.id}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ pseudo: user.pseudo }),
+      }).catch(() => {})
+    }
     await reply.send(user)
   } catch (err) {
     request.log.error(err)

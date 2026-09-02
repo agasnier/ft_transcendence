@@ -4,6 +4,7 @@ import { useClickOutside } from '../../../hooks/useClickOutside'
 import RequestsList from './RequestsList'
 import AddFriendForm from './AddFriendForm'
 import FriendsList from './FriendsList'
+import { useUserAvatars } from '../../../hooks/presence'
 
 interface FriendsPanelProps {
 	searchQuery: string
@@ -30,6 +31,7 @@ function FriendsPanel({ searchQuery, isSearching, userId, onCreateChannel, onSel
 	const [pending, setPending] = useState<PendingRequest[]>([])
 	const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null)
 	const [outgoing, setOutgoing] = useState<PendingRequest[]>([])
+	const userAvatars = useUserAvatars()
 
 	useClickOutside(confirmRemoveId !== null, '[data-remove-popover]', () => setConfirmRemoveId(null))
 
@@ -75,7 +77,7 @@ function FriendsPanel({ searchQuery, isSearching, userId, onCreateChannel, onSel
 
 
 	const filteredFriends = friends.filter((f) =>
-		f.pseudo.toLowerCase().includes(searchQuery.toLowerCase())
+		(userAvatars.get(f.id)?.pseudo ?? f.pseudo).toLowerCase().includes(searchQuery.toLowerCase())
 	)
 
 	return (

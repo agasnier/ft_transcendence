@@ -1,3 +1,5 @@
+import { useUserAvatars } from '../../../hooks/presence'
+
 interface Request {
 	id: number
 	pseudo: string
@@ -12,6 +14,7 @@ interface RequestsListProps {
 }
 
 function RequestsList({ title, emptyText, requests, renderAction }: RequestsListProps) {
+	const userAvatars = useUserAvatars()
 	return (
 		<div className="bg-gray-100 rounded-3xl p-4">
 			<h2 className="font-semibold text-gray-700 mb-2">{title}</h2>
@@ -21,7 +24,7 @@ function RequestsList({ title, emptyText, requests, renderAction }: RequestsList
 				<ul className="flex flex-col gap-1">
 					{requests.map((request) => (
 						<li key={request.id} className="flex items-center justify-between rounded-2xl">
-							<span className="text-sm text-gray-700">{request.displayName ?? request.pseudo}</span>
+							<span className="text-sm text-gray-700">{userAvatars.get(request.id)?.pseudo ?? request.displayName ?? request.pseudo}</span>
 								{renderAction(request)}
 						</li>
 					))}

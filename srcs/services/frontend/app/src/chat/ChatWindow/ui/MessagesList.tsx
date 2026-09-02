@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, Fragment } from 'react'
 import { IconFile, IconEdit, IconDelete } from '../../../icons'
 import { useClickOutside } from '../../../hooks/useClickOutside'
+import { useUserAvatars } from '../../../hooks/presence'
 import { MAX_MESSAGE_LENGTH } from '../../../limits'
 
 const CHARS_PER_LINE = 84
@@ -70,6 +71,7 @@ function FileAttachment({ file }: { file: FileInfo }) {
 
 function MessagesList({messages, userId, role, myChannelRole, channelType, onEditMessage, onDeleteMessage}: MessagesListProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const userAvatars = useUserAvatars()
     const [editingId, setEditingId] = useState<number | null>(null)
     const [editDraft, setEditDraft] = useState('')
     const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
@@ -124,6 +126,7 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                         const prevDay = index > 0 ? new Date(messages[index - 1].createdAt).toDateString() : null
                         const showDateDivider = msgDay !== prevDay
                         const isOwn = msg.senderId === userId
+                        const senderName = userAvatars.get(msg.senderId)?.pseudo ?? msg.senderPseudo ?? `Utilisateur #${msg.senderId}`
                         // We let the button and the server refuse if the role is not adapted
                         const { canEdit, canDelete } = canManage(msg, false)
 
@@ -132,7 +135,7 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                 <span className="text-xs text-white bg-blue-400 rounded-2xl p-1">
                                     {channelType !== 'discussion' && (
                                         <span className="font-bold">
-                                            {msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}
+                                            {senderName}
                                         </span>
                                     )}
                                     {msg.content}
@@ -148,7 +151,7 @@ function MessagesList({messages, userId, role, myChannelRole, channelType, onEdi
                                     ${editingId === msg.id ? 'w-full' : '' }
                                 `}>
                                     <div className="flex justify-between w-full text-sm font-semibold text-blue-700 mb-1 gap-4">
-                                        <span className="truncate min-w-0">{msg.senderPseudo ?? `Utilisateur #${msg.senderId}`}</span>
+                                        <span className="truncate min-w-0">{senderName}</span>
                                         <span className="text-blue-500 font-normal shrink-0">
                                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>

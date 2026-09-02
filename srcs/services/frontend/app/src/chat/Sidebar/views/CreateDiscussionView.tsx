@@ -3,6 +3,7 @@ import type { SidebarView } from '../Sidebar'
 import BackButton from '../ui/BackButton'
 import AvatarNameCard from '../ui/AvatarNameCard'
 import { useFriends } from '../../../hooks/useFriends'
+import { useUserAvatars } from '../../../hooks/presence'
 
 interface CreateDiscussionViewProps {
 	setView: (view: SidebarView) => void
@@ -19,6 +20,7 @@ interface UserRow {
 
 function CreateDiscussionView({ setView, userId, onCreateChannel, onSelectChannel }: CreateDiscussionViewProps) {
 	const friends = useFriends()
+	const userAvatars = useUserAvatars()
 	const [others, setOthers] = useState<UserRow[]>([])
 	const [error, setError] = useState<string | null>(null)
 
@@ -59,9 +61,11 @@ function CreateDiscussionView({ setView, userId, onCreateChannel, onSelectChanne
 				{friends.map((friend) => (
 					<AvatarNameCard
 						key={`friend-${friend.id}`}
-						name={friend.pseudo}
+						name={userAvatars.get(friend.id)?.pseudo ?? friend.pseudo}
 						variant="user"
-						avatarUrl={friend.avatarUrl}
+						avatarUrl={userAvatars.get(friend.id)?.avatarUrl !== undefined
+							? userAvatars.get(friend.id)?.avatarUrl
+							: friend.avatarUrl}
 						onClick={() => handleSelect(friend)}
 					/>
 				))}
@@ -70,7 +74,7 @@ function CreateDiscussionView({ setView, userId, onCreateChannel, onSelectChanne
 				{others.map((user) => (
 					<AvatarNameCard
 						key={`other-${user.id}`}
-						name={user.pseudo}
+						name={userAvatars.get(user.id)?.pseudo ?? user.pseudo}
 						variant="user"
 						onClick={() => handleSelect(user)}
 					/>

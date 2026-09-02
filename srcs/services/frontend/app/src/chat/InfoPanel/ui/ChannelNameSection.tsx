@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { IconEdit } from '../../../icons'
 import { MAX_NAME_LENGTH } from '../../../limits'
+import { useUserAvatars } from '../../../hooks/presence'
 
 interface Channel {
 	id: number
 	name: string | null
 	type: 'channel' | 'group' | 'discussion'
+	otherUserId?: number
 }
 
 interface PublicProfile {
@@ -21,6 +23,10 @@ interface ChannelNameSectionProps {
 }
 
 function ChannelNameSection({channel, isModerator, otherProfile, memberCount, onRenameChannel}: ChannelNameSectionProps) {
+	const userAvatars = useUserAvatars()
+	const displayName = channel.type === 'discussion' && channel.otherUserId !== undefined
+		? (userAvatars.get(channel.otherUserId)?.pseudo ?? channel.name)
+		: channel.name
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState(channel.name ?? '')
 
@@ -54,7 +60,7 @@ function ChannelNameSection({channel, isModerator, otherProfile, memberCount, on
 					</form>
 				) : (
 					<>
-						<h1 className="font-bold text-gray-800 text-lg truncate text-center">{channel.name}</h1>
+						<h1 className="font-bold text-gray-800 text-lg truncate text-center">{displayName}</h1>
 						{channel.type !== 'discussion' && isModerator && (
 							<button
 								type="button"

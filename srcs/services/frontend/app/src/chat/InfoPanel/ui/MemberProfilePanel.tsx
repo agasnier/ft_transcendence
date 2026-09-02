@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { IconInfo } from '../../../icons'
 import BackButton from "../../Sidebar/ui/BackButton"
+import { useUserAvatars } from '../../../hooks/presence'
 
 interface Member {
 	userId: number
@@ -77,6 +78,10 @@ function MemberProfilePanel({channelId, member, userId, isModerator, myRole, onB
 	}
 
 	const canManage = isModerator && member.userId !== userId && (myRole === 'admin' || profile?.role !== 'admin')
+	const userAvatars = useUserAvatars()
+	const live = userAvatars.get(member.userId)
+	const pseudo = live?.pseudo ?? member.pseudo
+	const avatarUrl = live?.avatarUrl !== undefined ? live.avatarUrl : profile?.avatarUrl
 
 	return (
 		<aside className="absolute top-0 right-0 h-full w-90 shadow-2xl rounded-3xl flex flex-col gap-2 p-4 bg-gray-100 z-10">
@@ -85,18 +90,18 @@ function MemberProfilePanel({channelId, member, userId, isModerator, myRole, onB
 				<h2 className="view-title">Profil</h2>
 			</span>
 			<div className="flex flex-1 flex-col items-center gap-2 font-semibold text-gray-800 py-2 min-h-0">
-				{profile?.avatarUrl ? (
+				{avatarUrl ? (
 					<img
-						src={profile.avatarUrl}
-						alt={member.pseudo}
+						src={avatarUrl}
+						alt={pseudo}
 						className="w-30 h-30 rounded-full object-cover"
 					/>
 				) : (
 					<span className="avatar-circle bg-user w-30 h-30 text-6xl">
-						{member.pseudo.charAt(0).toUpperCase()}
+						{pseudo.charAt(0).toUpperCase()}
 					</span>
 				)}
-				<h1 className="font-bold text-gray-800 text-lg truncate">{member.pseudo}</h1>
+				<h1 className="font-bold text-gray-800 text-lg truncate">{pseudo}</h1>
 				{profile?.isOnline !== undefined && (
 					<span className={`text-sm ${profile.isOnline ? 'text-green-500' : 'text-red-500'}`}>
 						{profile.isOnline ? 'En ligne' : 'Hors ligne'}
@@ -126,7 +131,7 @@ function MemberProfilePanel({channelId, member, userId, isModerator, myRole, onB
 					<div className="w-full mt-2">
 						{confirmRemove ? (
 							<div className="flex flex-col gap-2">
-								<p className="text-xs text-gray-600 text-center">Retirer {member.pseudo} du salon ?</p>
+								<p className="text-xs text-gray-600 text-center">Retirer {pseudo} du salon ?</p>
 								<div className="flex justify-center gap-2">
 									<button
 										type="button"

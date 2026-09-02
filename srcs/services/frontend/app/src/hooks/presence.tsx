@@ -1,10 +1,11 @@
 import { createContext, useContext } from 'react'
 
-// Live overlay of user identity, patched by websocket (avatar today, pseudo later).
-// An entry existing means "we have a live update for this user"; missing = use the fetch fallback.
+// Live overlay of user identity, patched by websocket.
+// undefined on a field = no live update yet, keep the fetch fallback.
+// null on avatarUrl = avatar was explicitly removed.
 export type UserIdentity = {
-	avatarUrl: string | null
-	pseudo: string | null
+	avatarUrl?: string | null
+	pseudo?: string | null
 }
 
 // Values live in useChatSocket, provided here via context so deeply nested components

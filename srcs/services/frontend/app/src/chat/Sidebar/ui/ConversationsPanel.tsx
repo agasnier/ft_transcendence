@@ -22,10 +22,12 @@ interface Channel {
 
 function ConversationsPanel({ isSearching, searchQuery, channels, selectedChannelId, onSelectChannel }: ConversationsPanelProps) {
 	const onlineUserIds = useOnlineUsers()
-	const filteredChannels = channels.filter((c) =>
-		(c.name ?? '').toLowerCase().includes(searchQuery.toLowerCase())
-	)
 	const userAvatars = useUserAvatars()
+	const filteredChannels = channels.filter((c) => {
+		const live = c.otherUserId !== undefined ? userAvatars.get(c.otherUserId) : undefined
+		const name = c.type === 'discussion' ? (live?.pseudo ?? c.name ?? '') : (c.name ?? '')
+		return name.toLowerCase().includes(searchQuery.toLowerCase())
+	})
 
 	if (filteredChannels.length === 0) {
 		return (
@@ -40,10 +42,11 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 			{filteredChannels.map((channel) => (
 				<AvatarNameCard
 					key={channel.id}
-					name={channel.name ?? 'username a gerer'}
-					avatarUrl={channel.type === 'discussion'
-						&& channel.otherUserId !== undefined
-						&& userAvatars.has(channel.otherUserId)
+					name={(channel.type === 'discussion'
+						? (channel.otherUserId !== undefined ? userAvatars.get(channel.otherUserId)?.pseudo : undefined) ?? channel.name
+						: channel.name) ?? 'username a gerer'}
+					avatarUrl={channel.type === 'discussion' && channel.otherUserId !== undefined
+						&& userAvatars.get(channel.otherUserId)?.avatarUrl !== undefined
 						? userAvatars.get(channel.otherUserId)?.avatarUrl
 						: channel.avatarUrl}
 					variant={channel.type === 'discussion' ? 'user' : 'conversation'}

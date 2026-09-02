@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 
 import { userAuthHook } from '../channels/channels.controller.js'
-import { wsAddChannelSocket, wsForceDisconnect, wsUserAvatarChanged } from './websocket.ws.js'
+import { wsAddChannelSocket, wsForceDisconnect, wsUserAvatarChanged, wsUserPseudoChanged } from './websocket.ws.js'
 
 export async function websocketRoutes(app: FastifyInstance): Promise<void> {
   app.get('/ws', { preHandler: [userAuthHook], websocket: true }, (connection, request) => {
@@ -19,6 +19,13 @@ export async function websocketRoutes(app: FastifyInstance): Promise<void> {
     const { userId } = request.params as { userId: string }
     const { avatarUrl } = request.body as { avatarUrl: string | null }
     wsUserAvatarChanged(Number(userId), avatarUrl)
+    await reply.status(204).send()
+  })
+
+  app.post('/internal/user-pseudo-updated/:userId', async (request, reply) => {
+    const { userId } = request.params as { userId: string }
+    const { pseudo } = request.body as { pseudo: string }
+    wsUserPseudoChanged(Number(userId), pseudo)
     await reply.status(204).send()
   })
 }
