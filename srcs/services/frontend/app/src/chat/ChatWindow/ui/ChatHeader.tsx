@@ -32,7 +32,7 @@ function ChatHeader({channel, onOpenInfoPanel, onBack}: ChatHeaderProps) {
 				setMemberCount((await res.json()).length)
 		}
 		loadCount()
-	}, [channel.id, channel.type])
+	}, [channel])
 
 	const otherUserId = channel.type === 'discussion' ? (channel.otherUserId ?? null) : null
 	const isOnline = otherUserId !== null ? onlineUserIds.has(otherUserId) : null
