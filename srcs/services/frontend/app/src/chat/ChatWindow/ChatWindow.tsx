@@ -83,14 +83,14 @@ function ChatWindow({ channel, userId, role, messages, onSendMessage, onSendFile
                 channel={channel}
                 onOpenInfoPanel={onOpenInfoPanel}
                 onBack={onBack}/>
-                <MessagesList
-                    messages={messages}
-                    userId={userId}
-                    role={role}
-                    myChannelRole={myChannelRole}
-                    channelType={channel.type}
-                    onEditMessage={onEditMessage}
-                    onDeleteMessage={onDeleteMessage}/>
+            <MessagesList
+                messages={messages}
+                userId={userId}
+                role={role}
+                myChannelRole={myChannelRole}
+                channelType={channel.type}
+                onEditMessage={onEditMessage}
+                onDeleteMessage={onDeleteMessage}/>
             <MessageInput
                 onSendMessage={onSendMessage}
                 onSendFile={onSendFile}

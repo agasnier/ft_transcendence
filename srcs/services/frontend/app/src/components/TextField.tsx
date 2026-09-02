@@ -18,7 +18,7 @@ function TextField({ id, label, type, value, onChange, required, autoFocus, auto
 			<input
 				id={id}
 				type={type}
-				placeholder=" "
+				placeholder=" " // Space, not empty, so peer-placeholder-shown below can detect an empty field
 				value={value}
 				onChange={onChange}
 				required={required}

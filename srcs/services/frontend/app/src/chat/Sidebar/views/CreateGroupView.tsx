@@ -21,6 +21,7 @@ interface SelectedUser {
 	avatarUrl?: string | null
 }
 
+// Two-step wizard: pick step selects members, form step asks for name/description
 function CreateGroupView({ setView, userId, onCreateChannel, onSelectChannel }: CreateGroupViewProps) {
 	const friends = useFriends()
 	const userAvatars = useUserAvatars()
@@ -54,7 +55,7 @@ function CreateGroupView({ setView, userId, onCreateChannel, onSelectChannel }: 
 		}
 
 		const allUsers: { id: number; pseudo: string; avatarUrl: string | null }[] = await res.json()
-		const target = allUsers.find((u) => u.pseudo === pseudo)
+		const target = allUsers.find((u) => u.pseudo.toLowerCase() === pseudo.toLowerCase())
 		if (!target) {
 			setSearchError('Utilisateur introuvable')
 			return
@@ -164,7 +165,7 @@ function CreateGroupView({ setView, userId, onCreateChannel, onSelectChannel }: 
 					/>
 				))}
 			</div>
-			<div data-create-room-popover className="relative self-end">
+			<div className="relative self-end">
 				<button
 					type="button"
 					onClick={() => setStep('form')}

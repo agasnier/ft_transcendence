@@ -39,30 +39,33 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 
 	return (
 		<div className="flex flex-col gap-1">
-			{filteredChannels.map((channel) => (
-				<AvatarNameCard
-					key={channel.id}
-					name={(channel.type === 'discussion'
-						? (channel.otherUserId !== undefined ? userAvatars.get(channel.otherUserId)?.pseudo : undefined) ?? channel.name
-						: channel.name) ?? 'username a gerer'}
-					avatarUrl={channel.type === 'discussion' && channel.otherUserId !== undefined
-						&& userAvatars.get(channel.otherUserId)?.avatarUrl !== undefined
-						? userAvatars.get(channel.otherUserId)?.avatarUrl
-						: channel.avatarUrl}
-					variant={channel.type === 'discussion' ? 'user' : 'conversation'}
-					selected={selectedChannelId === channel.id}
-					onClick={() => onSelectChannel(channel.id)}
-					isOnline={
-						channel.type === 'discussion' && channel.otherUserId !== undefined
-							? onlineUserIds.has(channel.otherUserId)
-							: undefined
-					}
-					hasUnread={channel.hasUnread}
-					subtitle={channel.type !== 'discussion' && channel.memberCount !== undefined
-								? `${channel.memberCount} ${channel.type === 'group' ? 'membre' : 'abonné'}${channel.memberCount > 1 ? 's' : ''}`
-								: undefined}
-				/>
-			))}
+			{filteredChannels.map((channel) => {
+				const live = channel.otherUserId !== undefined ? userAvatars.get(channel.otherUserId) : undefined
+				return (
+					<AvatarNameCard
+						key={channel.id}
+						name={(channel.type === 'discussion'
+							? (channel.otherUserId !== undefined ? live?.pseudo : undefined) ?? channel.name
+							: channel.name) ?? '?'}
+						avatarUrl={channel.type === 'discussion' && channel.otherUserId !== undefined
+							&& live?.avatarUrl !== undefined
+							? live?.avatarUrl
+							: channel.avatarUrl}
+						variant={channel.type === 'discussion' ? 'user' : 'conversation'}
+						selected={selectedChannelId === channel.id}
+						onClick={() => onSelectChannel(channel.id)}
+						isOnline={
+							channel.type === 'discussion' && channel.otherUserId !== undefined
+								? onlineUserIds.has(channel.otherUserId)
+								: undefined
+						}
+						hasUnread={channel.hasUnread}
+						subtitle={channel.type !== 'discussion' && channel.memberCount !== undefined
+									? `${channel.memberCount} ${channel.type === 'group' ? 'membre' : 'abonné'}${channel.memberCount > 1 ? 's' : ''}`
+									: undefined}
+					/>
+				)
+			})}
 		</div>
 	)
 }

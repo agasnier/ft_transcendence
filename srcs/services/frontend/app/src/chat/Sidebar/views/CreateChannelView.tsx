@@ -21,6 +21,7 @@ interface SelectedUser {
 	avatarUrl?: string | null
 }
 
+// Two-step wizard: pick step selects members, form step asks for name/description
 function CreateChannelView({ setView, userId, onCreateChannel, onSelectChannel }: CreateChannelViewProps) {
 	const friends = useFriends()
 	const userAvatars = useUserAvatars()
@@ -150,20 +151,23 @@ function CreateChannelView({ setView, userId, onCreateChannel, onSelectChannel }
 			)}
 			<div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
 				<h2 className="text-2xl font-bold">Amis</h2>
-				{friends.map((friend) => (
-					<AvatarNameCard
-						key={`friend-${friend.id}`}
-						name={userAvatars.get(friend.id)?.pseudo ?? friend.pseudo}
-						variant="user"
-						avatarUrl={userAvatars.get(friend.id)?.avatarUrl !== undefined
-							? userAvatars.get(friend.id)?.avatarUrl
-							: friend.avatarUrl}
-						selected={selectedUsers.some((u) => u.id === friend.id)}
-						onClick={() => toggleFriend(friend)}
-					/>
-				))}
+				{friends.map((friend) => {
+					const live = userAvatars.get(friend.id)
+					return (
+						<AvatarNameCard
+							key={`friend-${friend.id}`}
+							name={live?.pseudo ?? friend.pseudo}
+							variant="user"
+							avatarUrl={live?.avatarUrl !== undefined
+								? live?.avatarUrl
+								: friend.avatarUrl}
+							selected={selectedUsers.some((u) => u.id === friend.id)}
+							onClick={() => toggleFriend(friend)}
+						/>
+					)
+				})}
 			</div>
-			<div data-create-room-popover className="relative self-end">
+			<div className="relative self-end">
 				<button
 					type="button"
 					onClick={() => setStep('form')}

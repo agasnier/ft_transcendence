@@ -27,6 +27,7 @@ function AvatarNameCard({ name, subtitle, selected = false, variant, avatarUrl, 
                         {name.charAt(0).toUpperCase()}
                     </span>
                 )}
+                {/* isOnline is a tri-state: omitted hides the dot entirely, true/false shows it colored */}
                 {isOnline !== undefined && (
                     <span
                         className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 ${

@@ -51,7 +51,7 @@ function SearchView({ searchQuery, setSearchQuery, setView, userId, channels, se
 					{searchQuery !== '' && (
 						<button
 							type="button"
-							onMouseDown={(e) => e.preventDefault()}
+							onMouseDown={(e) => e.preventDefault()} // Prevents the input from losing focus before onClick fires
 							onClick={() => setSearchQuery('')}
 							className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 w-9 h-9 flex items-center justify-center rounded-full hover:bg-blue-100">
 							<IconClose size={18}/>

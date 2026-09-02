@@ -43,10 +43,13 @@ function AdminPanel({ currentUserId }: AdminPanelProps) {
         setError(null)
     }
 
+    // Role field hidden/omitted for your own account as a UI safety net
+    // Backend allows an admin to change their own role, this just avoids doing it by accident
     async function saveUser(id: number) {
         const isSelf = id === currentUserId
         const body: { pseudo?: string; role?: 'admin' | 'user' } = { pseudo: pseudoDraft }
-        if (!isSelf) body.role = roleDraft
+        if (!isSelf)
+            body.role = roleDraft
 
         const res = await fetch(`/users/${id}`, {
             method: 'PUT',

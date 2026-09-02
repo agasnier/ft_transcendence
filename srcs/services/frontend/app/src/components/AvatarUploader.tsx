@@ -12,6 +12,8 @@ interface AvatarUploaderProps {
 	onDeleteAvatar: () => Promise<boolean>
 }
 
+// Generic avatar upload widget, reused for both a user's own avatar and a channel's avatar
+// fallbackLabel/fallbackBgClass/label let each caller customize the placeholder and copy
 function AvatarUploader({ avatarUrl, fallbackLabel, fallbackBgClass, editable, label, onUploadAvatar, onDeleteAvatar }: AvatarUploaderProps) {
 	const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 	const [avatarError, setAvatarError] = useState<string | null>(null)

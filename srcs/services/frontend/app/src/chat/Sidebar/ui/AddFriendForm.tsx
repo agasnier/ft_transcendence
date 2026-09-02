@@ -21,7 +21,7 @@ function AddFriendForm() {
 			return
 		}
 		const allUsers: { id: number, pseudo: string }[] = await usersRes.json()
-		const target = allUsers.find((u) => u.pseudo === pseudo)
+		const target = allUsers.find((u) => u.pseudo.toLowerCase() === pseudo.toLowerCase())
 		if (!target) {
 			setFeedback({ type: 'error', text: 'Utilisateur introuvable' })
 			return

@@ -35,6 +35,7 @@ function FriendsPanel({ searchQuery, isSearching, userId, onCreateChannel, onSel
 
 	useClickOutside(confirmRemoveId !== null, '[data-remove-popover]', () => setConfirmRemoveId(null))
 
+	// Friends/requests have no websocket event, unlike channels/messages, so this polls instead
 	usePolling(async () => {
 		const [friendsRes, pendingRes, outgoingRes] = await Promise.all([
 			fetch('/friends'),

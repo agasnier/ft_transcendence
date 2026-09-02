@@ -14,13 +14,13 @@ function TextAreaField({ id, label, value, onChange, required, autoFocus }: Text
 		<div className="relative">
 			<textarea
 				id={id}
-				placeholder=" "
+				placeholder=" " // Space, not empty, so peer-placeholder-shown below can detect an empty field
 				value={value}
 				onChange={onChange}
 				required={required}
 				autoFocus={autoFocus}
 				maxLength={MAX_SHORT_TEXT_LENGTH}
-				rows={Math.max(1, value.split('\n').length)}
+				rows={Math.max(1, value.split('\n').length)} // Grows with newline count instead of scrolling
 				className="peer w-full border border-gray-300 rounded-md px-3 pt-4 pb-1 hover:border-blue-500 focus:outline-none focus:ring-2 ring-offset-2 focus:ring-blue-500 resize-none overflow-hidden"
 			/>
 			<label

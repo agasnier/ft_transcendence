@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { IconRenew, IconCheck, IconCopy } from '../../../icons'
 
+// Lets a user manage a personal API key for programmatic access to the app's public API
+// Auth goes through api_keys.apiKeyAuthHook instead of the session cookie
+// The raw key is shown once at creation or renewal, only its hash is stored server-side
 function ApiKeySection() {
 	const [statusMsg, setStatusMsg] = useState<string | null>(null)
 	const [createdKey, setCreatedKey] = useState<string | null>(null)

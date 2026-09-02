@@ -30,7 +30,7 @@ function CreateRoomForm({ type, onCancel, onCreate }: CreateRoomFormProps) {
 				autoComplete="off"
 				maxLength={MAX_NAME_LENGTH}
 			/>
-			{type !== 'group' && (
+			{type === 'channel' && (
 				<TextAreaField
 					id="room-description"
 					label="Description (facultative)"

@@ -42,6 +42,7 @@ const variants = {
 	exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
 }
 
+// Routes between Sidebar's sub-views via the SidebarView union, sliding between them
 function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, onSelectChannel, onCreateChannel, onUpdatePseudo }: SidebarProp) {
 	const [view, setView] = useState<SidebarView>({ kind: 'home' })
 	const [activeTab, setActiveTab] = useState<'friends' | 'conversations' | 'admin'>('conversations')
@@ -70,6 +71,7 @@ function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, 
 	function navigate(next: SidebarView) {
 		if (next.kind === view.kind) return
 		prevKindRef.current = view.kind
+		// -1 slides in from the left (going back home), 1 slides in from the right (going deeper)
 		setDirection(next.kind === 'home' ? -1 : 1)
 		setView(next)
 	}
@@ -149,6 +151,7 @@ function Sidebar({ onLogout, pseudo, userId, role, channels, selectedChannelId, 
 	return (
 		<aside className="w-90 h-full shrink-0 shadow-2xl rounded-3xl flex flex-col overflow-y-auto gap-2 p-2 bg-white">
 			<div className="flex-1 relative overflow-hidden">
+				{/* No slide animation between search and home */}
 				{(view.kind === 'search' || prevKindRef.current === 'search') ? (
 					<div className="absolute inset-0 overflow-y-auto flex flex-col gap-2">
 						{renderBody()}

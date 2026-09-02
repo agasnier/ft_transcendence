@@ -55,19 +55,22 @@ function MembersList({ channelId, members, isModerator, onSelectMember, onAddMem
 				/>
 			) : (
 				<div className="flex flex-col gap-1 flex-1 overflow-y-auto">
-					{members && members.map((m) => (
-						<AvatarNameCard
-							key={m.userId}
-							name={userAvatars.get(m.userId)?.pseudo ?? m.pseudo}
-							variant="user"
-							avatarUrl={userAvatars.get(m.userId)?.avatarUrl !== undefined
-								? userAvatars.get(m.userId)?.avatarUrl
-								: m.avatarUrl}
-							subtitle={m.globalRole === 'admin' ? 'Admin' : m.role === 'moderator' ? 'Modérateur' : undefined}
-							isOnline={onlineUserIds.has(m.userId)}
-							onClick={() => onSelectMember(m)}
-						/>
-					))}
+					{members && members.map((m) => {
+						const live = userAvatars.get(m.userId)
+						return (
+							<AvatarNameCard
+								key={m.userId}
+								name={live?.pseudo ?? m.pseudo}
+								variant="user"
+								avatarUrl={live?.avatarUrl !== undefined
+									? live.avatarUrl
+									: m.avatarUrl}
+								subtitle={m.globalRole === 'admin' ? 'Admin' : m.role === 'moderator' ? 'Modérateur' : undefined}
+								isOnline={onlineUserIds.has(m.userId)}
+								onClick={() => onSelectMember(m)}
+							/>
+						)
+					})}
 				</div>
 			)}
 		</div>

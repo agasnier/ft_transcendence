@@ -22,6 +22,8 @@ interface Profile {
     avatarUrl: string | null
 }
 
+// Pseudo goes through a prop callback since App.tsx keeps it in state for use elsewhere
+// bio/avatar are only needed here, so they're fetched and saved locally
 function UserMenuView({ setView, onLogout, pseudo, onUpdatePseudo }: UserMenuViewProps) {
     const [profile, setProfile] = useState<Profile | null>(null)
     const [isEditingBio, setIsEditingBio] = useState(false)

@@ -31,7 +31,7 @@ function CreateDiscussionView({ setView, userId, onCreateChannel, onSelectChanne
 				const data = await res.json()
 				setOthers(data
 					.filter((user: { id: number; pseudo: string }) => user.id !== userId)
-					.map((user: { id: number; pseudo: string }) => ({ id: user.id, pseudo: user.pseudo }))
+					.map((user: { id: number; pseudo: string; avatarUrl: string | null }) => ({ id: user.id, pseudo: user.pseudo, avatarUrl: user.avatarUrl }))
 				)
 			}
 		}
@@ -71,14 +71,20 @@ function CreateDiscussionView({ setView, userId, onCreateChannel, onSelectChanne
 				))}
 
 				<h3 className="font-semibold text-gray-700 mt-4">Autres</h3>
-				{others.map((user) => (
-					<AvatarNameCard
-						key={`other-${user.id}`}
-						name={userAvatars.get(user.id)?.pseudo ?? user.pseudo}
-						variant="user"
-						onClick={() => handleSelect(user)}
-					/>
-				))}
+				{others.map((user) => {
+					const live = userAvatars.get(user.id)
+					return (
+						<AvatarNameCard
+							key={`other-${user.id}`}
+							name={live?.pseudo ?? user.pseudo}
+							variant="user"
+							avatarUrl={live?.avatarUrl !== undefined
+								? live?.avatarUrl
+								: user.avatarUrl}
+							onClick={() => handleSelect(user)}
+						/>
+					)
+				})}
 				{error && <p className="form-error">{error}</p>}
 			</div>
 		</div>

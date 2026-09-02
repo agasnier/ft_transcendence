@@ -12,7 +12,6 @@ function CreateRoomButton({setView}: CreateRoomButtonProps) {
 	const [confirmSelection, setConfirmSelection] = useState(false)
 	
 	useClickOutside(confirmSelection, '[data-create-room-popover]', () => {
-		setView({ kind: 'home' })
 		setConfirmSelection(false)
 	})
 

@@ -3,6 +3,7 @@ import { IconCheck, IconCopy } from '../../../icons'
 import QRCode from 'qrcode'
 import { TWO_FACTOR_CODE_LENGTH } from '../../../limits'
 
+// Standard TOTP 2FA setup: /setup generates a secret + QR code, /enable turns it on
 function TwoFactorSection() {
 	const [statusMsg, setStatusMsg] = useState<string | null>(null)
 	const [secret, setSecret] = useState<string | null>(null)

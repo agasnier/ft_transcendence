@@ -24,7 +24,7 @@ function RequestsList({ title, emptyText, requests, renderAction }: RequestsList
 				<ul className="flex flex-col gap-1">
 					{requests.map((request) => (
 						<li key={request.id} className="flex items-center justify-between rounded-2xl">
-							<span className="text-sm text-gray-700">{userAvatars.get(request.id)?.pseudo ?? request.displayName ?? request.pseudo}</span>
+							<span className="text-sm text-gray-700">{request.displayName ?? userAvatars.get(request.id)?.pseudo ?? request.pseudo}</span>
 								{renderAction(request)}
 						</li>
 					))}
