@@ -37,9 +37,8 @@ function ChatHeader({channel, onOpenInfoPanel, onBack}: ChatHeaderProps) {
 	const otherUserId = channel.type === 'discussion' ? (channel.otherUserId ?? null) : null
 	const isOnline = otherUserId !== null ? onlineUserIds.has(otherUserId) : null
 
-	const displayAvatar = otherUserId !== null && userAvatars.has(otherUserId)
-		? userAvatars.get(otherUserId)
-		: channel.avatarUrl
+	const liveIdentity = otherUserId !== null ? userAvatars.get(otherUserId) : undefined
+	const displayAvatar = liveIdentity !== undefined ? liveIdentity.avatarUrl : channel.avatarUrl
 
 	return (
 		<div

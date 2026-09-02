@@ -43,13 +43,12 @@ function ChannelAvatarSection({channel, isModerator, otherProfile, onUploadAvata
 
 	const userAvatars = useUserAvatars()
 
-	const liveAvatar = channel.otherUserId !== undefined &&
-						userAvatars.has(channel.otherUserId)
-						? userAvatars.get(channel.otherUserId)
-						: undefined
+	const liveIdentity = channel.otherUserId !== undefined
+		? userAvatars.get(channel.otherUserId)
+		: undefined
 	const avatarUrl = channel.type === 'discussion'
-						? (liveAvatar !== undefined ? liveAvatar : (otherProfile?.avatarUrl ?? channel.avatarUrl))
-						: channel.avatarUrl
+		? (liveIdentity !== undefined ? liveIdentity.avatarUrl : (otherProfile?.avatarUrl ?? channel.avatarUrl))
+		: channel.avatarUrl
 
 	return (
 		<AvatarUploader

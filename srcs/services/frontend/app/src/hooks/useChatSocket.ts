@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useReconnectingSocket } from '../hooks/useReconnectingSocket'
+import type { UserIdentity } from './presence'
 
 interface Channel {
 	id: number
@@ -45,7 +46,7 @@ export function useChatSocket(
     removeMessage?: (messageId: number) => void,
 ) {
 	const [onlineUserIds, setOnlineUserIds] = useState<Set<number>>(() => new Set())
-	const [userAvatars, setUserAvatars] = useState<Map<number, string | null>>(() => new Map())
+	const [userAvatars, setUserAvatars] = useState<Map<number, UserIdentity>>(() => new Map())
 	const chatSocketUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/chat/ws`
 
 	useReconnectingSocket(chatSocketUrl, (message) => {
@@ -90,7 +91,15 @@ export function useChatSocket(
 			window.dispatchEvent(new Event('auth-lost'))
 		}
 		if (message.type === 'USER_AVATAR_CHANGED') {
-			setUserAvatars((prev) => new Map(prev).set(message.payload.userId, message.payload.avatarUrl))
+			setUserAvatars((prev) => {
+				const next = new Map(prev)
+				const current = next.get(message.payload.userId)
+				next.set(message.payload.userId, {
+					avatarUrl: message.payload.avatarUrl,
+					pseudo: current?.pseudo ?? null,
+				})
+				return next
+			})
 		}
 	})
 

@@ -44,7 +44,7 @@ function ConversationsPanel({ isSearching, searchQuery, channels, selectedChanne
 					avatarUrl={channel.type === 'discussion'
 						&& channel.otherUserId !== undefined
 						&& userAvatars.has(channel.otherUserId)
-						? userAvatars.get(channel.otherUserId)
+						? userAvatars.get(channel.otherUserId)?.avatarUrl
 						: channel.avatarUrl}
 					variant={channel.type === 'discussion' ? 'user' : 'conversation'}
 					selected={selectedChannelId === channel.id}
