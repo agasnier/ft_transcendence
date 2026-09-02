@@ -93,8 +93,11 @@ function InfoPanel({ channel, userId, onBack, onDeleteChannel, onRenameChannel, 
 
 	useEffect(() => {
 		loadMembers()
+	}, [channel])
+
+	useEffect(() => {
 		setSelectedMember(null)
-	}, [channel.id, channel.type])
+	}, [channel.id])
 
 	useEffect(() => {
 		if (channel.type !== 'discussion' || channel.otherUserId === undefined)
