@@ -119,27 +119,29 @@ export async function deleteChannelController(request: FastifyRequest, reply: Fa
 
     const channel = await channelInfo(channelId)
 
-    if (channel?.type === 'discussion' || channel?.type === 'group') {
+    // discussion, group, and channel all support "leave without destroying it for
+    // everyone else" — only a channel with zero members left gets deleted entirely.
+    if (channel?.type === 'discussion' || channel?.type === 'group' || channel?.type === 'channel') {
       // leave it for this member only: the channel still exists for the other members
       await leaveChannel(channelId, request.user!.id)
       wsChannelDeletedTo(request.user!.id, channelId)
 
-       // if no one is left in the channel, delete it entirely
+      // if no one is left in the channel, delete it entirely
       const remaining = await countChannelMembers(channelId)
       if (remaining === 0) {
         await deleteChannel(channelId)
         wsChannelDeleted(channelId)
+      } else {
+        // notify remaining members so their member count updates live
+        const remainingMembers = await listChannelMembers(channelId)
+        const channelWithCount = { ...channel, memberCount: remainingMembers.length }
+        for (const { userId: memberId } of remainingMembers)
+          wsChannelUpdatedTo(memberId, channelWithCount)
       }
-      
+
     } else {
-      if (request.user!.role !== 'admin' && (await getMemberRole(channelId, request.user!.id) !== 'moderator')) {
-        await leaveChannel(channelId, request.user!.id)
-        wsChannelDeletedTo(request.user!.id, channelId)
-      }
-      else {
-        await deleteChannel(channelId)
-        wsChannelDeleted(channelId)
-      }
+      await deleteChannel(channelId)
+      wsChannelDeleted(channelId)
     }
 
     await reply.status(200).send()
@@ -233,6 +235,15 @@ export async function removeChannelMemberController(request: FastifyRequest, rep
     // Notify the target to be removed instantaneously
     wsChannelDeletedTo(targetUserId, channelId)
 
+    // Notify remaining members so their member count updates live
+    const channel = await channelInfo(channelId)
+    if (channel) {
+      const remainingMembers = await listChannelMembers(channelId)
+      const channelWithCount = { ...channel, memberCount: remainingMembers.length }
+      for (const { userId: memberId } of remainingMembers)
+        wsChannelUpdatedTo(memberId, channelWithCount)
+    }
+
     await reply.send({ message: 'Member removed' })
   } catch (err) {
     request.log.error(err)
@@ -250,11 +261,19 @@ export async function addChannelMembersController(request: FastifyRequest, reply
 
     await addChannelMembers(channelId, memberIds, 'member')
 
-    // notify all new members to show the conversation
     const channel = await channelInfo(channelId)
     if (channel) {
+      // notify all new members to show the conversation
       for (const memberId of memberIds)
         wsChannelCreatedTo(memberId, channel)
+
+      // notify existing members (excluding the ones just added) so their member count updates live
+      const allMembers = await listChannelMembers(channelId)
+      const channelWithCount = { ...channel, memberCount: allMembers.length }
+      for (const { userId: memberId } of allMembers) {
+        if (!memberIds.includes(memberId))
+          wsChannelUpdatedTo(memberId, channelWithCount)
+      }
     }
 
     await reply.status(201).send({ message: 'Members added' })
